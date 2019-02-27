@@ -68,12 +68,12 @@ class Setting(object):
         # Web
         Setting.PORT = setting["port"]
         # DB
-        Setting.DB_HOST = setting["database"]["host"]
-        Setting.DB_USER = setting["database"]["port"]
-        Setting.DB_USER = setting["database"]["user"]
-        Setting.DB_PASSWORD = setting["database"]["password"]
-        Setting.DB_CHARSET = setting["database"]["charset"]
-        Setting.DB_DATABASE_NAME = setting["database"]["database_name"]
+        Setting.DB_HOST = setting["database"]["host"].encode("utf-8")
+        Setting.DB_PORT = setting["database"]["port"]
+        Setting.DB_USER = setting["database"]["user"].encode("utf-8")
+        Setting.DB_PASSWORD = setting["database"]["password"].encode("utf-8")
+        Setting.DB_CHARSET = setting["database"]["charset"].encode("utf-8")
+        Setting.DB_DATABASE_NAME = setting["database"]["database_name"].encode("utf-8")
 
         return setting
 
