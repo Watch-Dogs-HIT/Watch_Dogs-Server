@@ -13,6 +13,7 @@ import datetime
 import logging
 import logging.config
 
+PROJECT_NAME = "Watch_Dogs-Server"
 LOGGER_CONF_NAME = "logger.conf"
 SETTING_JOSN_NAME = "setting.json"
 
@@ -30,12 +31,16 @@ class Setting(object):
         return cls._instance
 
     def __init__(self):
-        global LOGGER_CONF_NAME, SETTING_JOSN_NAME
+        global LOGGER_CONF_NAME, SETTING_JOSN_NAME, PROJECT_NAME
         self.log_init_done = False
         self.logger = None
+        # 路径检测
         now_path = os.path.abspath('.')
-        self.log_conf_path = os.path.join(now_path, LOGGER_CONF_NAME)
-        self.setting_json_path = os.path.join(now_path, SETTING_JOSN_NAME)
+        project_path = now_path[:now_path.rfind(PROJECT_NAME) + len(PROJECT_NAME)]
+        setting_path = os.path.join(project_path, "Setting")
+        # 配置文件读取
+        self.log_conf_path = os.path.join(setting_path, LOGGER_CONF_NAME)
+        self.setting_json_path = os.path.join(setting_path, SETTING_JOSN_NAME)
         if not os.path.exists(self.log_conf_path) or not os.path.exists(self.setting_json_path):
             print "配置文件读取异常 : 请检查", os.path.basename(sys.argv[0]).split(".")[
                 0], ".py路径下是否有", LOGGER_CONF_NAME, SETTING_JOSN_NAME
@@ -43,16 +48,33 @@ class Setting(object):
         self.log_init()
         self.static_value_refresh()
 
+    # Web
     PORT = 80
+    # DB
+    DB_HOST = ""
+    DB_USER = ""
+    DB_PORT = ""
+    DB_PASSWORD = ""
+    DB_CHARSET = ""
+    DB_DATABASE_NAME = ""
 
     # @staticmethod
     def static_value_refresh(self):
         """静态值初始化/刷新"""
-        jsonFile = file(self.setting_json_path)
-        setting = json.load(jsonFile)
-        jsonFile.close()
+        json_file = file(self.setting_json_path)
+        setting = json.load(json_file)
+        json_file.close()
         # 读取参数
+        # Web
         Setting.PORT = setting["port"]
+        # DB
+        Setting.DB_HOST = setting["database"]["host"]
+        Setting.DB_USER = setting["database"]["port"]
+        Setting.DB_USER = setting["database"]["user"]
+        Setting.DB_PASSWORD = setting["database"]["password"]
+        Setting.DB_CHARSET = setting["database"]["charset"]
+        Setting.DB_DATABASE_NAME = setting["database"]["database_name"]
+
         return setting
 
     def log_init(self):

@@ -2,5 +2,14 @@
   "comment": "Watch_Dogs-Server 配置文件",
   "author": "h-j-13",
   "last-update time": "2019-02-27",
-  "port": 8000
+  "port": 8000,
+  "database":
+  {
+    "host": "118.126.104.182",
+    "port": "3306",
+    "user": "root",
+    "password": "19950705",
+    "charset": "utf8mb4",
+    "database_name": "Watch_Dogs"
+  }
 }
