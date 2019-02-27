@@ -1,0 +1,18 @@
+# general .gitignore file
+# @h-j-13
+
+# Jetbrain & Visvual Code
+.vscode
+.idea
+
+# Python
+*.pyc
+*.pyo
+
+# VIM
+*.~
+*.swp
+*.swo
+
+# Log
+*.log
