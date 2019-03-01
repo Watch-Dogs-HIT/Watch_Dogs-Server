@@ -57,6 +57,8 @@ class Setting(object):
     DB_PASSWORD = ""
     DB_CHARSET = ""
     DB_DATABASE_NAME = ""
+    # encrypt
+    KEY = ""
 
     # @staticmethod
     def static_value_refresh(self):
@@ -74,7 +76,8 @@ class Setting(object):
         Setting.DB_PASSWORD = setting["database"]["password"].encode("utf-8")
         Setting.DB_CHARSET = setting["database"]["charset"].encode("utf-8")
         Setting.DB_DATABASE_NAME = setting["database"]["database_name"].encode("utf-8")
-
+        # encrypt
+        Setting.KEY = setting["key"].encode("utf-8")
         return setting
 
     def log_init(self):
