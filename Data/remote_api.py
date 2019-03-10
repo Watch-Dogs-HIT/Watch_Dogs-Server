@@ -110,6 +110,9 @@ class Watch_Dogs_Client(object):
         # 删除不必要的数据
         host_info_data.pop("nethogs env")
         host_info_data.pop("time")
+        # 添加连接数据
+        host_info_data["host"] = self.remote_host
+        host_info_data["port"] = self.remote_port
 
         return host_info_data
 
@@ -128,6 +131,9 @@ class Watch_Dogs_Client(object):
         except Exception as err:
             logger_client.error("collect system info error : " + str(err))
             return {"Error": "collect system info error : " + str(err)}
+        # 添加连接数据
+        host_record_data["host"] = self.remote_host
+
         return host_record_data
 
     def sys_info(self):
@@ -183,9 +189,10 @@ class Watch_Dogs_Client(object):
 
 
 if __name__ == '__main__':
+    from Database.SQL_generate import SQL
     c = Watch_Dogs_Client("118.126.104.182")
-    print c.host_info()
-    print c.host_record()
+    print SQL.update_host_info(c.host_info())
+    print SQL.insert_host_record(c.host_record())
     # print c.host_info(15637)
     # print c.process_info(15637)
     # # print type(c.get_api("/proc/watch/add/15637"))

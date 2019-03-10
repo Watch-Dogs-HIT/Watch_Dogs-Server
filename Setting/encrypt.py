@@ -54,3 +54,11 @@ class Prpcrypt(object):
         cryptor = AES.new(self.key, self.mode, self.key)
         plain_text = cryptor.decrypt(a2b_hex(text))
         return plain_text.rstrip('\0')
+
+
+if __name__ == '__main__':
+    # Demo
+    p = Prpcrypt()
+    e = p.encrypt("19950705")
+    print e
+    print p.decrypt(e)
