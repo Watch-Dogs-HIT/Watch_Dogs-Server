@@ -25,7 +25,6 @@ class Watch_Dogs_Client(object):
         self.remote_port = remote_port
         self.apt_root = "http://" + remote_host + ":" + str(remote_port) + "/"
         self.watched_process_set = set([])
-        # todo - 根据远程内容来调用,返回 ? client 同样?
 
     def __str__(self):
         return "Watch_Dogs-Client @ " + self.remote_host + ":" + str(self.remote_port)
@@ -35,16 +34,33 @@ class Watch_Dogs_Client(object):
         self.watched_process_set.add(int(pid))
         r = self.get_api("/proc/watch/add/{}".format(pid))
         if type(r) == dict:
-            logger_client.info("add not exist process" + str(pid))
+            logger_client.error("add not exist process" + str(pid))
             return r
         elif r is True:
             return True
 
     def is_process_watched(self, pid):
-        pass
+        if int(pid) in self.watched_process_set:
+            r = self.get_api("/proc/watch/is/{}".format(int(pid)))
+            if type(r) == dict:
+                logger_client.error("is_process_watched error" + str(pid) + " -> " + str(r))
+                return False
+            elif r is True:
+                return True
+        else:
+            return False
 
     def remove_watched_process(self, pid):
-        pass
+        if int(pid) in self.watched_process_set:
+            self.watched_process_set.remove(int(pid))
+            r = self.get_api("/proc/watch/remove/{}".format(int(pid)))
+            if type(r) == dict:
+                logger_client.error("remove_watched_process error" + str(pid) + " -> " + str(r))
+                return False
+            elif r is False:
+                return True
+        else:
+            return False
 
     def get_api(self, url_path, payload=None, timeout=2):
         """调用远程api"""
@@ -78,27 +94,41 @@ class Watch_Dogs_Client(object):
     # -----system-----
     def host_info(self):
         """远程主机信息"""
-        host = {}
+        host_info_data = {}
         # 收集主机数据
         try:
-            host.update(self.root())
-            host.update(self.sys_info())
-            host["CPU_info"] = self.sys_cpu_info()
-            host["mem_KB"] = self.sys_mem_size()
-            host.update(self.sys_net_ip())
-            host["disk_stat"] = self.sys_disk_stat()
-            host["default_net_device"] = self.sys_net_default_device()
+            host_info_data.update(self.root())
+            host_info_data.update(self.sys_info())
+            host_info_data["CPU_info"] = self.sys_cpu_info()
+            host_info_data["mem_KB"] = self.sys_mem_size()
+            host_info_data.update(self.sys_net_ip())
+            host_info_data["disk_stat"] = self.sys_disk_stat()
+            host_info_data["default_net_device"] = self.sys_net_default_device()
         except Exception as err:
             logger_client.error("collect system info error : " + str(err))
             return {"Error": "collect system info error : " + str(err)}
         # 删除不必要的数据
-        host.pop("nethogs env")
-        host.pop("time")
+        host_info_data.pop("nethogs env")
+        host_info_data.pop("time")
 
-        return host
+        return host_info_data
 
     def host_record(self):
         """远程主机情况记录"""
+        host_record_data = {}
+        # 收集主机记录
+        try:
+            host_record_data["CPU"] = self.sys_cpu_percent()
+            host_record_data["CPUs"] = self.sys_cpu_percents()
+            host_record_data["mem"] = self.sys_mem_percent()
+            host_record_data["read_MBs"], host_record_data["write_BMs"] = self.sys_io()
+            host_record_data["net_upload_kbps"], host_record_data["net_download_kbps"] = self.sys_net()
+            host_record_data.update(self.sys_loadavg())
+            host_record_data.update(self.sys_uptime())
+        except Exception as err:
+            logger_client.error("collect system info error : " + str(err))
+            return {"Error": "collect system info error : " + str(err)}
+        return host_record_data
 
     def sys_info(self):
         return self.get_api("/sys/info")
@@ -136,8 +166,11 @@ class Watch_Dogs_Client(object):
     def sys_net_ip(self):
         return self.get_api("/sys/net/ip")
 
-    def sys_net_percent(self):
-        return self.get_api("/sys/net/percent")
+    def sys_net(self):
+        return self.get_api("/sys/net")
+
+    def sys_io(self):
+        return self.get_api("/sys/io")
 
     def sys_disk_stat(self):
         return self.get_api("/sys/disk/stat")
@@ -151,7 +184,8 @@ class Watch_Dogs_Client(object):
 
 if __name__ == '__main__':
     c = Watch_Dogs_Client("118.126.104.182")
-    c.host_info()
+    print c.host_info()
+    print c.host_record()
     # print c.host_info(15637)
     # print c.process_info(15637)
     # # print type(c.get_api("/proc/watch/add/15637"))
