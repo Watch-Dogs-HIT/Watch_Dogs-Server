@@ -37,6 +37,7 @@ class Watch_Dogs_Client(object):
             logger_client.error("add not exist process" + str(pid))
             return r
         elif r is True:
+            self.process_record_cache(pid)  # 初始化一次进程数据
             return True
 
     def is_process_watched(self, pid):
@@ -87,9 +88,16 @@ class Watch_Dogs_Client(object):
         return self.get_api("/")
 
     # -----process-----
-    def process_info(self, pid):
+    def process_record_cache(self, pid):
         """进程数据"""
         return self.get_api("/proc/{}".format(str(pid)))
+
+    def process_info(self, pid):
+        """进程信息"""
+        process_info = self.get_api("/proc/{}/info".format(str(pid)))
+        process_info["host"] = self.remote_host
+
+        return process_info
 
     # -----system-----
     def host_info(self):
@@ -190,10 +198,10 @@ class Watch_Dogs_Client(object):
 
 if __name__ == '__main__':
     from Database.SQL_generate import SQL
+
     c = Watch_Dogs_Client("118.126.104.182")
-    print SQL.update_host_info(c.host_info())
-    print SQL.insert_host_record(c.host_record())
-    # print c.host_info(15637)
-    # print c.process_info(15637)
+    print SQL.insert_process_record_cache(1, c.process_record_cache(1276))
+
+    # print c.process_info(1276)
     # # print type(c.get_api("/proc/watch/add/15637"))
     # # 13859
