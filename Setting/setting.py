@@ -59,6 +59,12 @@ class Setting(object):
     DB_DATABASE_NAME = ""
     # encrypt
     KEY = ""
+    # client
+    CLIENT_DATA_FILE = ""
+    PROCESS_RECORD_CACHE_INTERVAL_MIN = -1
+    PROCESS_RECORD_INTERVAL_MIN = -1
+    HOST_INFO_INTERVAL_HOUR = -1
+    HOST_RECORD_INTERVAL_MIN = -1
 
     # @staticmethod
     def static_value_refresh(self):
@@ -78,6 +84,13 @@ class Setting(object):
         Setting.DB_DATABASE_NAME = setting["database"]["database_name"].encode("utf-8")
         # encrypt
         Setting.KEY = setting["key"].encode("utf-8")
+        # client
+        Setting.CLIENT_DATA_FILE = setting["client"]["client_data_file"].encode("utf-8")
+        Setting.PROCESS_RECORD_CACHE_INTERVAL_MIN = setting["client"]["process_record_cache_interval_min"]
+        Setting.PROCESS_RECORD_INTERVAL_MIN = setting["client"]["process_record_interval_min"]
+        Setting.HOST_INFO_INTERVAL_HOUR = setting["client"]["host_info_interval_hour"]
+        Setting.HOST_RECORD_INTERVAL_MIN = setting["client"]["host_record_interval_min"]
+
         return setting
 
     def log_init(self):

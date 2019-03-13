@@ -195,6 +195,9 @@ class Watch_Dogs_Client(object):
         payload = {"path": path, "n": n}
         return self.get_api("/log/head", payload=payload)
 
+    # -----manage-----
+    # todo 完成剩余的所有功能函数 2019.3.13
+
 
 if __name__ == '__main__':
     from Database.SQL_generate import SQL
