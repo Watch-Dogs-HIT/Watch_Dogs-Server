@@ -6,6 +6,9 @@ Watch_Dogs
 远程监控客户端管理
 """
 
+import time
+import schedule
+
 from Setting import setting
 
 from Database.SQL_generate import SQL
@@ -41,6 +44,9 @@ class ClientManager(object):
         # 建立远程监控客户端
         for host_id, host_ip in self.host_info_list:
             self.connect_remote_api(host_ip)
+        # 远程监控进程初始化
+        for process_id, process_host, process_pid, process_cmd in self.process_info_list:
+            self.add_watch_process(process_id, process_host, process_pid, process_cmd)
         # 与数据库建立连接
         self.db = DataBase()
         self.db.db_connect()
@@ -105,6 +111,10 @@ class ClientManager(object):
     def add_watch_process(self, process_id, process_host, process_pid, process_cmd):
         """添加监控进程数据"""
         self.process_info_list.append((process_id, process_host, process_pid, process_cmd))
+        wdc = self.client[process_host.split(":")[0]]
+        if wdc.watch_process(process_pid) is not True:
+            logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
+                                       str(process_host) + " watch process init failed")
 
     def add_watch_host(self, host_id, host_ip):
         """添加监控主机数据"""
@@ -136,25 +146,54 @@ class ClientManager(object):
                 self.db.execute(SQL.insert_host_record(hr))
         self.db.db_commit()
 
-    def cache_process_info(self):
+    def update_process_info(self):
+        """更新进程信息"""
         for process_id, process_host, process_pid, process_cmd in self.process_info_list:
             wdc = self.client[process_host.split(":")[0]]
-            pic = wdc.process_record_cache(process_pid)
-            if wdc.is_error_happen(pic):
-                logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
-                                           str(process_host) + " get process info fialed!")
-                logger_client_manage.error("Error details: " + str(pic))
+            pi = wdc.process_info(process_pid)
+            if wdc.is_error_happen(pi):
+                if pi["Error"].find("process no longer exists") != -1:  # 进程崩溃
+                    self.db.execute(SQL.update_process_info_allready_exit(process_id))
+                    logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
+                                               str(process_host) + " process exit!")
+                else:  # other error
+                    logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
+                                               str(process_host) + " get process info fialed!")
+                    logger_client_manage.error("Error details: " + str(pi))
                 # todo : 添加重新探测进程处理逻辑,利用re_detect_process()方法
             else:
                 logger_client_manage.info("insert " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
                                           str(process_host) + " process info")
+                self.db.execute(SQL.update_process_info(process_id, pi))
+        self.db.db_commit()
+
+    def cache_process_record(self):
+        """插入进程状态数据"""
+        for process_id, process_host, process_pid, process_cmd in self.process_info_list:
+            wdc = self.client[process_host.split(":")[0]]
+            pic = wdc.process_record_cache(process_pid)
+            if wdc.is_error_happen(pic):
+                if pic["Error"].find("process no longer exists"):  # 进程崩溃
+                    logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
+                                               str(process_host) + " process exit!")
+                else:  # other error
+                    logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
+                                               str(process_host) + " get process record fialed!")
+                    logger_client_manage.error("Error details: " + str(pic))
+                # todo : 添加重新探测进程处理逻辑,利用re_detect_process()方法
+
+            else:
+                logger_client_manage.info("insert " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
+                                          str(process_host) + " process record")
                 self.db.execute(SQL.insert_process_record_cache(process_id, pic))
-                # todo 2019.3.14 完成插入逻辑,检查是否对网络速度的获取存在问题?
-                print SQL.insert_process_record_cache(process_id, pic)
         self.db.db_commit()
 
     def insert_process_record(self):
-        pass
+        """整理缓存的进程状态数据"""
+        for process_id, _, _, _ in self.process_info_list:
+            self.db.execute(SQL.process_cache2process_record(process_id))
+            self.db.execute(SQL.delete_process_record_cache(process_id))
+        self.db.db_commit()
 
     def re_detect_process(self, prev_process_cmd):
         """重新探测进程"""
@@ -164,11 +203,20 @@ class ClientManager(object):
 
     def manage_main_thread(self):
         """远程客户端管理主进程"""
-        pass
+        logger_client_manage.info("主机状态数据收集进程启动...")
+        # host
+        schedule.every(Setting.HOST_INFO_INTERVAL_HOUR).hours.do(self.update_host_info)
+        schedule.every(Setting.HOST_RECORD_INTERVAL_MIN).minutes.do(self.insert_host_record)
+        # process
+        schedule.every(Setting.PROCESS_INFO_INTERVAL_MIN).minutes.do(self.update_process_info)
+        schedule.every(Setting.PROCESS_RECORD_CACHE_INTERVAL_MIN).minutes.do(self.cache_process_record)
+        schedule.every(Setting.PROCESS_RECORD_INTERVAL_MIN).minutes.do(self.insert_process_record)
 
-    # todo 完善错误逻辑
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
 
 
 if __name__ == '__main__':
     c = ClientManager()
-    c.cache_process_info()
+    c.manage_main_thread()

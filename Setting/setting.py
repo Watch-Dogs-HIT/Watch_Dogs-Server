@@ -61,6 +61,7 @@ class Setting(object):
     KEY = ""
     # client
     CLIENT_DATA_FILE = ""
+    PROCESS_INFO_INTERVAL_MIN = -1
     PROCESS_RECORD_CACHE_INTERVAL_MIN = -1
     PROCESS_RECORD_INTERVAL_MIN = -1
     HOST_INFO_INTERVAL_HOUR = -1
@@ -86,6 +87,7 @@ class Setting(object):
         Setting.KEY = setting["key"].encode("utf-8")
         # client
         Setting.CLIENT_DATA_FILE = setting["client"]["client_data_file"].encode("utf-8")
+        Setting.PROCESS_INFO_INTERVAL_MIN = setting["client"]["process_host_interval_min"]
         Setting.PROCESS_RECORD_CACHE_INTERVAL_MIN = setting["client"]["process_record_cache_interval_min"]
         Setting.PROCESS_RECORD_INTERVAL_MIN = setting["client"]["process_record_interval_min"]
         Setting.HOST_INFO_INTERVAL_HOUR = setting["client"]["host_info_interval_hour"]

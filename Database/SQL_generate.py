@@ -17,7 +17,7 @@ class SQL(object):
     @staticmethod
     def create_user(user, password_aes):
         """注册用户"""
-        return """INSERT INTO `Watch_Dogs`.`User`(`user`, `password`) VALUES ('{u}', '{p}') ;""".format(
+        return """INSERT INTO `Watch_Dogs`.`User`(`user`, `password`) VALUES ("{u}", "{p}") ;""".format(
             u=user, p=password_aes
         )
 
@@ -25,27 +25,24 @@ class SQL(object):
     def insert_host_info(host, user, password):
         """创建主机记录"""
         return ("""INSERT INTO `Watch_Dogs`.`Host_info`(`host`, `user`, `password`) VALUES """
-                """('{host}', '{user}', '{password}')""").format(
+                """("{host}", "{user}", "{password}")""").format(
             host=host, user=user, password=password
         )
 
     @staticmethod
     def update_host_info(host_info):
         """更新主机信息"""
-        # 去除单引号
-        for k in host_info.keys():
-            host_info[k] = str(host_info[k]).replace("'", "\\\'")
 
         return ("""UPDATE `Watch_Dogs`.`Host_info` SET """
                 """`port` = {p}, """
-                """`system` = '{s}', """
-                """`kernel` = '{k}', """
-                """`CPU_info` = '{C}', """
+                """`system` = "{s}", """
+                """`kernel` = "{k}", """
+                """`CPU_info` = "{C}", """
                 """`mem_M` = {m}, """
-                """`disk_stat` = '{ds}', """
-                """`default_net_device` = '{dnd}', """
-                """`intranet_ip` = '{i}', """
-                """`extranet_ip` = '{e}' WHERE `host` = '{h}';""").format(
+                """`disk_stat` = "{ds}", """
+                """`default_net_device` = "{dnd}", """
+                """`intranet_ip` = "{i}", """
+                """`extranet_ip` = "{e}" WHERE `host` = "{h}";""").format(
             p=host_info['port'], s=host_info['system'], k=host_info['kernel'], C=host_info['CPU_info'],
             m=host_info['mem_KB'], ds=host_info['disk_stat'], dnd=host_info['default_net_device'],
             i=host_info['intranet_ip'], e=host_info['extranet_ip'], h=host_info['host']
@@ -54,14 +51,11 @@ class SQL(object):
     @staticmethod
     def insert_host_record(host_record):
         """插入主机记录"""
-        # 去除单引号
-        for k in host_record.keys():
-            host_record[k] = str(host_record[k]).replace("'", "\\\'")
 
         return (
             """INSERT INTO `Watch_Dogs`.`Host_record`(`host`, `CPU`, `CPUs`, `mem`, `read_MBs`, """
             """`write_MBs`, `net_upload_kbps`, `net_download_kbps`, `lavg_1`, `lavg_5`, `lavg_15`, `nr`,`free_rate`, `uptime`) VALUES """
-            """('{h}','{C}', '{Cs}', '{m}', '{r}', '{w}', '{nu}', '{nd}', '{l1}', '{l5}', '{l15}', '{nr}','{f}', '{up}') ;""").format(
+            """("{h}","{C}", "{Cs}", "{m}", "{r}", "{w}", "{nu}", "{nd}", "{l1}", "{l5}", "{l15}", "{nr}","{f}", "{up}") ;""").format(
             h=host_record['host'], C=host_record['CPU'], Cs=host_record['CPUs'], m=host_record['mem'],
             r=host_record['read_MBs'], w=host_record['write_BMs'], nu=host_record['net_upload_kbps'],
             nd=host_record['net_download_kbps'],
@@ -74,7 +68,7 @@ class SQL(object):
         """新建进程信息"""
 
         return ("""INSERT INTO `Watch_Dogs`.`Process`(`host`, `pid`, `comm`, `cmdline`, `ppid`, `pgrp`, `state`,"""
-                """ `thread_num`) VALUES ('{h}', {pid}, '{c}', '{cm}', {pp}, {pg}, '{s}', {t});""").format(
+                """ `thread_num`) VALUES ("{h}", {pid}, "{c}", "{cm}", {pp}, {pg}, "{s}", {t});""").format(
             h=process_info['host'], pid=process_info['pid'], c=process_info['comm'], cm=process_info['cmdline'],
             pp=process_info['ppid'], pg=process_info['pgrp'], s=process_info['state'], t=process_info['thread num']
         )
@@ -84,13 +78,20 @@ class SQL(object):
         """更新进程信息"""
 
         return (
-            """UPDATE `Watch_Dogs`.`Process` SET `process_id` = {id}, `host` = '{h}', `pid` = {pid}, `comm` = '{c}',"""
-            """`cmdline` = '{cm}', `ppid` = {pp}, `pgrp` = {pg}, `state` =  '{s}', `thread_num` = {t} """
+            """UPDATE `Watch_Dogs`.`Process` SET `process_id` = {id}, `host` = "{h}", `pid` = {pid}, `comm` = "{c}","""
+            """`cmdline` = "{cm}", `ppid` = {pp}, `pgrp` = {pg}, `state` =  "{s}", `thread_num` = {t} """
             """WHERE `process_id` = {id} ;""").format(
             id=process_id, h=process_info['host'], pid=process_info['pid'], c=process_info['comm'],
             cm=process_info['cmdline'], pp=process_info['ppid'], pg=process_info['pgrp'], s=process_info['state'],
             t=process_info['thread num']
         )
+
+    @staticmethod
+    def update_process_info_allready_exit(process_id):
+        """更新进程信息"""
+
+        return ("""UPDATE `Watch_Dogs`.`Process` SET `state` =  "X" WHERE `process_id` = {id} ;""").format(
+            id=process_id)
 
     @staticmethod
     def insert_process_record_cache(process_id, process_record_cache):
@@ -101,7 +102,7 @@ class SQL(object):
                 """{id}, {c}, {m}, {r}, {w}, {u}, {d})""").format(
             id=process_id, c=process_record_cache['cpu'], m=process_record_cache['mem'],
             r=process_record_cache['io'][0], w=process_record_cache['io'][1],
-            u=process_record_cache['net'][0], d=process_record_cache['net'][1]
+            u=process_record_cache['net_recent'][0], d=process_record_cache['net_recent'][1]
         )
 
     @staticmethod
