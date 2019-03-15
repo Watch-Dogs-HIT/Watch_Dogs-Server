@@ -46,7 +46,7 @@ class ClientManager(object):
             self.connect_remote_api(host_ip)
         # 远程监控进程初始化
         for process_id, process_host, process_pid, process_cmd in self.process_info_list:
-            self.add_watch_process(process_id, process_host, process_pid, process_cmd)
+            self.ini_watched_process(process_id, process_host, process_pid, process_cmd)
         # 与数据库建立连接
         self.db = DataBase()
         self.db.db_connect()
@@ -108,13 +108,19 @@ class ClientManager(object):
         else:
             return self.client[host_ip.strip()]
 
+    def ini_watched_process(self, process_id, process_host, process_pid, process_cmd):
+        """初始化监控进程"""
+        wdc = self.client[process_host.split(":")[0]]
+        res = wdc.watch_process(process_pid)
+        if res is not True:
+            logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
+                                       str(process_host) + " watch process init failed")
+        else:
+            return True
+
     def add_watch_process(self, process_id, process_host, process_pid, process_cmd):
         """添加监控进程数据"""
         self.process_info_list.append((process_id, process_host, process_pid, process_cmd))
-        wdc = self.client[process_host.split(":")[0]]
-        if wdc.watch_process(process_pid) is not True:
-            logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
-                                       str(process_host) + " watch process init failed")
 
     def add_watch_host(self, host_id, host_ip):
         """添加监控主机数据"""
