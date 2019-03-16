@@ -106,6 +106,13 @@ class SQL(object):
         )
 
     @staticmethod
+    def select_last_process_cache_record_num(process_id, limit=3):
+        """查询最近的进程缓存数据条目"""
+        return """SELECT count(*) FROM `Process_record_cache` WHERE process_id = {i} ORDER BY record_time DESC LIMIT 3""".format(
+            i=process_id, l=limit
+        )
+
+    @staticmethod
     def process_cache2process_record(process_id, limit=3):
         """取得最近的n条数据进行合并存储"""
         return ("""INSERT INTO `Watch_Dogs`.`Process_record` (`process_id`,`cpu_max`,`cpu_avg`,`cpu_min`,`mem_max`,"""

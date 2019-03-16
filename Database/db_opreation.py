@@ -28,7 +28,6 @@ class DataBase:
         self.passwd = db_setting.DB_PASSWORD
         self.charset = db_setting.DB_CHARSET
         self.db_name = db_setting.DB_DATABASE_NAME
-        self.timezone = "+8:00"
         # 链接对象
         self.conn = None
         self.cursor = None
@@ -55,7 +54,8 @@ class DataBase:
                 charset=self.charset,
                 db=self.db_name,
                 use_unicode=False,
-                connect_timeout=2880000)
+                connect_timeout=2880000,
+                )
         except pymysql.Error, e:
             log_db.error('Connect Error:' + str(e))
         self.cursor = self.conn.cursor()
@@ -78,9 +78,9 @@ class DataBase:
         """提交事务"""
         try:
             self.conn.commit()
-            log_db.warning("MySQL Database(" + str(self.host) + ") Commit")
+            log_db.error("MySQL Database(" + str(self.host) + ") Commit")
         except pymysql.Error as e:
-            log_db.error("Commit Error:" + str(e))
+            log_db.info("Commit Error:" + str(e))
 
     def execute_sql_value(self, sql, value):
         """

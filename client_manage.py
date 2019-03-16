@@ -168,7 +168,7 @@ class ClientManager(object):
                     logger_client_manage.error("Error details: " + str(pi))
                 # todo : 添加重新探测进程处理逻辑,利用re_detect_process()方法
             else:
-                logger_client_manage.info("insert " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
+                logger_client_manage.info("update " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
                                           str(process_host) + " process info")
                 self.db.execute(SQL.update_process_info(process_id, pi))
         self.db.db_commit()
@@ -190,15 +190,23 @@ class ClientManager(object):
 
             else:
                 logger_client_manage.info("insert " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
-                                          str(process_host) + " process record")
+                                          str(process_host) + " process record cache")
                 self.db.execute(SQL.insert_process_record_cache(process_id, pic))
         self.db.db_commit()
 
     def insert_process_record(self):
         """整理缓存的进程状态数据"""
-        for process_id, _, _, _ in self.process_info_list:
-            self.db.execute(SQL.process_cache2process_record(process_id))
-            self.db.execute(SQL.delete_process_record_cache(process_id))
+        for process_id, process_host, process_pid, process_cmd in self.process_info_list:
+            cache_record_num = self.db.execute(SQL.select_last_process_cache_record_num(process_id))
+            if cache_record_num:
+                if cache_record_num[0][0] >= 3:
+                    self.db.execute(SQL.process_cache2process_record(process_id))
+                    self.db.execute(SQL.delete_process_record_cache(process_id))
+                    logger_client_manage.info("insert " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
+                                              str(process_host) + " process record")
+                else:  # 没有足够的数据进行整理合并
+                    logger_client_manage.info("not enough " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
+                                              str(process_host) + " process cache record, just hang-up")
         self.db.db_commit()
 
     def re_detect_process(self, prev_process_cmd):
@@ -206,6 +214,26 @@ class ClientManager(object):
         # ...
         process_pid, process_cmd = "", ""
         return process_pid, process_cmd
+
+    def clear_old_data(self, last_day=15):
+        """清理一段时间内的数据"""
+        # ...
+
+    def test_api(self):
+        """测试api"""
+        # 测试参数
+        print "HOST_INFO_INTERVAL_HOUR", Setting.HOST_INFO_INTERVAL_HOUR
+        print "HOST_RECORD_INTERVAL_MIN", Setting.HOST_RECORD_INTERVAL_MIN
+        print "PROCESS_INFO_INTERVAL_MIN", Setting.PROCESS_INFO_INTERVAL_MIN
+        print "PROCESS_RECORD_CACHE_INTERVAL_MIN", Setting.PROCESS_RECORD_CACHE_INTERVAL_MIN
+        print "PROCESS_RECORD_INTERVAL_MIN", Setting.PROCESS_RECORD_INTERVAL_MIN
+
+        # 测试功能
+        self.update_host_info()
+        self.insert_host_record()
+        self.update_process_info()
+        self.cache_process_record()
+        self.insert_process_record()
 
     def manage_main_thread(self):
         """远程客户端管理主进程"""
@@ -225,4 +253,4 @@ class ClientManager(object):
 
 if __name__ == '__main__':
     c = ClientManager()
-    c.manage_main_thread()
+    c.test_api()
