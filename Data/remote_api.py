@@ -63,7 +63,7 @@ class Watch_Dogs_Client(object):
         else:
             return False
 
-    def get_api(self, url_path, payload=None, timeout=2):
+    def get_api(self, url_path, payload=None, timeout=Setting.API_TIME_OUT):
         """调用远程api"""
         global logger_client
         request_addr = "http://" + self.remote_host + ":" + str(self.remote_port) + url_path
@@ -202,9 +202,6 @@ class Watch_Dogs_Client(object):
 if __name__ == '__main__':
     from Database.SQL_generate import SQL
 
-    c = Watch_Dogs_Client("118.126.104.182")
-    print SQL.insert_process_record_cache(1, c.process_record_cache(1276))
+    c = Watch_Dogs_Client("10.245.146.202")
+    print c.host_info()
 
-    # print c.process_info(1276)
-    # # print type(c.get_api("/proc/watch/add/15637"))
-    # # 13859

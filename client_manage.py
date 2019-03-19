@@ -59,6 +59,8 @@ class ClientManager(object):
 
     def read_data_file(self):
         """读取监控数据文件"""
+
+        # todo : 系统主要完成之后,修改为读写数据库
         with open(Setting.CLIENT_DATA_FILE, "r") as f:
             for line in f:
                 if not line.startswith("#"):
@@ -253,4 +255,4 @@ class ClientManager(object):
 
 if __name__ == '__main__':
     c = ClientManager()
-    c.test_api()
+    c.manage_main_thread()

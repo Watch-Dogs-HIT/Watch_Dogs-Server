@@ -43,8 +43,12 @@ class DataBase:
             log_db.error("DB Context Error:" + str(exc_val) + ":" + str(exc_tb))
         self.db_close()
 
-    def db_connect(self):
+    def db_connect(self, db_name=""):
         """连接数据库"""
+        if db_name:
+            db = db_name
+        else:
+            db = self.db_name
         try:
             self.conn = pymysql.Connection(
                 host=self.host,
@@ -52,10 +56,10 @@ class DataBase:
                 user=self.user,
                 passwd=self.passwd,
                 charset=self.charset,
-                db=self.db_name,
+                db=db,
                 use_unicode=False,
                 connect_timeout=2880000,
-                )
+            )
         except pymysql.Error, e:
             log_db.error('Connect Error:' + str(e))
         self.cursor = self.conn.cursor()
@@ -78,9 +82,9 @@ class DataBase:
         """提交事务"""
         try:
             self.conn.commit()
-            log_db.error("MySQL Database(" + str(self.host) + ") Commit")
+            log_db.info("MySQL Database(" + str(self.host) + ") Commit")
         except pymysql.Error as e:
-            log_db.info("Commit Error:" + str(e))
+            log_db.error("Commit Error:" + str(e))
 
     def execute_sql_value(self, sql, value):
         """
@@ -95,7 +99,7 @@ class DataBase:
                 self.db_close()
                 self.db_connect()
                 self.db_commit()
-                log_db.error("execute |sql(value) - time out,reconnect")
+                log_db.info("execute |sql(value) - time out,reconnect")
                 self.cursor.execute(sql, value)
             else:
                 log_db.error("execute |sql(value) - Error:" + str(e))
@@ -113,7 +117,7 @@ class DataBase:
                 self.db_close()
                 self.db_connect()
                 self.db_commit()
-                log_db.error("execute |sql(no result) - time out,reconnect")
+                log_db.info("execute |sql(no result) - time out,reconnect")
                 self.cursor.execute(sql)
             else:
                 log_db.error("execute |sql(no result) - Error:" + str(e))
