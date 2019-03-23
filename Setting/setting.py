@@ -66,6 +66,7 @@ class Setting(object):
     PROCESS_RECORD_INTERVAL_MIN = -1
     HOST_INFO_INTERVAL_HOUR = -1
     HOST_RECORD_INTERVAL_MIN = -1
+    OLD_DATE_CLEAR_INTERVAL_DAY = -1
     API_TIME_OUT = -1
 
     # @staticmethod
@@ -93,6 +94,7 @@ class Setting(object):
         Setting.PROCESS_RECORD_INTERVAL_MIN = setting["client"]["process_record_interval_min"]
         Setting.HOST_INFO_INTERVAL_HOUR = setting["client"]["host_info_interval_hour"]
         Setting.HOST_RECORD_INTERVAL_MIN = setting["client"]["host_record_interval_min"]
+        Setting.OLD_DATE_CLEAR_INTERVAL_DAY = setting["client"]["old_date_clear_interval_day"]
         Setting.API_TIME_OUT = setting["client"]["api_timeout"]
         return setting
 

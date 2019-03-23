@@ -79,7 +79,7 @@ class SQL(object):
 
         return (
             """UPDATE `Watch_Dogs`.`Process` SET `process_id` = {id}, `host` = "{h}", `pid` = {pid}, `comm` = "{c}","""
-            """`cmdline` = "{cm}", `ppid` = {pp}, `pgrp` = {pg}, `state` =  "{s}", `thread_num` = {t} """
+            """`cmdline` = "{cm}", `ppid` = {pp}, `pgrp` = {pg}, `state` =  "{s}", `thread_num` = {t}, `record_time` = now() """
             """WHERE `process_id` = {id} ;""").format(
             id=process_id, h=process_info['host'], pid=process_info['pid'], c=process_info['comm'],
             cm=process_info['cmdline'], pp=process_info['ppid'], pg=process_info['pgrp'], s=process_info['state'],
@@ -135,6 +135,30 @@ class SQL(object):
         return ("""DELETE FROM `Process_record_cache` WHERE `record_id` in (SELECT t.`record_id` FROM """
                 """( SELECT `record_id` FROM `Process_record_cache` WHERE process_id = {i} """
                 """ORDER BY record_time DESC LIMIT {l} ) AS t )""").format(i=process_id, l=limit)
+
+    @staticmethod
+    def delete_old_host_record(days=7):
+        """删除days天数之前的主机状态数据"""
+        return ("""DELETE FROM `Host_record` WHERE `record_id` in (SELECT t.record_id FROM("""
+                """SELECT `record_id` FROM `Host_record` WHERE DAY(now()) - DAY(`record_time`)  > {d}) AS t);""").format(
+            d=days
+        )
+
+    @staticmethod
+    def delete_old_process_record(days=7):
+        """删除days天数之前的进程状态数据"""
+        return ("""DELETE FROM `Process_record` WHERE `record_id` in (SELECT t.record_id FROM("""
+                """SELECT `record_id` FROM `Process_record` WHERE DAY(now()) - DAY(`record_time`)  > {d}) AS t);""").format(
+            d=days
+        )
+
+    @staticmethod
+    def delete_old_process_cache_record(days=7):
+        """删除days天数之前的进程状态缓存数据"""
+        return ("""DELETE FROM `Process_record_cache` WHERE `record_id` in (SELECT t.record_id FROM("""
+                """SELECT `record_id` FROM `Process_record_cache` WHERE DAY(now()) - DAY(`record_time`)  > {d}) AS t);""").format(
+            d=days
+        )
 
 
 if __name__ == '__main__':

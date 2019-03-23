@@ -217,9 +217,13 @@ class ClientManager(object):
         process_pid, process_cmd = "", ""
         return process_pid, process_cmd
 
-    def clear_old_data(self, last_day=15):
+    def clear_old_data(self, days=7):
         """清理一段时间内的数据"""
-        # ...
+        logger_client_manage.info("clear old data")
+        self.db.execute(SQL.delete_old_host_record(days))
+        self.db.execute(SQL.delete_old_process_record(days))
+        self.db.execute(SQL.delete_old_process_cache_record(days))
+        self.db.db_commit()
 
     def test_api(self):
         """测试api"""
@@ -229,13 +233,14 @@ class ClientManager(object):
         print "PROCESS_INFO_INTERVAL_MIN", Setting.PROCESS_INFO_INTERVAL_MIN
         print "PROCESS_RECORD_CACHE_INTERVAL_MIN", Setting.PROCESS_RECORD_CACHE_INTERVAL_MIN
         print "PROCESS_RECORD_INTERVAL_MIN", Setting.PROCESS_RECORD_INTERVAL_MIN
-
+        print "OLD_DATE_CLEAR_INTERVAL_DAY", Setting.OLD_DATE_CLEAR_INTERVAL_DAY
         # 测试功能
         self.update_host_info()
         self.insert_host_record()
         self.update_process_info()
         self.cache_process_record()
         self.insert_process_record()
+        self.clear_old_data()
 
     def manage_main_thread(self):
         """远程客户端管理主进程"""
@@ -247,7 +252,8 @@ class ClientManager(object):
         schedule.every(Setting.PROCESS_INFO_INTERVAL_MIN).minutes.do(self.update_process_info)
         schedule.every(Setting.PROCESS_RECORD_CACHE_INTERVAL_MIN).minutes.do(self.cache_process_record)
         schedule.every(Setting.PROCESS_RECORD_INTERVAL_MIN).minutes.do(self.insert_process_record)
-
+        # clear
+        schedule.every(Setting.OLD_DATE_CLEAR_INTERVAL_DAY).days.do(self.clear_old_data())
         while True:
             schedule.run_pending()
             time.sleep(1)
@@ -255,4 +261,4 @@ class ClientManager(object):
 
 if __name__ == '__main__':
     c = ClientManager()
-    c.manage_main_thread()
+    c.cache_process_record()
