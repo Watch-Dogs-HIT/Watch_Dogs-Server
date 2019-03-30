@@ -253,7 +253,7 @@ class ClientManager(object):
         schedule.every(Setting.PROCESS_RECORD_CACHE_INTERVAL_MIN).minutes.do(self.cache_process_record)
         schedule.every(Setting.PROCESS_RECORD_INTERVAL_MIN).minutes.do(self.insert_process_record)
         # clear
-        schedule.every(Setting.OLD_DATE_CLEAR_INTERVAL_DAY).days.do(self.clear_old_data())
+        schedule.every(Setting.OLD_DATE_CLEAR_INTERVAL_DAY).days.do(self.clear_old_data)
         while True:
             schedule.run_pending()
             time.sleep(1)
@@ -261,4 +261,4 @@ class ClientManager(object):
 
 if __name__ == '__main__':
     c = ClientManager()
-    c.cache_process_record()
+    c.manage_main_thread()

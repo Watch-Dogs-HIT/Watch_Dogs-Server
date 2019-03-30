@@ -116,8 +116,10 @@ class Watch_Dogs_Client(object):
             logger_client.error("collect system info error : " + str(err))
             return {"Error": "collect system info error : " + str(err)}
         # 删除不必要的数据
-        host_info_data.pop("nethogs env")
-        host_info_data.pop("time")
+        if "nethogs env" in host_info_data:
+            host_info_data.pop("nethogs env")
+        if "time" in host_info_data:
+            host_info_data.pop("time")
         # 添加连接数据
         host_info_data["host"] = self.remote_host
         host_info_data["port"] = self.remote_port
