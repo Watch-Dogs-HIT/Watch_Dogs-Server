@@ -14,12 +14,40 @@ class SQL(object):
         self.note = "just 4 Watch_Dogs-Server"
         self.date = "2019.3"
 
+    # User
     @staticmethod
     def create_user(user, password_aes):
         """注册用户"""
         return """INSERT INTO `Watch_Dogs`.`User`(`user`, `password`) VALUES ("{u}", "{p}") ;""".format(
             u=user, p=password_aes
         )
+
+    @staticmethod
+    def update_user_info(update_field, update_value, uid):
+        """更新用户信息"""
+        return """UPDATE `Watch_Dogs`.`User` SET `{f}` = '{v}' WHERE `user_id` = {uid}""".format(
+            f=update_field, v=update_value, uid=uid
+        )
+
+    @staticmethod
+    def update_user_status(new_status, uid):
+        """更新用户状态"""
+        return """UPDATE `Watch_Dogs`.`User` SET `status` = {ns} WHERE `user_id` = {uid}""".format(
+            ns=new_status, uid=uid
+        )
+
+    @staticmethod
+    def update_user_login_time(uid):
+        return """UPDATE `Watch_Dogs`.`User` SET `last_login_time` = now() WHERE `user_id` = %s""" % uid
+
+    @staticmethod
+    def check_login(user, password_aes):
+        """验证登陆"""
+        return """SELECT count(*) AS `can_login` FROM `Watch_Dogs`.`User` WHERE `user`='{u}' AND `password`='{p}' LIMIT 1""".format(
+            u=user, p=password_aes
+        )
+
+    # Client
 
     @staticmethod
     def insert_host_info(host, user, password):
@@ -166,3 +194,5 @@ if __name__ == '__main__':
     print SQL.process_cache2process_record(1)
     print SQL.create_user("root", "0f3fc66c6c138324be707d110a39704c")
     print SQL.create_user("houjie", "0f3fc66c6c138324be707d110a39704c")
+    print SQL.check_login("houjie", "0f3fc66c6c138324be707d110a39704c")
+    print SQL.update_user_login_time(1)
