@@ -66,6 +66,7 @@ class UserHandler(BaseHandler):
             json = self.get_json()
             if "user" in json and "password" in json:
                 res = yield self.data.create_user(**json)
+                self.log.info(json["user"] + " registered")
                 self.finish(res)
             else:
                 self.finish({"error": "no enough params"})
@@ -78,8 +79,9 @@ class UserHandler(BaseHandler):
         """更新用户信息"""
         try:
             json = self.get_json()
-            if "update_field" in json and "update_value" in json:
-                yield self.data.update_user_info(self.uid, json["update_field"], json["update_value"])
+            if "update_field" in json and "update_value" in json and "update_uid" in json:  #
+                yield self.data.update_user_info(json["update_uid"], json["update_field"], json["update_value"])
+                self.log.info("User uid(" + self.uid + ") update " + json["update_field"])
                 self.finish({"update": json["update_field"]})
             else:
                 self.finish({"error": "no enough params"})
