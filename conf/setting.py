@@ -37,7 +37,7 @@ class Setting(object):
         # 路径检测
         now_path = os.path.abspath('.')
         project_path = now_path[:now_path.rfind(PROJECT_NAME) + len(PROJECT_NAME)]
-        setting_path = os.path.join(project_path, "Setting")
+        setting_path = os.path.join(project_path, "conf")
         # 配置文件读取
         self.log_conf_path = os.path.join(setting_path, LOGGER_CONF_NAME)
         self.setting_json_path = os.path.join(setting_path, SETTING_JOSN_NAME)

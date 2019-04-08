@@ -3,3 +3,4 @@ tormysql
 schedule
 pymysql
 PyYAML
+pycrypto
