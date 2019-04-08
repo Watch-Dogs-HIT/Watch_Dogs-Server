@@ -66,7 +66,7 @@ class DataBase:
         self.SSCursor = self.conn.cursor(pymysql.cursors.SSCursor)
         if not self.cursor:
             raise (NameError, "Connect Failure")
-        log_db.info("MySQL model(" + str(self.host) + ") Connect Success")
+        log_db.info("MySQL(" + str(self.host) + ") Connect Success")
 
     def close(self):
         """关闭数据库"""
@@ -74,7 +74,7 @@ class DataBase:
             self.cursor.close()
             self.SSCursor.close()
             self.conn.close()
-            log_db.info("MySQL model(" + str(self.host) + ") Close")
+            log_db.info("MySQL(" + str(self.host) + ") Close")
         except pymysql.Error as e:
             log_db.error("Connect Error:" + str(e))
 
@@ -82,7 +82,7 @@ class DataBase:
         """提交事务"""
         try:
             self.conn.commit()
-            log_db.info("MySQL model(" + str(self.host) + ") Commit")
+            log_db.info("MySQL(" + str(self.host) + ") Commit")
         except pymysql.Error as e:
             log_db.error("Commit Error:" + str(e))
 

@@ -9,7 +9,7 @@ Watch_Dogs
 import tormysql
 from tornado import gen
 
-from Setting.setting import Setting
+from conf.setting import Setting
 
 db_setting = Setting()
 log_db = db_setting.logger

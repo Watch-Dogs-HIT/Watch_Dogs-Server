@@ -11,8 +11,8 @@ import schedule
 
 from conf import setting
 
-from model.SQL_generate import SQL
-from model.db_opreation import DataBase
+from models.SQL_generate import SQL
+from models.db_opreation import DataBase
 from Data.remote_api import Watch_Dogs_Client
 
 Setting = setting.Setting()
