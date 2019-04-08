@@ -3,17 +3,13 @@
 
 """
 Watch_Dogs
-view
+base handler
 """
 
 import json
-import datetime
-from collections import namedtuple
+from abc import ABCMeta
 
 import tornado.web
-from tornado import gen
-
-User = namedtuple("User", "uid username level")
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -31,51 +27,36 @@ class BaseHandler(tornado.web.RequestHandler):
     def get(self):
         pass
 
-    def options(self):
-        # no body
-        self.set_status(204)
-        self.finish()
-
     @property
     def db(self):
+        """异步数据库操作对象"""
         return self.application.db
 
     @property
-    def data(self):
-        return self.application.data
-
-    @property
     def log(self):
+        """日志对象"""
         return self.application.log
 
     @property
+    def data(self):
+        """业务逻辑,数据处理"""
+        return self.application.data
+
+    @property
     def setting(self):
+        """设置对象"""
         return self.application.setting
 
-    def get_current_user(self):
-        uid = self.get_secure_cookie('uid')
-        nickname = self.get_secure_cookie('nickname')
-        account = self.get_secure_cookie('account')
-        if uid and nickname and account:
-            return User(uid=uid, nickname=nickname, account=account)
-        else:
-            return None
+    @property
+    def uid(self):
+        return self.get_secure_cookie('uid')
 
-    def set_default_headers(self):
-        """设置响应的默认 HTTP HEADER, 非全局
-        """
-        headers = dict(
-            Server='MY_SERVER',
-            Date=datetime.datetime.now()
-        )
-        for k, v in headers.items():
-            self.set_header(k, v)
-        cookies = dict(
-            foo='foo_cookie',
-            bar='bar_cookie'
-        )
-        for k, v in cookies.items():
-            self.set_cookie(k, v, expires_days=7)
+    @property
+    def user_status(self):
+        return self.get_secure_cookie('account') if self.get_secure_cookie('account') else "-1"
+
+    def get_current_user(self):
+        return self.get_secure_cookie("user")
 
     def get_json(self):
         """解析json"""
@@ -88,4 +69,6 @@ class IndexHandler(BaseHandler):
     """/"""
 
     def get(self):
-        self.finish('hello world')
+        return self.render("index.html", date=self.setting.get_local_date(),
+                           author="h-j-13",
+                           repo_link="https://github.com/Watch-Dogs-HIT/Watch_Dogs-Server")
