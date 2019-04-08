@@ -202,7 +202,7 @@ class Watch_Dogs_Client(object):
 
 
 if __name__ == '__main__':
-    from Database.SQL_generate import SQL
+    from model.SQL_generate import SQL
 
     c = Watch_Dogs_Client("10.245.146.202")
     print c.host_info()
