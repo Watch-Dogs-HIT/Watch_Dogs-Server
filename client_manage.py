@@ -58,9 +58,6 @@ class ClientManager(object):
                 self.host_info_list.append(map(str, host_info))
             for process_info in db.execute(SQL.get_all_process()):
                 self.process_info_list.append(map(str, process_info))
-        print self.host_info_list
-        print self.process_info_list
-
 
     def update_remote_api_conf(self):
         """更新远程监控数据"""
@@ -240,6 +237,5 @@ class ClientManager(object):
 
 if __name__ == '__main__':
     c = ClientManager()
-    c.test_api()
-    # c = ClientManager()
-    # c.manage_main_thread()
+    # c.test_api()
+    c.manage_main_thread()
