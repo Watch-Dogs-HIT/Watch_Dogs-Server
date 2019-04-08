@@ -9,7 +9,7 @@ Watch_Dogs
 import time
 import schedule
 
-from Setting import setting
+from conf import setting
 
 from Database.SQL_generate import SQL
 from Database.db_opreation import DataBase
@@ -37,8 +37,11 @@ class ClientManager(object):
         self.process_info_list = []  # (process_id,process_host,process_pid,process_cmd)
         self.host_info_list = []  # (host_id,host_ip)
         self.client = {}
+        # db, monitor thread
+        self.db = DataBase()
+        self.monitor_thread = None
         # 读取数据结构
-        self.read_data_file()
+        self.read_remote_api_conf()
         logger_client_manage.info("ClientManager init OK, " + str(len(self.host_info_list)) + " host, " +
                                   str(len(self.process_info_list)) + " process")
         # 建立远程监控客户端
@@ -47,51 +50,23 @@ class ClientManager(object):
         # 远程监控进程初始化
         for process_id, process_host, process_pid, process_cmd in self.process_info_list:
             self.ini_watched_process(process_id, process_host, process_pid, process_cmd)
-        # 与数据库建立连接
-        self.db = DataBase()
-        self.db.db_connect()
 
-    def __del__(self):
-        """析构函数"""
-        self.save_data_file()
-        logger_client_manage.info("ClientManager del OK, " + str(len(self.host_info_list)) + " host, " +
-                                  str(len(self.process_info_list)) + " process")
+    def read_remote_api_conf(self):
+        """从数据库中读取远程监控数据"""
+        with DataBase() as db:
+            for host_info in db.execute(SQL.get_all_host()):
+                self.host_info_list.append(map(str, host_info))
+            for process_info in db.execute(SQL.get_all_process()):
+                self.process_info_list.append(map(str, process_info))
+        print self.host_info_list
+        print self.process_info_list
 
-    def read_data_file(self):
-        """读取监控数据文件"""
 
-        # todo : 系统主要完成之后,修改为读写数据库
-        with open(Setting.CLIENT_DATA_FILE, "r") as f:
-            for line in f:
-                if not line.startswith("#"):
-                    if line.startswith("host;"):
-                        self.host_info_list.append(line.strip().split(";")[1:])
-                    elif line.startswith("process;"):
-                        self.process_info_list.append(line.strip().split(";")[1:])
-
-    def update_data_file(self, data_str):
-        """更新监控数据文件"""
-        with open(Setting.CLIENT_DATA_FILE, "a+") as f:
-            f.write(data_str + "\n")
-
-    def save_data_file(self):
-        """保存当前的监控数据"""
-        title = [
-            "# ---------------------------------------",
-            "# Watch_Dogs-Server 系统监视参数",
-            "# host;主机id;主机ip",
-            "# process;监控进程id;监控进程pid;监控进程cmd",
-            "# ---------------------------------------"
-        ]
-        date = "# save date : " + Setting.get_local_time()
-        with open(Setting.CLIENT_DATA_FILE, "w") as f:
-            for line in title:
-                f.write(line + "\n")
-            f.write(date + "\n")
-            for process_data in self.process_info_list:
-                f.write("process;" + ";".join(process_data) + "\n")
-            for host_data in self.host_info_list:
-                f.write("host;" + ";".join(host_data) + "\n")
+    def update_remote_api_conf(self):
+        """更新远程监控数据"""
+        self.process_info_list = []
+        self.host_info_list = []
+        self.read_remote_api_conf()
 
     def connect_remote_api(self, host_ip, api_port=8000):
         """连接到远程api客户端"""
@@ -112,7 +87,7 @@ class ClientManager(object):
 
     def ini_watched_process(self, process_id, process_host, process_pid, process_cmd):
         """初始化监控进程"""
-        wdc = self.client[process_host.split(":")[0]]
+        wdc = self.client[process_host]
         res = wdc.watch_process(process_pid)
         if res is not True:
             logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
@@ -120,16 +95,9 @@ class ClientManager(object):
         else:
             return True
 
-    def add_watch_process(self, process_id, process_host, process_pid, process_cmd):
-        """添加监控进程数据"""
-        self.process_info_list.append((process_id, process_host, process_pid, process_cmd))
-
-    def add_watch_host(self, host_id, host_ip):
-        """添加监控主机数据"""
-        self.host_info_list.append((host_id, host_ip))
-
     def update_host_info(self):
         """更新主机信息"""
+        self.db.connect()
         for host_id, host_ip in self.host_info_list:
             wdc = self.client[host_ip]
             hi = wdc.host_info()
@@ -139,10 +107,12 @@ class ClientManager(object):
             else:
                 logger_client_manage.info("update " + str(host_ip) + " system info")
                 self.db.execute(SQL.update_host_info(hi))
-        self.db.db_commit()
+        self.db.commit()
+        self.db.close()
 
     def insert_host_record(self):
         """插入主机状态记录"""
+        self.db.connect()
         for host_id, host_ip in self.host_info_list:
             wdc = self.client[host_ip]
             hr = wdc.host_record()
@@ -152,18 +122,20 @@ class ClientManager(object):
             else:
                 logger_client_manage.info("insert " + str(host_ip) + " system record")
                 self.db.execute(SQL.insert_host_record(hr))
-        self.db.db_commit()
+        self.db.commit()
+        self.db.close()
 
     def update_process_info(self):
         """更新进程信息"""
+        self.db.connect()
         for process_id, process_host, process_pid, process_cmd in self.process_info_list:
-            wdc = self.client[process_host.split(":")[0]]
+            wdc = self.client[process_host]
             pi = wdc.process_info(process_pid)
             if wdc.is_error_happen(pi):
                 if pi["Error"].find("process no longer exists") != -1:  # 进程崩溃
                     self.db.execute(SQL.update_process_info_allready_exit(process_id))
                     logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
-                                               str(process_host) + " process exit!")
+                                               str(process_host) + "process not exit!")
                 else:  # other error
                     logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
                                                str(process_host) + " get process info fialed!")
@@ -173,17 +145,19 @@ class ClientManager(object):
                 logger_client_manage.info("update " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
                                           str(process_host) + " process info")
                 self.db.execute(SQL.update_process_info(process_id, pi))
-        self.db.db_commit()
+        self.db.commit()
+        self.db.close()
 
     def cache_process_record(self):
         """插入进程状态数据"""
+        self.db.connect()
         for process_id, process_host, process_pid, process_cmd in self.process_info_list:
-            wdc = self.client[process_host.split(":")[0]]
+            wdc = self.client[process_host]
             pic = wdc.process_record_cache(process_pid)
             if wdc.is_error_happen(pic):
                 if pic["Error"].find("process no longer exists"):  # 进程崩溃
                     logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
-                                               str(process_host) + " process exit!")
+                                               str(process_host) + " process not exit.")
                 else:  # other error
                     logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
                                                str(process_host) + " get process record fialed!")
@@ -194,10 +168,12 @@ class ClientManager(object):
                 logger_client_manage.info("insert " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
                                           str(process_host) + " process record cache")
                 self.db.execute(SQL.insert_process_record_cache(process_id, pic))
-        self.db.db_commit()
+        self.db.commit()
+        self.db.close()
 
     def insert_process_record(self):
         """整理缓存的进程状态数据"""
+        self.db.connect()
         for process_id, process_host, process_pid, process_cmd in self.process_info_list:
             cache_record_num = self.db.execute(SQL.select_last_process_cache_record_num(process_id))
             if cache_record_num:
@@ -209,7 +185,8 @@ class ClientManager(object):
                 else:  # 没有足够的数据进行整理合并
                     logger_client_manage.info("not enough " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
                                               str(process_host) + " process cache record, just hang-up")
-        self.db.db_commit()
+        self.db.commit()
+        self.db.close()
 
     def re_detect_process(self, prev_process_cmd):
         """重新探测进程"""
@@ -219,11 +196,13 @@ class ClientManager(object):
 
     def clear_old_data(self, days=7):
         """清理一段时间内的数据"""
+        self.db.connect()
         logger_client_manage.info("clear old data")
         self.db.execute(SQL.delete_old_host_record(days))
         self.db.execute(SQL.delete_old_process_record(days))
         self.db.execute(SQL.delete_old_process_cache_record(days))
-        self.db.db_commit()
+        self.db.commit()
+        self.db.close()
 
     def test_api(self):
         """测试api"""
@@ -261,4 +240,6 @@ class ClientManager(object):
 
 if __name__ == '__main__':
     c = ClientManager()
-    c.manage_main_thread()
+    c.test_api()
+    # c = ClientManager()
+    # c.manage_main_thread()
