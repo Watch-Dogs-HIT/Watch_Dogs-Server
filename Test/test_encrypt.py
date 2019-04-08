@@ -4,7 +4,7 @@
 import os
 import unittest
 
-from Setting.encrypt import Prpcrypt
+from conf.encrypt import Prpcrypt
 
 
 class TestPrpcrypt(unittest.TestCase):
