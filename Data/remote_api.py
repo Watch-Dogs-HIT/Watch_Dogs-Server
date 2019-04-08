@@ -10,7 +10,7 @@ import yaml
 import time
 import requests
 
-from Setting import setting
+from conf import setting
 
 Setting = setting.Setting()
 logger_client = Setting.logger

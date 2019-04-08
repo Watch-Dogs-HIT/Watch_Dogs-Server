@@ -13,6 +13,16 @@ class SQL(object):
     def __init__(self):
         self.note = "just 4 Watch_Dogs-Server"
         self.date = "2019.3"
+    # remote API
+    @staticmethod
+    def get_all_host():
+        """获取所有主机"""
+        return """SELECT `host_id`, `intranet_ip` FROM `Host_info`"""
+
+    @staticmethod
+    def get_all_process():
+        """获取所有进程"""
+        return """SELECT `process_id`, `host`, `pid`, `comm` FROM `Process`"""
 
     # User
     @staticmethod

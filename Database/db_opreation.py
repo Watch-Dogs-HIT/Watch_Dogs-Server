@@ -8,7 +8,7 @@ Watch_Dogs
 
 import pymysql
 from warnings import filterwarnings
-from Setting.setting import Setting
+from conf.setting import Setting
 
 db_setting = Setting()
 log_db = db_setting.logger
@@ -34,16 +34,16 @@ class DataBase:
         self.SSCursor = None
 
     def __enter__(self):
-        self.db_connect()
+        self.connect()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         # 异常的 type、value 和 traceback
         if exc_val:
             log_db.error("DB Context Error:" + str(exc_val) + ":" + str(exc_tb))
-        self.db_close()
+        self.close()
 
-    def db_connect(self, db_name=""):
+    def connect(self, db_name=""):
         """连接数据库"""
         if db_name:
             db = db_name
@@ -66,19 +66,19 @@ class DataBase:
         self.SSCursor = self.conn.cursor(pymysql.cursors.SSCursor)
         if not self.cursor:
             raise (NameError, "Connect Failure")
-        log_db.warning("MySQL Database(" + str(self.host) + ") Connect Success")
+        log_db.info("MySQL Database(" + str(self.host) + ") Connect Success")
 
-    def db_close(self):
+    def close(self):
         """关闭数据库"""
         try:
             self.cursor.close()
             self.SSCursor.close()
             self.conn.close()
-            log_db.warning("MySQL Database(" + str(self.host) + ") Close")
+            log_db.info("MySQL Database(" + str(self.host) + ") Close")
         except pymysql.Error as e:
             log_db.error("Connect Error:" + str(e))
 
-    def db_commit(self):
+    def commit(self):
         """提交事务"""
         try:
             self.conn.commit()
@@ -96,9 +96,9 @@ class DataBase:
             self.cursor.execute(sql, value)
         except pymysql.Error, e:
             if e.args[0] == 2013 or e.args[0] == 2006:  # 数据库连接出错，重连
-                self.db_close()
-                self.db_connect()
-                self.db_commit()
+                self.close()
+                self.connect()
+                self.commit()
                 log_db.info("execute |sql(value) - time out,reconnect")
                 self.cursor.execute(sql, value)
             else:
@@ -114,9 +114,9 @@ class DataBase:
             return self.cursor.execute(sql)
         except pymysql.Error, e:
             if e.args[0] == 2013 or e.args[0] == 2006:  # 数据库连接出错，重连
-                self.db_close()
-                self.db_connect()
-                self.db_commit()
+                self.close()
+                self.connect()
+                self.commit()
                 log_db.info("execute |sql(no result) - time out,reconnect")
                 self.cursor.execute(sql)
             else:
@@ -135,9 +135,9 @@ class DataBase:
             result = self.cursor.fetchall()
         except pymysql.Error, e:
             if e.args[0] == 2013 or e.args[0] == 2006:  # 数据库连接出错，重连
-                self.db_close()
-                self.db_connect()
-                self.db_commit()
+                self.close()
+                self.connect()
+                self.commit()
                 log_db.error("execute |sql - time out,reconnect")
                 log_db.error("execute |sql - Error 2006/2013 :" + str(e))
                 log_db.error("sql = " + str(sql))
@@ -186,9 +186,9 @@ class DataBase:
             affected_rows = self.cursor.rowcount
         except pymysql.Error, e:
             if e.args[0] == 2013 or e.args[0] == 2006:  # 数据库连接出错，重连
-                self.db_close()
-                self.db_connect()
-                self.db_commit()
+                self.close()
+                self.connect()
+                self.commit()
                 log_db.error("execute |sql - time out,reconnect")
                 log_db.error("execute |sql - Error 2006/2013 :" + str(e))
                 log_db.error("sql = " + str(sql))
