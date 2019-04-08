@@ -41,7 +41,7 @@ class WelcomeHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self):
         # 读取多个cookie,不同方式
-        self.render('index.html', user=self.current_user,
+        self.render('test.html', user=self.current_user,
                     id=self.uid,
                     test=self.get_secure_cookie("test"))
         # 尝试读取不存在的cookie;不存在返回none

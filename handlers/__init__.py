@@ -53,7 +53,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @property
     def user_status(self):
-        return self.get_secure_cookie('account') if self.get_secure_cookie('account') else "-1"
+        return self.get_secure_cookie('user_status') if self.get_secure_cookie('user_status') else "-1"
 
     def get_current_user(self):
         return self.get_secure_cookie("user")
@@ -69,6 +69,6 @@ class IndexHandler(BaseHandler):
     """/"""
 
     def get(self):
-        return self.render("index.html", date=self.setting.get_local_date(),
+        return self.render("test.html", date=self.setting.get_local_time(),
                            author="h-j-13",
                            repo_link="https://github.com/Watch-Dogs-HIT/Watch_Dogs-Server")
