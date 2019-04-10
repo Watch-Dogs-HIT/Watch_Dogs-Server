@@ -257,6 +257,19 @@ class SQL(object):
         """确认主机是否被监控"""
         return """SELECT count(*) AS `host_exist` FROM `Host_info` WHERE `host` = '{h}'""".format(h=host)
 
+    @staticmethod
+    def get_host_info(hid):
+        """获取主机信息"""
+        return """SELECT * FROM Host_info WHERE `host_id` = {h}""".format(h=hid)
+
+    @staticmethod
+    def get_host_records(hid, num):
+        """获取主机资源记录"""
+        return ("""SELECT * FROM Host_record WHERE `host` = (SELECT `host` FROM Host_info WHERE host_id = {h})"""
+                """ORDER BY `record_time` DESC LIMIT {n}""").format(
+            h=hid, n=num
+        )
+
     # Process
 
     @staticmethod
@@ -297,7 +310,12 @@ class SQL(object):
         )
 
     @staticmethod
-    def get_process_info(pid, num):
+    def get_process_info(pid):
+        """获取主机资源记录"""
+        return """SELECT * FROM `Process` WHERE process_id = {p}""".format(p=pid)
+
+    @staticmethod
+    def get_process_records(pid, num):
         """获取用户-进程关系id"""
         return """SELECT * FROM Process_record WHERE `process_id` = {p} ORDER BY `record_time` DESC LIMIT {n}""".format(
             p=pid, n=num

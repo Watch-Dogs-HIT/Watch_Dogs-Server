@@ -106,13 +106,39 @@ class Data(object):
         #     res.append(r)
         # raise gen.Return(res)
 
+    # Host
+
     @gen.coroutine
     def check_host_watched(self, host):
         """查询主机是否被检测"""
         res = yield self.db.query_one(SQL.check_host_watched(host))
         raise gen.Return(res["host_exist"])
 
+    @gen.coroutine
+    def get_host_record(self, hid, num):
+        """获取进程资源记录"""
+        records = yield self.db.query(SQL.get_host_records(hid, num))
+        host_info = yield self.db.query_one(SQL.get_host_info(hid))
+        # 修改datetime数据为str
+        for r in records:
+            r["record_time"] = r["record_time"].strftime('%Y-%m-%d %H:%M:%S')
+        if host_info:
+            host_info["update_time"] = host_info["update_time"].strftime('%Y-%m-%d %H:%M:%S')
+            host_info["disk_stat"] = eval(host_info["disk_stat"])
+            host_info["CPU_info"] = eval(host_info["CPU_info"])
+
+        res = {
+            "host_id": hid,
+            "host_info": host_info if host_info else {},
+            "except_record_num": num,
+            "return_record_num": len(records),
+            "records": records[1:],
+            "now_record": records[0] if records else {}
+        }
+        raise gen.Return(res)
+
     # Process
+
     @gen.coroutine
     def check_process_watched(self, host, pid):
         """查询进程是否被检测"""
@@ -141,15 +167,19 @@ class Data(object):
         raise gen.Return(res)
 
     @gen.coroutine
-    def get_process_info(self, pid, num):
-        """查询进程是否被检测"""
-        records = yield self.db.query(SQL.get_process_info(pid, num))
+    def get_process_record(self, pid, num):
+        """获取进程资源记录"""
+        records = yield self.db.query(SQL.get_process_records(pid, num))
+        process_info = yield self.db.query_one(SQL.get_process_info(pid))
         # 修改datetime数据为str
         for r in records:
             r["record_time"] = r["record_time"].strftime('%Y-%m-%d %H:%M:%S')
-        #
+        if process_info:
+            process_info["record_time"] = process_info["record_time"].strftime('%Y-%m-%d %H:%M:%S')
+
         res = {
             "process_id": pid,
+            "process_info": process_info if process_info else {},
             "except_record_num": num,
             "return_record_num": len(records),
             "records": records[1:],

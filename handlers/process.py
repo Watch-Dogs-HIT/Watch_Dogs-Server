@@ -51,7 +51,7 @@ class ProcessInfoHandler(BaseHandler):
     def get(self, process_id):
         """进程信息"""
         record_num = self.get_argument("num", default=30)
-        res = yield self.data.get_process_info(process_id, record_num)
+        res = yield self.data.get_process_record(process_id, record_num)
         self.finish(res)
 
     @gen.coroutine
