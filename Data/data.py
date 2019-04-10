@@ -139,3 +139,20 @@ class Data(object):
             "process_type": "/".join([json["comment"], json["type"]])
         }
         raise gen.Return(res)
+
+    @gen.coroutine
+    def get_process_info(self, pid, num):
+        """查询进程是否被检测"""
+        records = yield self.db.query(SQL.get_process_info(pid, num))
+        # 修改datetime数据为str
+        for r in records:
+            r["record_time"] = r["record_time"].strftime('%Y-%m-%d %H:%M:%S')
+        #
+        res = {
+            "process_id": pid,
+            "except_record_num": num,
+            "return_record_num": len(records),
+            "records": records[1:],
+            "now_record": records[0] if records else {}
+        }
+        raise gen.Return(res)

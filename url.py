@@ -22,5 +22,5 @@ HANDLERS = [
     (r'/index', IndexDataHandler),  # 首页资源
     (r'/host', TestHandler),
     (r'/process', ProcessHandler),  # 进程
-    (r'/process/info', ProcessInfoHandler)  # 进程信息
+    (r'/process/([0-9]+)', ProcessInfoHandler)  # 进程信息
 ]

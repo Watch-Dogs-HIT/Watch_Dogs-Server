@@ -296,6 +296,13 @@ class SQL(object):
             u=uid, p=pid, h=hid
         )
 
+    @staticmethod
+    def get_process_info(pid, num):
+        """获取用户-进程关系id"""
+        return """SELECT * FROM Process_record WHERE `process_id` = {p} ORDER BY `record_time` DESC LIMIT {n}""".format(
+            p=pid, n=num
+        )
+
 
 if __name__ == '__main__':
     # Demo

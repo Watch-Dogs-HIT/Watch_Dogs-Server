@@ -20,6 +20,7 @@ class ProcessHandler(BaseHandler):
         return self.render("process.html")
 
     @gen.coroutine
+    @tornado.web.authenticated
     def post(self, *args, **kwargs):
         """添加进程"""
         try:
@@ -43,5 +44,22 @@ class ProcessHandler(BaseHandler):
 
 
 class ProcessInfoHandler(BaseHandler):
-    """/process/info"""
-    pass
+    """/process/([0-9]+)"""
+
+    @gen.coroutine
+    @tornado.web.authenticated
+    def get(self, process_id):
+        """进程信息"""
+        record_num = self.get_argument("num", default=30)
+        res = yield self.data.get_process_info(process_id, record_num)
+        self.finish(res)
+
+    @gen.coroutine
+    @tornado.web.authenticated
+    def put(self, process_id):
+        """更新进程信息"""
+
+    @gen.coroutine
+    @tornado.web.authenticated
+    def delete(self, process_id):
+        """不再关注进程"""
