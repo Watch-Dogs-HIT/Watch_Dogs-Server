@@ -48,13 +48,6 @@ class SQL(object):
         )
 
     @staticmethod
-    def update_user_status(new_status, uid):
-        """更新用户状态"""
-        return """UPDATE `Watch_Dogs`.`User` SET `status` = {ns} WHERE `user_id` = {uid}""".format(
-            ns=new_status, uid=uid
-        )
-
-    @staticmethod
     def update_user_login_time(uid):
         return """UPDATE `Watch_Dogs`.`User` SET `last_login_time` = now() WHERE `user_id` = %s""" % uid
 
@@ -63,6 +56,29 @@ class SQL(object):
         """验证登陆"""
         return """SELECT `user_id`, `user`, `status` FROM `Watch_Dogs`.`User` WHERE `user`='{u}' AND `password`='{p}' LIMIT 1""".format(
             u=user, p=password_aes
+        )
+
+    # Admin
+    @staticmethod
+    def show_all_user():
+        """查看所有用户信息"""
+        return """SELECT `user_id`, `user`, `biref`, `password`, `status` FROM `User`"""
+
+    @staticmethod
+    def get_user_watch_host_num(uid):
+        """查看用户关注主机数量"""
+        return """SELECT count(*) AS `host_num` FROM `User_Host` WHERE user_id = {uid}""".format(uid=uid)
+
+    @staticmethod
+    def get_user_watch_process_num(uid):
+        """查看用户关注进程数量"""
+        return """SELECT count(*) AS `process_num` FROM `User_Process` WHERE user_id = {uid}""".format(uid=uid)
+
+    @staticmethod
+    def update_user_status(new_status, uid):
+        """更新用户状态"""
+        return """UPDATE `Watch_Dogs`.`User` SET `status` = {ns} WHERE `user_id` = {uid}""".format(
+            ns=new_status, uid=uid
         )
 
     # Client
@@ -76,10 +92,16 @@ class SQL(object):
         )
 
     @staticmethod
+    def update_host_info_error(host):
+        """更新主机信息(异常)"""
+        return ("""UPDATE `Watch_Dogs`.`Host_info` SET `status` = 0 WHERE `host` = "{h}" """).format(h=host)
+
+    @staticmethod
     def update_host_info(host_info):
         """更新主机信息"""
 
         return ("""UPDATE `Watch_Dogs`.`Host_info` SET """
+                """`status` = 1,"""
                 """`port` = {p}, """
                 """`system` = "{s}", """
                 """`kernel` = "{k}", """
@@ -133,8 +155,15 @@ class SQL(object):
         )
 
     @staticmethod
-    def update_process_info_allready_exit(process_id):
-        """更新进程信息"""
+    def update_process_info_error(process_id):
+        """更新进程信息(错误)"""
+
+        return ("""UPDATE `Watch_Dogs`.`Process` SET `state` =  "0" WHERE `process_id` = {id} ;""").format(
+            id=process_id)
+
+    @staticmethod
+    def update_process_info_not_exit(process_id):
+        """更新进程信息(不存在)"""
 
         return ("""UPDATE `Watch_Dogs`.`Process` SET `state` =  "X" WHERE `process_id` = {id} ;""").format(
             id=process_id)

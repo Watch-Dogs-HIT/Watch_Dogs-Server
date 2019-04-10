@@ -101,6 +101,7 @@ class ClientManager(object):
             if wdc.is_error_happen(hi):
                 logger_client_manage.error("Error : " + str(host_ip) + " WDC host info get error")
                 logger_client_manage.error("Error details: " + str(hi))
+                self.db.execute(SQL.update_host_info_error(host_ip))
             else:
                 logger_client_manage.info("update " + str(host_ip) + " system info")
                 self.db.execute(SQL.update_host_info(hi))
@@ -130,10 +131,11 @@ class ClientManager(object):
             pi = wdc.process_info(process_pid)
             if wdc.is_error_happen(pi):
                 if pi["Error"].find("process no longer exists") != -1:  # 进程崩溃
-                    self.db.execute(SQL.update_process_info_allready_exit(process_id))
+                    self.db.execute(SQL.update_process_info_not_exit(process_id))
                     logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
                                                str(process_host) + "process not exit!")
                 else:  # other error
+                    self.db.execute(SQL.update_process_info_error(process_id))
                     logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
                                                str(process_host) + " get process info fialed!")
                     logger_client_manage.error("Error details: " + str(pi))
