@@ -193,7 +193,7 @@ class ClientManager(object):
         process_pid, process_cmd = "", ""
         return process_pid, process_cmd
 
-    def clear_old_data(self, days=7):
+    def clear_old_data(self, days=Setting.SAVE_LAST_N_DAYS_DATA):
         """清理一段时间内的数据"""
         self.db.connect()
         logger_client_manage.info("clear old data")

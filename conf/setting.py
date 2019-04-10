@@ -68,6 +68,7 @@ class Setting(object):
     HOST_RECORD_INTERVAL_MIN = -1
     OLD_DATE_CLEAR_INTERVAL_DAY = -1
     API_TIME_OUT = -1
+    SAVE_LAST_N_DAYS_DATA = -1
 
     # @staticmethod
     def static_value_refresh(self):
@@ -96,6 +97,7 @@ class Setting(object):
         Setting.HOST_RECORD_INTERVAL_MIN = setting["client"]["host_record_interval_min"]
         Setting.OLD_DATE_CLEAR_INTERVAL_DAY = setting["client"]["old_date_clear_interval_day"]
         Setting.API_TIME_OUT = setting["client"]["api_timeout"]
+        Setting.SAVE_LAST_N_DAYS_DATA = setting["client"]["save_last_n_days_data"]
         return setting
 
     def log_init(self):
