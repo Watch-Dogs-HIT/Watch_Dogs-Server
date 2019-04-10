@@ -98,6 +98,7 @@ class AdminHandler(BaseHandler):
     """/user/admin"""
 
     @gen.coroutine
+    @tornado.web.authenticated
     def get(self, *args, **kwargs):
         """所有用户信息"""
         # uid, user, biref, password, status, host_num, process_num

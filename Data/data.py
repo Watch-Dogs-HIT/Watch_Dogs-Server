@@ -72,7 +72,7 @@ class Data(object):
         res = []
         user_infos = yield self.db.query(SQL.show_all_user())
         for user_info in user_infos:
-            r = [user_info["user_id"], user_info["user"], user_info["biref"], user_info["password"],
+            r = [user_info["user_id"], user_info["user"], user_info["brief"], user_info["password"],
                  USER_STATUS[str(user_info["status"])]]
             hn = yield self.db.query_one(SQL.get_user_watch_host_num(user_info["user_id"]))
             pn = yield self.db.query_one(SQL.get_user_watch_process_num(user_info["user_id"]))

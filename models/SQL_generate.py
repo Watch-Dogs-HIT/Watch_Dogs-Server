@@ -62,7 +62,7 @@ class SQL(object):
     @staticmethod
     def show_all_user():
         """查看所有用户信息"""
-        return """SELECT `user_id`, `user`, `biref`, `password`, `status` FROM `User`"""
+        return """SELECT `user_id`, `user`, `brief`, `password`, `status` FROM `User`"""
 
     @staticmethod
     def get_user_watch_host_num(uid):
