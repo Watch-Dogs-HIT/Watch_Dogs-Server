@@ -11,6 +11,21 @@ import json
 import tornado.web
 
 
+def byteify(input_unicode_dict, encoding='utf-8'):
+    """
+    将unicode字典转为str字典
+    reference : https://www.jianshu.com/p/90ecc5987a18
+    """
+    if isinstance(input_unicode_dict, dict):
+        return {byteify(key): byteify(value) for key, value in input_unicode_dict.iteritems()}
+    elif isinstance(input_unicode_dict, list):
+        return [byteify(element) for element in input_unicode_dict]
+    elif isinstance(input_unicode_dict, unicode):
+        return input_unicode_dict.encode(encoding)
+    else:
+        return input_unicode_dict
+
+
 class BaseHandler(tornado.web.RequestHandler):
     """"""
 
@@ -59,9 +74,9 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def get_json(self):
         """解析json"""
-        if "application/json" in self.request.headers["Content-Type"]:
-            return json.loads(self.request.body)
-        return {}
+        if "Content-Type" in self.request.headers and "application/json" in self.request.headers["Content-Type"]:
+            return byteify(json.loads(self.request.body))  # return str dict
+        return {"error": "no json found"}
 
 
 class TestHandler(BaseHandler):

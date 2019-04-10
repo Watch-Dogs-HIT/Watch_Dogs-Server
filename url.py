@@ -19,7 +19,8 @@ HANDLERS = [
     (r'/login', AuthenticationHandler),  # 登录,注销
     (r'/user', UserHandler),  # 注册,更新
     (r'/user/admin', AdminHandler),  # 管理
-    (r'/index', IndexHandler),  # 首页资源
+    (r'/index', IndexDataHandler),  # 首页资源
     (r'/host', TestHandler),
-    (r'/process', TestHandler),
+    (r'/process', ProcessHandler),  # 进程
+    (r'/process/info', ProcessInfoHandler)  # 进程信息
 ]

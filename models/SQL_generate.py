@@ -15,6 +15,7 @@ class SQL(object):
         self.date = "2019.3"
 
     # remote API
+
     @staticmethod
     def get_all_host():
         """获取所有主机"""
@@ -26,6 +27,7 @@ class SQL(object):
         return """SELECT `process_id`, `host`, `pid`, `comm` FROM `Process`"""
 
     # User
+
     @staticmethod
     def select_user_by_name(user):
         """按名称查询用户"""
@@ -59,6 +61,7 @@ class SQL(object):
         )
 
     # Admin
+
     @staticmethod
     def show_all_user():
         """查看所有用户信息"""
@@ -233,6 +236,64 @@ class SQL(object):
         return ("""DELETE FROM `Process_record_cache` WHERE `record_id` in (SELECT t.record_id FROM("""
                 """SELECT `record_id` FROM `Process_record_cache` WHERE DAY(now()) - DAY(`record_time`)  > {d}) AS t);""").format(
             d=days
+        )
+
+    # Index
+
+    @staticmethod
+    def get_user_watch_process(uid):
+        """查看用户关注进程信息"""
+        return ("""SELECT `process_id`, `state` FROM `Process` WHERE `process_id` IN """
+                """(SELECT `process_id` FROM `User_Process` WHERE user_id = {uid})""").format(uid=uid)
+
+    # Host
+    @staticmethod
+    def get_host_id(host):
+        """获取主机id"""
+        return """SELECT `host_id` FROM `Host_info` WHERE `host` = '{h}'""".format(h=host)
+
+    @staticmethod
+    def check_host_watched(host):
+        """确认主机是否被监控"""
+        return """SELECT count(*) AS `host_exist` FROM `Host_info` WHERE `host` = '{h}'""".format(h=host)
+
+    # Process
+
+    @staticmethod
+    def check_process_watched(host, pid):
+        """确认进程是否被监控"""
+        return """SELECT count(*) AS `process_exist` FROM Process WHERE `host` = '{h}' AND `pid` = {p}""".format(
+            h=host, p=pid)
+
+    @staticmethod
+    def get_process_id(host, pid):
+        """获取进程id"""
+        return """SELECT `process_id` FROM Process WHERE `host` = '{h}' AND `pid` = {p}""".format(
+            h=host, p=pid)
+
+    @staticmethod
+    def add_watch_process(host, pid):
+        """添加进程"""
+        return """INSERT INTO `Watch_Dogs`.`Process`(`host`, `pid`) VALUES ('{h}', {p})""".format(
+            h=host, p=pid
+        )
+
+    @staticmethod
+    def get_insert_id_in_process():
+        """获取最新插入数据的自增id"""
+        return """INSERT INTO `Watch_Dogs`.`Process`(`host`, `pid`) VALUES ('1', 2)"""
+
+    @staticmethod
+    def add_user_process_relation(uid, hid, pid, com, c_type):
+        """添加用户进程关系"""
+        return ("""INSERT INTO `Watch_Dogs`.`User_Process`(`user_id`, `host_id`, `process_id`, `comment`, `type`) """
+                """VALUES ({u}, {h}, {p}, '{c}', '{t}')""").format(u=uid, h=hid, p=pid, c=com, t=c_type)
+
+    @staticmethod
+    def get_user_process_relation_id(uid, hid, pid):
+        """获取用户-进程关系id"""
+        return """SELECT `relation_id` FROM User_Process WHERE `user_id` = {u} AND `host_id` = {h} AND `process_id` = {p}""".format(
+            u=uid, p=pid, h=hid
         )
 
 
