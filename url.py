@@ -8,12 +8,18 @@ Watch_Dogs
 
 from handlers import *
 from handlers.user import *
+from handlers.index import *
+from handlers.host_info import *
+from handlers.process_info import *
 
+# 路由配置
 HANDLERS = [
-    (r'/', IndexHandler),
+    (r'/v', TestHandler),  # version
+    (r'/', IndexHandler),  # 首页
     (r'/login', AuthenticationHandler),  # 登录,注销
     (r'/user', UserHandler),  # 注册,更新
-    (r'/index', IndexHandler),
-    (r'/host', IndexHandler),
-    (r'/process', IndexHandler),
+    (r'/user/admin', AdminHandler),  # 管理
+    (r'/index', IndexHandler),  # 首页资源
+    (r'/host', TestHandler),
+    (r'/process', TestHandler),
 ]

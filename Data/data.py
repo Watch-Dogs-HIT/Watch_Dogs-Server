@@ -15,6 +15,13 @@ from models.SQL_generate import SQL
 Setting = setting.Setting()
 logger_data = Setting.logger
 
+USER_STATUS = {  # 用户表status字段释义
+    "-1": "游客",
+    "0": "被锁定",
+    "1": "普通用户",
+    "10": "管理员"
+}
+
 
 class Data(object):
     """业务逻辑处理"""
@@ -54,5 +61,21 @@ class Data(object):
     @gen.coroutine
     def update_user_info(self, uid, update_field, update_value):
         """更新用户信息"""
-        yield self.db.execute(SQL.update_user_info(uid, update_field, update_value))
+        if update_field == "password":
+            yield self.db.execute(SQL.update_user_info(uid, update_field, self.prpcrypt.encrypt(update_value)))
+        else:
+            yield self.db.execute(SQL.update_user_info(uid, update_field, update_value))
 
+    @gen.coroutine
+    def admin_user_info(self):
+        """更新用户信息"""
+        res = []
+        user_infos = yield self.db.query(SQL.show_all_user())
+        for user_info in user_infos:
+            r = [user_info["user_id"], user_info["user"], user_info["biref"], user_info["password"],
+                 USER_STATUS[str(user_info["status"])]]
+            hn = yield self.db.query_one(SQL.get_user_watch_host_num(user_info["user_id"]))
+            pn = yield self.db.query_one(SQL.get_user_watch_process_num(user_info["user_id"]))
+            r.extend([hn["host_num"], pn["process_num"]])
+            res.append(r)
+        raise gen.Return(res)

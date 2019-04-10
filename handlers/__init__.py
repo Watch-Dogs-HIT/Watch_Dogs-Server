@@ -7,7 +7,6 @@ base handler
 """
 
 import json
-from abc import ABCMeta
 
 import tornado.web
 
@@ -65,7 +64,7 @@ class BaseHandler(tornado.web.RequestHandler):
         return {}
 
 
-class IndexHandler(BaseHandler):
+class TestHandler(BaseHandler):
     """/"""
 
     def get(self):
