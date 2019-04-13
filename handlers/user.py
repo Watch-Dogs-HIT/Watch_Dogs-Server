@@ -31,6 +31,7 @@ class AuthenticationHandler(BaseHandler):
         """登录"""
         try:
             json = self.get_json()
+            next_url = self.get_argument("next", default="/")
             yield self.data.check_login(**json)
             uid, user, user_status = yield self.data.check_login(**json)
             if user_status == USER_STATUS["locked"]:
@@ -39,7 +40,7 @@ class AuthenticationHandler(BaseHandler):
                 self.set_secure_cookie('uid', uid)
                 self.set_secure_cookie('user', user)
                 self.set_secure_cookie('user_status', user_status)
-                self.finish({"login": True})
+                self.finish({"login": True, "next_url": next_url})
             else:
                 self.finish({"login": False})
         except Exception as err:
