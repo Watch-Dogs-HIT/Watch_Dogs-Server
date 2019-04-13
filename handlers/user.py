@@ -35,16 +35,16 @@ class AuthenticationHandler(BaseHandler):
             yield self.data.check_login(**json)
             uid, user, user_status = yield self.data.check_login(**json)
             if user_status == USER_STATUS["locked"]:
-                self.finish({"login": "locked"})
+                self.finish({"login": False, "msg": "用户被锁定,请联系管理员"})
             elif uid:
                 self.set_secure_cookie('uid', uid)
                 self.set_secure_cookie('user', user)
                 self.set_secure_cookie('user_status', user_status)
                 self.finish({"login": True, "next_url": next_url})
             else:
-                self.finish({"login": False})
+                self.finish({"login": False, "msg": "用户名/密码错误"})
         except Exception as err:
-            self.finish({"error": str(err)})
+            self.finish({"login": False, "msg": "登陆异常", "error": str(err)})
 
     @tornado.web.authenticated
     def delete(self, *args, **kwargs):

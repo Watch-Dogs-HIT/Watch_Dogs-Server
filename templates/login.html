@@ -10,7 +10,7 @@
     <link href="../static/css/material-design-iconic-font/css/material-design-iconic-font.min.css" rel="stylesheet"
           type="text/css">
     <!-- CSS -->
-    <link href="../static/css/app.min.1.css" rel="stylesheet" type="text/css">
+    <link href="../static/css/login.css" rel="stylesheet" type="text/css">
 </head>
 
 <body class="login-content" data-ng-controller="loginCtrl as lctrl">
@@ -68,7 +68,7 @@
 				<i class="zmdi zmdi-account"></i>
 			</span>
         <div class="fg-line">
-            <input type="text" class="form-control" placeholder="Username" regex="^\w{3,16}$"/>
+            <input type="text" id="register_user" class="form-control" placeholder="Username" regex="^\w{3,16}$"/>
         </div>
     </div>
 
@@ -77,13 +77,15 @@
 				<i class="zmdi zmdi-male"></i>
 			</span>
         <div class="fg-line">
-            <input type="password" class="form-control" placeholder="Password" regex="^\w+"/>
+            <input type="password" id="register_password" class="form-control" placeholder="Password" regex="^\w+"/>
         </div>
     </div>
 
     <div class="clearfix"></div>
 
-    <a href="" class="btn btn-login btn-danger btn-float" id="reg_btn"><i class="zmdi zmdi-arrow-forward"></i></a>
+    <a href="" class="btn btn-login btn-danger btn-float" id="register_btn" onclick="register();">
+        <i class="zmdi zmdi-arrow-forward"></i>
+    </a>
 
     <ul class="login-navigation">
         <li data-block="#l-login" class="bgm-green" data-ng-click="lctrl.register = 0; lctrl.login = 1">Login</li>
@@ -97,36 +99,59 @@
 <!--JQuery-->
 <script src="../static/js/jquery-3.4.0.js"></script>
 <script>
+    // 登录
     $("#login_btn").click(function () {
         $.ajax({
             type: 'post',
-            async: true, //异步请求（同步请求将会锁住浏览器，用户其他操作必须等待请求完成才可以执行）
+            async: true,
             url: "/login" + window.location.search,
             data: JSON.stringify({
                 user: $("#user").val(),
                 password: $("#password").val()
             }),
-            contentType: "application/json; charset=utf-8", // 发送数据格式
-            dataType: "json", //返回数据形式为json
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
             success: function (res) {
-                if (res["login"]) {
-                    $(window).attr('location',res["next_url"]);
-                } else {
-                    console.log(res);
+                if (res["login"]) { // 登录并跳转
+                    $(window).attr('location', res["next_url"]);
+                } else { // 显示错误
+                    alert(res["msg"]);
                 }
             },
             error: function (msg) {
-                alert("test!" + msg);
-                // myChart1.hideLoading();
+                alert("请求超时,请检查后台服务器状态" + msg);
             }
         });
-
-
     });
+
+    // 注册
+    // todo : 改成上面的方法无法响应?
+    function register() {
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: "/user",
+            data: JSON.stringify({
+                user: $("#register_user").val(),
+                password: $("#register_password").val()
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                if (res["register"]) {
+                     alert("注册成功, 请切换至登录页面登陆");
+                } else {
+                     alert(res["msg"]);
+                }
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态" + msg);
+            }
+        });
+    }
 
 
 </script>
-
 
 </body>
 

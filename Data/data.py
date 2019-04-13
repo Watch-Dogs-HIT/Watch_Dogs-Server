@@ -58,7 +58,7 @@ class Data(object):
             yield self.db.execute(SQL.create_user(json["user"], self.prpcrypt.encrypt(json["password"])))
             raise gen.Return({"register": True})
         else:  # 已有同名用户
-            raise gen.Return({"register": False, "reason": "user name already exist"})
+            raise gen.Return({"register": False, "msg": "已经存在的用户名"})
 
     @gen.coroutine
     def update_user_info(self, uid, update_field, update_value):
