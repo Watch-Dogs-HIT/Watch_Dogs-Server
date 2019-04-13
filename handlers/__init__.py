@@ -63,14 +63,14 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @property
     def uid(self):
-        return self.get_secure_cookie('uid')
+        return self.get_cookie('uid')
 
     @property
     def user_status(self):
-        return self.get_secure_cookie('user_status') if self.get_secure_cookie('user_status') else "-1"
+        return self.get_cookie('user_status') if self.get_cookie('user_status') else "-1"
 
     def get_current_user(self):
-        return self.get_secure_cookie("user")
+        return self.get_cookie("user")
 
     def get_json(self):
         """解析json"""

@@ -32,7 +32,7 @@ def createApp():
     SETTINGS = {
         "static_path": os.path.join(os.path.dirname(__file__), "static"),
         "template_path": os.path.join(os.path.dirname(__file__), "templates"),
-        "cookie_secret": "Watch_Dogs",
+        # "cookie_secret": "Watch_Dogs",
         "login_url": "/login",
         "debug": True,  # debug mode
     }

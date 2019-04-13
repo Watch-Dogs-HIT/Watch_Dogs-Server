@@ -20,7 +20,7 @@
                     $('div.sidebar-collapse').removeClass('collapse')
                 }
             });
-
+            let Morris = window.Morris = {};
             /* MORRIS BAR CHART
 			-----------------------------------------*/
             Morris.Bar({
