@@ -18,7 +18,8 @@ class IndexHandler(BaseHandler):
     @gen.coroutine
     @tornado.web.authenticated
     def get(self, *args, **kwargs):
-        return self.render("index.html")
+        yield self.update_cookie()
+        raise gen.Return(self.render("index.html"))
 
 
 class IndexDataHandler(BaseHandler):

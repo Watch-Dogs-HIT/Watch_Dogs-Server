@@ -27,6 +27,12 @@ class SQL(object):
         return """SELECT `process_id`, `host`, `pid`, `comm` FROM `Process`"""
 
     # User
+    @staticmethod
+    def select_status_by_uid(uid):
+        """按uid查询用户权限"""
+        return """SELECT `status` FROM `Watch_Dogs`.`User` WHERE `user_id` = '{i}';""".format(
+            i=uid
+        )
 
     @staticmethod
     def select_user_by_name(user):

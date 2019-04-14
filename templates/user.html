@@ -111,7 +111,11 @@
                                             <button class="btn btn-default"
                                                     id="user_info_update_submit">更新信息
                                             </button>
+                                            <p style="font-size:16px;color:green;display:none" id="user_update_msg">
+                                                TEST : msg
+                                            </p>
                                         </div>
+
                                     </form>
                                 </div>
                             </div>
@@ -132,42 +136,17 @@
                                     <thead>
                                     <tr>
                                         <th>uid</th>
-                                        <th>用户名</th>
+                                        <th>用户/账号</th>
                                         <th>简介</th>
-                                        <th>状态</th>
-                                        <th>密码</th>
-                                        <th>更新</th>
-                                        <th>锁定用户</th>
+                                        <th>身份</th>
+                                        <th>登录密码</th>
+                                        <th>主机数</th>
+                                        <th>进程数</th>
+                                        <th>权限</th>
+                                        <th>锁定</th>
                                     </tr>
                                     </thead>
-                                    <tbody>
-                                    <tr class="success">
-                                        <td>1</td>
-                                        <td>houjie</td>
-                                        <td>侯捷</td>
-                                        <td>管理员</td>
-                                        <td>19950705</td>
-                                        <td><a href="#" class="btn btn-info btn-sm">更新用户信息</a></td>
-                                        <td><a href="#" class="btn btn-danger btn-sm">锁定该用户</a></td>
-                                    </tr>
-                                    <tr class="info">
-                                        <td>2</td>
-                                        <td>houjie</td>
-                                        <td>侯捷</td>
-                                        <td>管理员</td>
-                                        <td>19950705</td>
-                                        <td><a href="#" class="btn btn-info btn-sm">更新用户信息</a></td>
-                                        <td><a href="#" class="btn btn-danger btn-sm">锁定该用户</a></td>
-                                    </tr>
-                                    <tr class="warning">
-                                        <td>3</td>
-                                        <td>houjie3</td>
-                                        <td>侯捷</td>
-                                        <td>锁定</td>
-                                        <td>19950705</td>
-                                        <td><a href="#" class="btn btn-info btn-sm">更新用户信息</a></td>
-                                        <td><a href="#" class="btn btn-danger btn-sm">解锁该用户</a></td>
-                                    </tr>
+                                    <tbody id="admin_table">
                                     </tbody>
                                 </table>
                             </div>
@@ -178,10 +157,10 @@
                 <!-- /.col-lg-8 -->
             </div>
             <footer>
-                <p>Copyright &copy; 2019.Company name All rights &nbsp;&nbsp;<a href="https://github.com/h-j-13"
-                                                                                target="_blank" title="侯捷">h-j-13</a>
+                <p>&copy; 2019 <a href="https://github.com/h-j-13" target="_blank" title="侯捷">h-j-13</a>
                 </p>
             </footer>
+            <!--sign-->
         </div>
         <!-- /. PAGE INNER  -->
     </div>
@@ -210,9 +189,54 @@
         $("#user_manage").hide();
         $("#user_name").text($.cookie("user"));
         let user_status = $.cookie("user_status");
-        if (user_status == "10"){
+        if (user_status == "10") {
             $("#user_manage").show();
-            // todo : ajax获取页面元素
+            $.ajax({
+                type: 'get',
+                async: true,
+                url: "/user/admin",
+                data: "",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    for (let user_info of res["res"]) {
+                        let user_info_tr = $("<tr></tr>");
+                        // 设置行样式
+                        if (user_info[4] === "管理员")
+                            user_info_tr.addClass("info");
+                        else if (user_info[4] === "普通用户")
+                            user_info_tr.addClass("success");
+                        else
+                            user_info_tr.addClass("warning");
+                        let lock_btn = "";
+                        if (user_info[4] === "被锁定")
+                            lock_btn = "<td><a href=\"#\" class=\"btn btn-danger btn-sm\" onclick=\"lock_user(this)\">解锁</a></td>";
+                        else
+                            lock_btn = "<td><a href=\"#\" class=\"btn btn-danger btn-sm\" onclick=\"lock_user(this)\">锁定</a></td>";
+                        let update_status = "";
+                        if (user_info[4] === "管理员")
+                            update_status = "<td><a href=\"#\" class=\"btn btn-info btn-sm\" onclick=\"update_user_status(this)\">降为普通</a></td>";
+                        else
+                            update_status = "<td><a href=\"#\" class=\"btn btn-info btn-sm\" onclick=\"update_user_status(this)\">升为管理</a></td>";
+                        // 添加元素
+                        user_info_tr.append(
+                            "<td name='uid'>" + user_info[0] + "</td>",
+                            "<td>" + user_info[1] + "</td>",
+                            "<td>" + user_info[2] + "</td>",
+                            "<td name='user_status'>" + user_info[4] + "</td>",
+                            "<td>" + user_info[3] + "</td>",
+                            "<td>" + user_info[5] + "</td>",
+                            "<td>" + user_info[6] + "</td>",
+                            update_status,
+                            lock_btn
+                        );
+                        $("#admin_table").append(user_info_tr);
+                    }
+                },
+                error: function (msg) {
+                    alert("请求超时,请检查后台服务器状态" + msg);
+                }
+            });
         }
     });
 
@@ -233,6 +257,118 @@
             }
         });
     });
+
+    // 更新个人信息
+    $("#user_info_update_submit").click(function () {
+        // 获取需要更新的个人信息json
+        function get_update_value() {
+            let request_json = {
+                update_uid: $.cookie("uid"),
+                update_field: [],
+                update_value: []
+            };
+            let new_password = $.trim($("#new_password").val());
+            let new_brief = $.trim($("#new_brief").val());
+            if (new_password !== "") {
+                request_json["update_field"].push("password");
+                request_json["update_value"].push(new_password);
+            }
+            if (new_brief !== "") {
+                request_json["update_field"].push("brief");
+                request_json["update_value"].push(new_brief);
+            }
+            return request_json
+        }
+
+        $("#user_update_msg").stop();
+        $("#user_update_msg").hide();
+        $.ajax({
+            type: 'put',
+            async: true,
+            url: "/user",
+            data: JSON.stringify(get_update_value()),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                if (res["updated"].length) {
+                    $("#user_update_msg").stop();
+                    $("#user_update_msg").css("color", "green").text("成功更新了 " + res["updated"].join(", ") + " 信息").fadeIn(500).delay(1500).fadeOut("slow");
+                    setTimeout('window.location.reload()',2000);
+                } else {
+                    $("#user_update_msg").css("color", "red")
+                        .text("错误 : 请填写需要更新的内容").fadeIn(500).delay(1500).fadeOut("slow");
+                }
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态" + msg);
+            }
+        });
+    });
+
+    // 锁定/解锁用户
+    function lock_user(btn) {
+        // 构造请求数据
+        let status = $(btn).parent().siblings("[name='user_status']").text();
+        let uid = $(btn).parent().siblings("[name='uid']").text();
+        let request_json = {
+            update_uid: uid,
+            update_field: ["status"],
+            update_value: []
+        };
+        if (status === "被锁定")
+            request_json["update_value"].push("1");
+        else
+            request_json["update_value"].push("0");
+        // 更新所选用户信息
+        $.ajax({
+            type: 'put',
+            async: true,
+            url: "/user",
+            data: JSON.stringify(request_json),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                window.location.reload();
+                console.log("成功更新了 " + res["updated"].join(", ") + " 信息");
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态" + msg);
+            }
+        })
+    }
+
+    // 升降权限
+    function update_user_status(btn) {
+        // 构造请求数据
+        let status = $(btn).parent().siblings("[name='user_status']").text();
+        let uid = $(btn).parent().siblings("[name='uid']").text();
+        let request_json = {
+            update_uid: uid,
+            update_field: ["status"],
+            update_value: []
+        };
+        if (status === "管理员")
+            request_json["update_value"].push("1");
+        else
+            request_json["update_value"].push("10");
+        // 更新所选用户信息
+        $.ajax({
+            type: 'put',
+            async: true,
+            url: "/user",
+            data: JSON.stringify(request_json),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                window.location.reload();
+                console.log("成功更新了 " + res["updated"].join(", ") + " 信息");
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态" + msg);
+            }
+        })
+    }
+
 </script>
 
 

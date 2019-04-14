@@ -60,7 +60,9 @@ class UserHandler(BaseHandler):
     @gen.coroutine
     @tornado.web.authenticated
     def get(self, *args, **kwargs):
-        return self.render("user.html")
+
+        yield self.update_cookie()
+        raise gen.Return(self.render("user.html"))
 
     @gen.coroutine
     def post(self, *args, **kwargs):
@@ -83,10 +85,10 @@ class UserHandler(BaseHandler):
         try:
             json = self.get_json()
             if "update_field" in json and "update_value" in json and "update_uid" in json:
-                if json["update_field"] in ["brief", "password", "status"]:
+                if set(json["update_field"]) < set(["brief", "password", "status"]):
                     yield self.data.update_user_info(json["update_uid"], json["update_field"], json["update_value"])
-                    self.log.info("User uid(" + self.uid + ") update " + json["update_field"])
-                    self.finish({"update": json["update_field"]})
+                    self.log.info("User uid(" + self.uid + ") update " + str(json["update_field"]))
+                    self.finish({"updated": json["update_field"]})
                 else:
                     self.finish({"error": "illegal update field"})
             else:

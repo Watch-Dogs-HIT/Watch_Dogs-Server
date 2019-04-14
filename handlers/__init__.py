@@ -9,6 +9,7 @@ base handler
 import json
 
 import tornado.web
+from tornado import gen
 
 
 def byteify(input_unicode_dict, encoding='utf-8'):
@@ -77,6 +78,12 @@ class BaseHandler(tornado.web.RequestHandler):
         if "Content-Type" in self.request.headers and "application/json" in self.request.headers["Content-Type"]:
             return byteify(json.loads(self.request.body))  # return str dict
         return {"error": "no json found"}
+
+    @gen.coroutine
+    def update_cookie(self):
+        """更新cookie值"""
+        user_status = yield self.data.update_cookie(self.uid)
+        self.set_cookie("user_status", str(user_status))
 
 
 class TestHandler(BaseHandler):

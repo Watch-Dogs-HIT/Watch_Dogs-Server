@@ -38,6 +38,11 @@ class Data(object):
         self.prpcrypt = encrypt.Prpcrypt()
 
     # USER
+    @gen.coroutine
+    def update_cookie(self, uid):
+        """根据uid更新用户cookie"""
+        res = yield self.db.query_one(SQL.select_status_by_uid(uid))
+        raise gen.Return(res["status"] if res else -1)
 
     @gen.coroutine
     def check_login(self, **json):
@@ -63,10 +68,11 @@ class Data(object):
     @gen.coroutine
     def update_user_info(self, uid, update_field, update_value):
         """更新用户信息"""
-        if update_field == "password":
-            yield self.db.execute(SQL.update_user_info(uid, update_field, self.prpcrypt.encrypt(update_value)))
-        else:
-            yield self.db.execute(SQL.update_user_info(uid, update_field, update_value))
+        for k, v in zip(update_field, update_value):
+            if k == "password":
+                yield self.db.execute(SQL.update_user_info(uid, k, self.prpcrypt.encrypt(v)))
+            else:
+                yield self.db.execute(SQL.update_user_info(uid, k, v))
 
     @gen.coroutine
     def admin_user_info(self):
@@ -74,7 +80,8 @@ class Data(object):
         res = []
         user_infos = yield self.db.query(SQL.show_all_user())
         for user_info in user_infos:
-            r = [user_info["user_id"], user_info["user"], user_info["brief"], user_info["password"],
+            r = [user_info["user_id"], user_info["user"], user_info["brief"],
+                 self.prpcrypt.decrypt(user_info["password"]),
                  USER_STATUS[str(user_info["status"])]]
             hn = yield self.db.query_one(SQL.get_user_watch_host_num(user_info["user_id"]))
             pn = yield self.db.query_one(SQL.get_user_watch_process_num(user_info["user_id"]))
