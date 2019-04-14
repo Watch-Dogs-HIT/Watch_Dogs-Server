@@ -49,6 +49,8 @@
             </i>
         </label>
     </div>
+    <p style="font-size:16px;color:red;display:none" id="login_msg">TEST:msg</p>
+
 
     <a href="" class="btn btn-login btn-danger btn-float" id="login_btn">
         <i class="zmdi zmdi-arrow-forward"></i>
@@ -83,6 +85,8 @@
 
     <div class="clearfix"></div>
 
+    <p style="font-size:16px;color:red;display:none" id="register_msg">TEST:msg</p>
+
     <a href="" class="btn btn-login btn-danger btn-float" id="register_btn" onclick="register();">
         <i class="zmdi zmdi-arrow-forward"></i>
     </a>
@@ -101,6 +105,7 @@
 <script>
     // 登录
     $("#login_btn").click(function () {
+        $("#login_msg").hide();
         $.ajax({
             type: 'post',
             async: true,
@@ -115,7 +120,8 @@
                 if (res["login"]) { // 登录并跳转
                     $(window).attr('location', res["next_url"]);
                 } else { // 显示错误
-                    alert(res["msg"]);
+                    $("#login_msg").text("错误 : " + res["msg"]);
+                    $("#login_msg").fadeIn("slow");
                 }
             },
             error: function (msg) {
@@ -127,6 +133,7 @@
     // 注册
     // todo : 改成上面的方法无法响应?
     function register() {
+        $("#register_msg").hide();
         $.ajax({
             type: 'post',
             async: true,
@@ -139,9 +146,13 @@
             dataType: "json",
             success: function (res) {
                 if (res["register"]) {
-                     alert("注册成功, 请切换至登录页面登陆");
+                    $("#register_msg").css("color", "green");
+                    $("#register_msg").text("注册成功, 请从下方切换至登录页面");
+                    $("#register_msg").fadeIn("slow");
                 } else {
-                     alert(res["msg"]);
+                    $("#register_msg").css("color", "red");
+                    $("#register_msg").text("错误 : " + res["msg"]);
+                    $("#register_msg").fadeIn("slow");
                 }
             },
             error: function (msg) {
