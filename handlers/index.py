@@ -29,4 +29,9 @@ class IndexDataHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self, *args, **kwargs):
         """首页相关信息"""
-        print self.uid
+        try:
+            # todo fin this code
+            res = yield self.data.index_data(self.uid)
+            self.finish(res)
+        except Exception as err:
+            self.finish({"error": str(err)})

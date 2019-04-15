@@ -95,23 +95,40 @@ class Data(object):
         """首页个人资源"""
         # 监测的总主机数, 监测的总进程数, 正常/总进程数, 异常日志数
         res = {
+            "host": [],
             "host_num": -1,
+            "process": [],
             "process_num": -1,
-            "normal_process_num": -1,
+            "un_normal_host": -1,
+            "un_normal_host_num": [],
+            "un_normal_process": -1,
+            "un_normal_process_num": [],
             "error_log_num": -1,
+            "recent_host_record": [],
+            "recent_process_record": []
         }
-        hn = yield self.db.query_one(SQL.get_user_watch_host_num(uid))
-        pn = yield self.db.query_one(SQL.get_user_watch_process_num(uid))
-        watch_process_infos = yield self.db.query(SQL.get_user_watch_process(uid))
-        error_logs = -1  # todo : yield self.db.query(...)
-        # for user_info in user_infos:
-        #     r = [user_info["user_id"], user_info["user"], user_info["brief"], user_info["password"],
-        #          USER_STATUS[str(user_info["status"])]]
-        #     hn = yield self.db.query_one(SQL.get_user_watch_host_num(user_info["user_id"]))
-        #     pn = yield self.db.query_one(SQL.get_user_watch_process_num(user_info["user_id"]))
-        #     r.extend([hn["host_num"], pn["process_num"]])
-        #     res.append(r)
-        # raise gen.Return(res)
+
+        print SQL.get_user_watch_process(uid)
+        h = yield self.db.query(SQL.get_user_watch_host(uid))
+        p = yield self.db.query(SQL.get_user_watch_process(uid))
+
+        res["host"] = h
+        res["process"] = p
+        res["host_num"] = len(h)
+        res["process_num"] = len(p)
+        res["error_logs"] = -1  # todo : yield self.db.query(...)
+        res["un_normal_process"] = filter(lambda x: x["state"] == u"X", p)
+        res["un_normal_process_num"] = len(res["un_normal_process"])
+        res["un_normal_host"] = filter(lambda x: x["status"] == 0, h)
+        res["un_normal_host_num"] = len(res["un_normal_host"])
+        for host_info in h:
+            host_id = host_info["host_id"]
+            hi = yield self.db.query_one(SQL.get_host_info(host_id))
+            hr = yield self.db.query_one(SQL.get_host_info(host_id))
+        for process_info in p:
+            process_id = process_info["process_id"]
+
+        raise gen.Return(res)
 
     # Host
 
