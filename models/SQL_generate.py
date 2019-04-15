@@ -126,14 +126,14 @@ class SQL(object):
         )
 
     @staticmethod
-    def insert_host_record(host_record):
+    def insert_host_record(host_id, host_record):
         """插入主机记录"""
 
         return (
-            """INSERT INTO `Watch_Dogs`.`Host_record`(`host`, `CPU`, `CPUs`, `mem`, `read_MBs`, """
+            """INSERT INTO `Watch_Dogs`.`Host_record`(`host_id`, `host`, `CPU`, `CPUs`, `mem`, `read_MBs`, """
             """`write_MBs`, `net_upload_kbps`, `net_download_kbps`, `lavg_1`, `lavg_5`, `lavg_15`, `nr`,`free_rate`, `uptime`) VALUES """
-            """("{h}","{C}", "{Cs}", "{m}", "{r}", "{w}", "{nu}", "{nd}", "{l1}", "{l5}", "{l15}", "{nr}","{f}", "{up}") ;""").format(
-            h=host_record['host'], C=host_record['CPU'], Cs=host_record['CPUs'], m=host_record['mem'],
+            """("{hi}", "{h}", "{C}", "{Cs}", "{m}", "{r}", "{w}", "{nu}", "{nd}", "{l1}", "{l5}", "{l15}", "{nr}","{f}", "{up}") ;""").format(
+            hi=host_id, h=host_record['host'], C=host_record['CPU'], Cs=host_record['CPUs'], m=host_record['mem'],
             r=host_record['read_MBs'], w=host_record['write_BMs'], nu=host_record['net_upload_kbps'],
             nd=host_record['net_download_kbps'],
             l1=host_record['lavg_1'], l5=host_record['lavg_5'], l15=host_record['lavg_15'], nr=host_record['nr'],
@@ -249,8 +249,26 @@ class SQL(object):
     @staticmethod
     def get_user_watch_process(uid):
         """查看用户关注进程信息"""
-        return ("""SELECT `process_id`, `state` FROM `Process` WHERE `process_id` IN """
+        return ("""SELECT `host`, `process_id`, `pid`, `comm`, `state`  FROM `Process` WHERE `process_id` IN """
                 """(SELECT `process_id` FROM `User_Process` WHERE user_id = {uid})""").format(uid=uid)
+
+    @staticmethod
+    def get_user_watch_host(uid):
+        """查看用户关注主机信息"""
+        return ("""SELECT `host_id`, `status` FROM `Host_info` WHERE `host_id` IN """
+                """(SELECT `host_id` FROM `User_Host` WHERE user_id = {uid})""").format(uid=uid)
+
+    @staticmethod
+    def get_host_recent_record(host_ip):
+        """获取主机最近一条记录"""
+        return ("""SELECT `host_id`, `status` FROM `Host_info` WHERE `host_id` IN """
+                """(SELECT `host_id` FROM `User_Host` WHERE user_id = {uid})""").format(uid=uid)
+
+    # @staticmethod
+    # def get_process_recent_record(process_id):
+    #     """获取进程最近一条记录"""
+    #     return ("""SELECT `host_id`, `status` FROM `Host_info` WHERE `host_id` IN """
+    #             """(SELECT `host_id` FROM `User_Host` WHERE user_id = {uid})""").format(uid=uid)
 
     # Host
     @staticmethod

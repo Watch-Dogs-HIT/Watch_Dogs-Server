@@ -119,7 +119,7 @@ class ClientManager(object):
                 logger_client_manage.error("Error details: " + str(hr))
             else:
                 logger_client_manage.info("insert " + str(host_ip) + " system record")
-                self.db.execute(SQL.insert_host_record(hr))
+                self.db.execute(SQL.insert_host_record(host_id, hr))
         self.db.commit()
         self.db.close()
 
