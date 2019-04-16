@@ -259,16 +259,39 @@ class SQL(object):
                 """(SELECT `host_id` FROM `User_Host` WHERE user_id = {uid})""").format(uid=uid)
 
     @staticmethod
-    def get_host_recent_record(host_ip):
+    def get_host_recent_record(host_id):
         """获取主机最近一条记录"""
-        return ("""SELECT `host_id`, `status` FROM `Host_info` WHERE `host_id` IN """
-                """(SELECT `host_id` FROM `User_Host` WHERE user_id = {uid})""").format(uid=uid)
+        return """SELECT * FROM `Host_record` WHERE host_id = {hid} ORDER BY record_time DESC LIMIT 1""".format(
+            hid=host_id
+        )
 
-    # @staticmethod
-    # def get_process_recent_record(process_id):
-    #     """获取进程最近一条记录"""
-    #     return ("""SELECT `host_id`, `status` FROM `Host_info` WHERE `host_id` IN """
-    #             """(SELECT `host_id` FROM `User_Host` WHERE user_id = {uid})""").format(uid=uid)
+    @staticmethod
+    def get_user_host_relation(user_id, host_id):
+        """获取主机与用户关系"""
+        return """SELECT relation_id, `comment` FROM `User_Host` WHERE user_id = {uid} AND host_id = {hid}""".format(
+            hid=host_id, uid=user_id
+        )
+
+    @staticmethod
+    def get_process_info(process_id):
+        """获取进程最近一条记录"""
+        return """SELECT * FROM `Process` WHERE process_id = {pid}""".format(
+            pid=process_id
+        )
+
+    @staticmethod
+    def get_process_recent_record(process_id):
+        """获取进程最近一条记录"""
+        return """SELECT * FROM `Process_record` WHERE process_id = {pid} ORDER BY record_time DESC LIMIT 1""".format(
+            pid=process_id
+        )
+
+    @staticmethod
+    def get_user_process_relation(user_id, process_id):
+        """获取进程与用户关系"""
+        return """SELECT relation_id, host_id, `type`, `comment`, process_id FROM `User_Process` WHERE user_id = {uid} AND process_id = {pid}""".format(
+            pid=process_id, uid=user_id
+        )
 
     # Host
     @staticmethod
@@ -334,7 +357,7 @@ class SQL(object):
         )
 
     @staticmethod
-    def get_process_info(pid):
+    def get_process_record(pid):
         """获取主机资源记录"""
         return """SELECT * FROM `Process` WHERE process_id = {p}""".format(p=pid)
 

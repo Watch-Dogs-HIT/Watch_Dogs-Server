@@ -108,7 +108,6 @@ class Data(object):
             "recent_process_record": []
         }
 
-        print SQL.get_user_watch_process(uid)
         h = yield self.db.query(SQL.get_user_watch_host(uid))
         p = yield self.db.query(SQL.get_user_watch_process(uid))
 
@@ -122,12 +121,28 @@ class Data(object):
         res["un_normal_host"] = filter(lambda x: x["status"] == 0, h)
         res["un_normal_host_num"] = len(res["un_normal_host"])
         for host_info in h:
+            t = {}
             host_id = host_info["host_id"]
             hi = yield self.db.query_one(SQL.get_host_info(host_id))
-            hr = yield self.db.query_one(SQL.get_host_info(host_id))
+            hr = yield self.db.query_one(SQL.get_host_recent_record(host_id))
+            hrl = yield self.db.query_one(SQL.get_user_host_relation(uid, host_id))
+            t.update(hi)
+            t.update(hr)
+            t.update(hrl)
+            t["record_time"] = t["record_time"].strftime('%Y-%m-%d %H:%M:%S')
+            t["update_time"] = t["update_time"].strftime('%Y-%m-%d %H:%M:%S')
+            res["recent_host_record"].append(t)
         for process_info in p:
+            t = {}
             process_id = process_info["process_id"]
-
+            pi = yield self.db.query_one(SQL.get_process_info(process_id))
+            pr = yield self.db.query_one(SQL.get_process_recent_record(process_id))
+            prl = yield self.db.query_one(SQL.get_user_process_relation(uid, process_id))
+            t.update(pi)
+            t.update(pr)
+            t.update(prl)
+            t["record_time"] = t["record_time"].strftime('%Y-%m-%d %H:%M:%S')
+            res["recent_process_record"].append(t)
         raise gen.Return(res)
 
     # Host
@@ -194,16 +209,16 @@ class Data(object):
     def get_process_record(self, pid, num):
         """获取进程资源记录"""
         records = yield self.db.query(SQL.get_process_records(pid, num))
-        process_info = yield self.db.query_one(SQL.get_process_info(pid))
+        process_records = yield self.db.query_one(SQL.get_process_record(pid))
         # 修改datetime数据为str
         for r in records:
             r["record_time"] = r["record_time"].strftime('%Y-%m-%d %H:%M:%S')
-        if process_info:
-            process_info["record_time"] = process_info["record_time"].strftime('%Y-%m-%d %H:%M:%S')
+        if process_records:
+            process_records["record_time"] = process_records["record_time"].strftime('%Y-%m-%d %H:%M:%S')
 
         res = {
             "process_id": pid,
-            "process_info": process_info if process_info else {},
+            "process_records": process_records if process_records else {},
             "except_record_num": num,
             "return_record_num": len(records),
             "records": records[1:],

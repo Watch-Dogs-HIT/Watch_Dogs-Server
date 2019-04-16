@@ -118,7 +118,7 @@
 
                         </div>
                         <div class="panel-right pull-right">
-                            <h3 id="unnormal_host_num">0</h3>
+                            <h3 id="un_normal_host_num">0</h3>
                             <strong>问题主机数</strong>
 
                         </div>
@@ -131,7 +131,7 @@
 
                         </div>
                         <div class="panel-right pull-right">
-                            <h3 id="error_log_num">0</h3>
+                            <h3 id="un_normal_process_num">0</h3>
                             <strong>问题进程数</strong>
 
                         </div>
@@ -148,27 +148,20 @@
                         </div>
                         <div class="panel-body">
                             <div class="table-responsive">
-                                <table class="table table-striped table-bordered table-hover">
+                                <table id="host_table" class="table table-striped table-bordered table-hover">
                                     <thead>
                                     <tr>
                                         <th>主机id</th>
                                         <th>备注</th>
                                         <th>内网ip</th>
                                         <th>外网ip</th>
-                                        <th>CPU占用率 %</th>
-                                        <th>内存占用率 %</th>
-                                        <th>网络速度 Kbp/s</th>
-                                        <th>IO读写 MB/s</th>
+                                        <th>CPU占用率 (%)</th>
+                                        <th>内存占用率 (%)</th>
+                                        <th>网络速度 (Kbps)</th>
+                                        <th>IO读写 (MB/s)</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>John</td>
-                                        <td>Doe</td>
-                                        <td>John15482</td>
-                                        <td>name@site.com</td>
-                                    </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -181,24 +174,23 @@
                         </div>
                         <div class="panel-body">
                             <div class="table-responsive">
-                                <table class="table table-striped table-bordered table-hover">
+                                <table id="process_table" class="table table-striped table-bordered table-hover">
                                     <thead>
                                     <tr>
-                                        <th>S No.</th>
-                                        <th>First Name</th>
-                                        <th>Last Name</th>
-                                        <th>User Name</th>
-                                        <th>Email ID.</th>
+                                        <th>进程id</th>
+                                        <th>所在主机id</th>
+                                        <th>备注</th>
+                                        <th>类型</th>
+                                        <th>进程号</th>
+                                        <th>状态</th>
+                                        <th>线程数</th>
+                                        <th>CPU占用率(%)</th>
+                                        <th>内存占用(M)</th>
+                                        <th>网络上传/下载速度(Kbps)</th>
+                                        <th>磁盘读取/写入速度(MB/s)</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>John</td>
-                                        <td>Doe</td>
-                                        <td>John15482</td>
-                                        <td>name@site.com</td>
-                                    </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -236,6 +228,97 @@
 <!--<script src="../static/js/custom-scripts.js"></script>-->
 <!--页面逻辑-->
 <script>
+    // 加载页面
+    $(document).ready(function () {
+        $.ajax({
+            type: 'get',
+            async: true,
+            url: "/index",
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                // num
+                $("#host_num").text(res["host_num"]);
+                $("#process_num").text(res["process_num"]);
+                $("#un_normal_host_num").text(res["un_normal_host_num"]);
+                $("#un_normal_process_num").text(res["un_normal_process_num"]);
+                // host_table
+                for (let host_record of res["recent_host_record"]) {
+                    let host_record_tr = $("<tr></tr>");
+                    host_record_tr.append(
+                        `<td>${host_record["host_id"]}</td>`,
+                        `<td>${host_record["comment"]}</td>`,
+                        `<td>${host_record["intranet_ip"]}</td>`,
+                        `<td>${host_record["extranet_ip"]}</td>`,
+                        `<td>${host_record["CPU"]} %</td>`,
+                        `<td>${host_record["mem"]} %</td>`,
+                        `<td>${host_record["net_upload_kbps"]}/${host_record["net_download_kbps"]}</td>`,
+                        `<td>${host_record["read_MBs"]}/${host_record["write_MBs"]}</td>`
+                    );
+                    $("#host_table").append(host_record_tr);
+                }
+                // process_table
+                  for (let host_record of res["recent_process_record"]) {
+                    let process_record_tr = $("<tr></tr>");
+                    process_record_tr.append(
+                        `<td>${host_record["process_id"]}</td>`,
+                        `<td>${host_record["host_id"]}</td>`,
+                        `<td>${host_record["comment"]}</td>`,
+                        `<td>${host_record["type"]}</td>`,
+                        `<td>${host_record["pid"]}</td>`,
+                        `<td>${host_record["state"]}</td>`,
+                        `<td>${host_record["thread_num"]}</td>`,
+                        `<td>${host_record["cpu_avg"]} %</td>`,
+                        `<td>${host_record["mem_avg"]} M</td>`,
+                        `<td>${host_record["net_upload_kbps_avg"]}/${host_record["net_download_kbps_avg"]}</td>`,
+                        `<td>${host_record["read_MBs_avg"]}/${host_record["write_MBs_avg"]}</td>`
+                    );
+                    $("#process_table").append(process_record_tr);
+                }
+                console.log(res)
+
+                // for (let user_info of res["res"]) {
+                //     let user_info_tr = $("<tr></tr>");
+                //     // 设置行样式
+                //     if (user_info[4] === "管理员")
+                //         user_info_tr.addClass("info");
+                //     else if (user_info[4] === "普通用户")
+                //         user_info_tr.addClass("success");
+                //     else
+                //         user_info_tr.addClass("warning");
+                //     let lock_btn = "";
+                //     if (user_info[4] === "被锁定")
+                //         lock_btn = "<td><a href=\"#\" class=\"btn btn-danger btn-sm\" onclick=\"lock_user(this)\">解锁</a></td>";
+                //     else
+                //         lock_btn = "<td><a href=\"#\" class=\"btn btn-danger btn-sm\" onclick=\"lock_user(this)\">锁定</a></td>";
+                //     let update_status = "";
+                //     if (user_info[4] === "管理员")
+                //         update_status = "<td><a href=\"#\" class=\"btn btn-info btn-sm\" onclick=\"update_user_status(this)\">降为普通</a></td>";
+                //     else
+                //         update_status = "<td><a href=\"#\" class=\"btn btn-info btn-sm\" onclick=\"update_user_status(this)\">升为管理</a></td>";
+                //     // 添加元素
+                //     user_info_tr.append(
+                //         "<td name='uid'>" + user_info[0] + "</td>",
+                //         "<td>" + user_info[1] + "</td>",
+                //         "<td>" + user_info[2] + "</td>",
+                //         "<td name='user_status'>" + user_info[4] + "</td>",
+                //         "<td>" + user_info[3] + "</td>",
+                //         "<td>" + user_info[5] + "</td>",
+                //         "<td>" + user_info[6] + "</td>",
+                //         update_status,
+                //         lock_btn
+                //     );
+                //     $("#admin_table").append(user_info_tr);
+                // }
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态" + msg);
+            }
+        });
+
+    });
+
     // 登出
     $("#logout_btn").click(function () {
         $.ajax({
