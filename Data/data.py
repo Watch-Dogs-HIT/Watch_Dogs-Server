@@ -142,6 +142,7 @@ class Data(object):
             t.update(pr)
             t.update(prl)
             t["record_time"] = t["record_time"].strftime('%Y-%m-%d %H:%M:%S')
+            t["update_time"] = t["update_time"].strftime('%Y-%m-%d %H:%M:%S')
             res["recent_process_record"].append(t)
         raise gen.Return(res)
 

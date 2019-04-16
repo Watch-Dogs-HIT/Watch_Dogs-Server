@@ -156,7 +156,7 @@ class SQL(object):
 
         return (
             """UPDATE `Watch_Dogs`.`Process` SET `process_id` = {id}, `host` = "{h}", `pid` = {pid}, `comm` = "{c}","""
-            """`cmdline` = "{cm}", `ppid` = {pp}, `pgrp` = {pg}, `state` =  "{s}", `thread_num` = {t}, `record_time` = now() """
+            """`cmdline` = "{cm}", `ppid` = {pp}, `pgrp` = {pg}, `state` =  "{s}", `thread_num` = {t}, `update_time` = now() """
             """WHERE `process_id` = {id} ;""").format(
             id=process_id, h=process_info['host'], pid=process_info['pid'], c=process_info['comm'],
             cm=process_info['cmdline'], pp=process_info['ppid'], pg=process_info['pgrp'], s=process_info['state'],
