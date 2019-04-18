@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>主机管理</title>
+    <!--logo-->
+    <link rel="shortcut icon" type="image/x-icon" href="../static/Watch_Dogs.jfif"/>
+    <!-- Bootstrap Styles-->
+    <link href="../static/css/bootstrap.css" rel="stylesheet"/>
+    <!-- FontAwesome Styles-->
+    <link href="../static/css/font-awesome.css" rel="stylesheet"/>
+    <!-- Custom Styles-->
+    <link href="../static/css/custom-styles.css" rel="stylesheet"/>
+    <!--todo : fix import err-->
+    <link href="../static/js/morris/morris-0.4.3.min.css" rel="stylesheet"/>
+    <!-- 引入 ECharts 文件 -->
+    <script src="../static/js/echarts.min.js"></script>
+    <!-- Google Fonts-->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
+</head>
+
+<body>
+<div id="wrapper">
+    <nav class="navbar navbar-default top-navbar" role="navigation">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".sidebar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><i class="fa fa-comments"></i> <strong>Watch_Dogs</strong></a>
+        </div>
+
+        <ul class="nav navbar-top-links navbar-right">
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+                    <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-user">
+                    <li><a href="#user_info"><i class="fa fa-user fa-fw"></i> User Profile</a>
+                    </li>
+                    <li><a href="#user_admin"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                    </li>
+                    <li class="divider"></li>
+                    <li><a href="#" id="logout_btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                    </li>
+                </ul>
+                <!-- /.dropdown-user -->
+            </li>
+            <!-- /.dropdown -->
+        </ul>
+    </nav>
+    <!--/. NAV TOP  -->
+    <nav class="navbar-default navbar-side" role="navigation">
+        <div class="sidebar-collapse">
+            <ul class="nav" id="main-menu">
+
+                <li>
+                    <a href="/"><i class="fa fa-dashboard"></i>总览</a>
+                </li>
+                <li>
+                    <a href="ui-elements.html"><i class="fa fa-desktop"></i>主机管理</a>
+                </li>
+                <li>
+                    <a href="chart.html"><i class="fa fa-bar-chart-o"></i>进程管理</a>
+                </li>
+                <li>
+                    <a href="tab-panel.html"><i class="fa fa-edit"></i>日志监控</a>
+                </li>
+                <li>
+                    <a href="/user"><i class="fa fa-table"></i>用户管理</a>
+                </li>
+
+
+            </ul>
+
+        </div>
+
+    </nav>
+    <!-- /. NAV SIDE  -->
+    <div id="page-wrapper">
+        <h1 class="page-header">主机管理
+            <small>远程Linux主机资源监控</small>
+        </h1>
+        <div id="page-inner">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <div class="btn-group">
+                                <button data-toggle="dropdown" class="btn btn-default dropdown-toggle"
+                                        aria-expanded="false" id="host_select_btn">1<span class="caret"></span></button>
+                                <ul class="dropdown-menu" id="host_select_id">
+                                    <li><a href="">1</a></li>
+                                    <li><a href="">2</a></li>
+                                    <li><a href="">3</a></li>
+                                    <li><a href="">4</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            主机资源
+                                        </div>
+                                        <div class="panel-body">
+                                            <ul class="nav nav-tabs">
+                                                <li class="active"><a href="#CPU" data-toggle="tab">CPU</a>
+                                                </li>
+                                                <li class=""><a href="#Memory" data-toggle="tab">Memory</a>
+                                                </li>
+                                                <li class=""><a href="#Net" data-toggle="tab">Net</a>
+                                                </li>
+                                                <li class=""><a href="#Disk" data-toggle="tab">Disk</a>
+                                                </li>
+                                            </ul>
+                                            <div class="tab-content">
+                                                <div class="tab-pane fade active in" id="CPU">
+                                                    <div id="cpu_graph" style="width: 1200px;height:450px;"></div>
+                                                    <ui id="cpu_info">CPU 硬件信息</ui>
+                                                    <li>1</li>
+                                                    <p>共<span id="cpu_cores_num">1</span>个核心</p>
+                                                </div>
+                                                <div class="tab-pane fade in" id="Memory">
+                                                    <div id="mem_graph" style="width: 1200px;height:450px;"></div>
+                                                    <p>总内存大小 : <span id="mem_max_size">1</span> MB</p>
+                                                </div>
+                                                <div class="tab-pane fade in" id="Net">
+                                                    <div id="io_graph" style="width: 1200px;height:450px;"></div>
+                                                    <p>默认网卡设备 : <span id="net_device">1</span></p>
+                                                </div>
+                                                <div class="tab-pane fade in" id="Disk">
+                                                    <div id="net_graph" style="width: 1200px;height:450px;"></div>
+                                                    <p>总磁盘空间 : <span id="disk_size">1</span> GB</p>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            主机配置
+                                        </div>
+
+                                        <div class="panel-body">
+                                            <h4>配置信息</h4>
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <thead>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr>
+                                                        <td>用户名</td>
+                                                        <td>Mark</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>IP地址（外网）</td>
+                                                        <td>Mark</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>IP地址（内网）</td>
+                                                        <td>Mark</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>操作系统</td>
+                                                        <td>Mark</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>内核版本</td>
+                                                        <td>Mark</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>空闲率</td>
+                                                        <td>Mark</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>nr</td>
+                                                        <td>Mark</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>lavg_1/5/15</td>
+                                                        <td>Mark</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>运行时间</td>
+                                                        <td>Mark</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                <hr/>
+                                                <h4>磁盘信息</h4>
+                                                <div class="table-responsive">
+                                                    <table class="table table-striped">
+                                                        <thead>
+                                                        <tr>
+                                                            <th>文件系统</th>
+                                                            <th>大小</th>
+                                                            <th>已用</th>
+                                                            <th>占用 %</th>
+                                                            <th>挂载点</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        <tr>
+                                                            <td>1</td>
+                                                            <td>Mark</td>
+                                                            <td>Otto</td>
+                                                            <td>@mdo</td>
+                                                            <td>@fat</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>2</td>
+                                                            <td>Jacob</td>
+                                                            <td>Thornton</td>
+                                                            <td>@fat</td>
+                                                            <td>@fat</td>
+                                                        </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="pull-right" style="margin-right:20px">&nbsp;&nbsp;监控信息生成于&nbsp;<span
+                                        id="record_time">2019年4月18日16:41:40</span></p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            添加远程主机
+                        </div>
+                        <div class="panel-body">
+                            <div class="col-md-6">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        远程主机信息
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="form-group">
+                                            <label for="host_ip">主机IP</label>
+                                            <input id="host_ip" class="form-control" placeholder="请填写能够访问的地址">
+                                            <br/>
+                                            <label for="host_port">主机端口</label>
+                                            <input id="host_port" class="form-control" placeholder="SSH协议端口 (默认为22) ">
+                                            <br/>
+                                            <label for="host_user">用户名</label>
+                                            <input id="host_user" class="form-control" placeholder="远程主机登陆用户名 (推荐root) ">
+                                            <br/>
+                                            <label for="host_password">密码</label>
+                                            <input id="host_password" class="form-control" placeholder="远程主机登陆密码">
+                                            <br/>
+                                            <button id="add_host_btn" type="submit" class="btn btn-default">添加</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="panel panel-primary">
+                                    <div class="panel-heading">
+                                        添加主机
+                                    </div>
+                                    <div class="panel-body">
+                                        <p id="add_host_info">准备添加主机...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2019 <a href="https://github.com/h-j-13" target="_blank" title="侯捷">h-j-13</a>
+    </p>
+</footer>
+</div>
+<!-- /. PAGE WRAPPER  -->
+</div>
+
+<!-- /. WRAPPER  -->
+<!-- JS Scripts-->
+<!-- jQuery Js -->
+<script src="../static/js/jquery-1.10.2.js"></script>
+<script src="../static/js/jquery.cookie.js"></script>
+<!-- Metis Menu Js -->
+<script src="../static/js/jquery.metisMenu.js"></script>
+<!-- Bootstrap Js -->
+<script src="../static/js/bootstrap.min.js"></script>
+
+<!-- Custom Js -->
+<script src="../static/js/morris/raphael-2.1.0.min.js"></script>
+<script src="../static/js/morris/morris.js"></script>
+
+<!--<script src="../static/js/custom-scripts.js"></script>-->
+
+<!--页面逻辑-->
+<!--<script src="../static/js/jquery-3.4.0.js"></script>-->
+<script>
+    // 基于准备好的dom，初始化echarts实例
+
+    $(document).ready(function () {
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: 'CPU占用率'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['CPUs', 'CPU0', 'CPU1']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+            },
+            yAxis: {
+                type: 'value',
+                max: 100,
+                min: 0,
+            },
+            series: [
+                {
+                    name: 'CPUs',
+                    type: 'line',
+                    smooth: true,
+
+                    data: [12, 13, 10, 14, 0, 23, 21]
+                },
+                {
+                    name: 'CPU0',
+                    type: 'line',
+                    smooth: true,
+                    data: [20, 12, 91, 24, 20, 30, 30]
+                },
+                {
+                    name: 'CPU1',
+                    type: 'line',
+                    smooth: true,
+                    data: [10, 23, 21, 14, 10, 30, 10]
+                }
+            ]
+        };
+        // 使用刚指定的配置项和数据显示图表。
+        echarts.init(document.getElementById('cpu_graph')).setOption(option);
+        echarts.init(document.getElementById('mem_graph')).setOption(option);
+        echarts.init(document.getElementById('io_graph')).setOption(option);
+        echarts.init(document.getElementById('net_graph')).setOption(option);
+    });
+
+
+    // 选择主机id
+    $("#host_select_id").click(function (event) {
+        alert(event.target.innerHTML);
+    });
+
+    // 登出
+    $("#logout_btn").click(function () {
+        $.ajax({
+            type: 'delete',
+            async: true,
+            url: "/login",
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                $(window).attr('location', "/login");
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态" + msg);
+            }
+        });
+    });
+
+</script>
+
+
+</body>
+
+</html>
