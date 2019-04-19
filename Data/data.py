@@ -201,6 +201,11 @@ class Data(object):
         else:
             raise gen.Return({"error": "no host"})
 
+    @gen.coroutine
+    def delete_host(self, user_id, host_id):
+        """删除用户与主机的关联"""
+        yield self.db.query_one(SQL.delete_user_host_relation(user_id, host_id))
+
     # Process
 
     @gen.coroutine

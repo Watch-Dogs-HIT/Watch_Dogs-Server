@@ -90,7 +90,7 @@
                                 </ul>
                             </div>
                             &nbsp;
-                            <a href="" class="btn btn-danger" id="delete_host_btn">删除主机</a>
+                            <a href="#" class="btn btn-danger" id="delete_host_btn">删除主机</a>
                         </div>
                         <div class="panel-body">
                             <div class="row">
@@ -238,6 +238,13 @@
                                             <br/>
                                             <label for="host_password">密码</label>
                                             <input id="host_password" class="form-control" placeholder="远程主机登陆密码">
+                                            <br/>
+                                            <label for="host_comment">备注</label>
+                                            <input id="host_comment" class="form-control" placeholder="取一个好记的备注(可忽略)">
+                                            <br/>
+                                            <label for="host_type">主机类型</label>
+                                            <input id="host_type" class="form-control"
+                                                   placeholder="远程主机类型(例如,阿里云主机..;可忽略)">
                                             <br/>
                                             <button id="add_host_btn" type="submit" class="btn btn-default">添加</button>
                                         </div>
@@ -515,12 +522,47 @@
         });
     }
 
-
     // 选择主机id
     $("#host_select_id").click(function (event) {
         current_host_id = event.target.innerHTML.split(" : ")[0].split("#")[1];
-        alert(host_id);
-        // show_host_data(host_id);
+    });
+
+    // 添加主机
+    $("#add_host_btn").click(function () {
+        let request_data = {
+            host_ip: $("#host_ip").val(),
+            host_port: $("#host_port").val(),
+            host_user: $("#host_user").val(),
+            host_password: $("#host_password").val(),
+            host_comment: $("#host_comment").val(),
+            host_type: $("#host_type").val()
+        };
+        // 添加主机提示信息
+        let add_host_log_text = $("#add_host_info");
+        if (request_data.host_ip != "" && request_data.host_port != "" && request_data.host_user != "") {
+            console.log(request_data);
+            add_host_log_text.append("<br />准备向服务器发送添加主机请求...");
+        }
+
+    });
+
+    // 删除
+    $("#delete_host_btn").click(function () {
+        console.log(current_host_id);
+        $.ajax({
+            type: 'delete',
+            async: true,
+            url: "/host/" + current_host_id,
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                alert("删除成功");
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态" + msg);
+            }
+        });
     });
 
     // 登出

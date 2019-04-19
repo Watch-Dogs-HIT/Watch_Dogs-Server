@@ -270,7 +270,7 @@ class SQL(object):
         """获取主机与用户关系"""
         return """SELECT relation_id, host_id, `comment`, `type` FROM `User_Host` WHERE user_id = {uid} """.format(
             uid=user_id
-            )
+        )
 
     @staticmethod
     def get_user_host_relation(user_id, host_id):
@@ -321,6 +321,13 @@ class SQL(object):
         """获取主机资源记录"""
         return """SELECT * FROM Host_record WHERE `host_id` = {h} ORDER BY `record_time` DESC LIMIT {n}""".format(
             h=hid, n=num
+        )
+
+    @staticmethod
+    def delete_user_host_relation(uid, hid):
+        """删除主机与用户关系"""
+        return """DELETE FROM `Watch_Dogs`.`User_Host` WHERE `user_id` = {u} AND `host_id` = {h}""".format(
+            u=uid, h=hid
         )
 
     # Process

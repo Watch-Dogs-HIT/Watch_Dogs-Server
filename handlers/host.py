@@ -43,10 +43,12 @@ class HostInfoHandler(BaseHandler):
 
     @gen.coroutine
     @tornado.web.authenticated
-    def put(self, process_id):
+    def put(self, host_id):
         """更新主机信息"""
+        # todo : 需要这个功能吗?
 
     @gen.coroutine
     @tornado.web.authenticated
-    def delete(self, process_id):
+    def delete(self, host_id):
         """删除主机"""
+        yield self.data.delete_host(self.uid, host_id)
