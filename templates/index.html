@@ -59,13 +59,13 @@
                     <a href="/"><i class="fa fa-dashboard"></i>总览</a>
                 </li>
                 <li>
-                    <a href="ui-elements.html"><i class="fa fa-desktop"></i>主机监控</a>
+                    <a href="/host"><i class="fa fa-desktop"></i>主机监控</a>
                 </li>
                 <li>
-                    <a href="chart.html"><i class="fa fa-bar-chart-o"></i>进程监控</a>
+                    <a href="/process"><i class="fa fa-bar-chart-o"></i>进程监控</a>
                 </li>
                 <li>
-                    <a href="tab-panel.html"><i class="fa fa-edit"></i>日志监控</a>
+                    <a href="/log"><i class="fa fa-edit"></i>日志监控</a>
                 </li>
                 <li>
                     <a href="/user"><i class="fa fa-table"></i>用户管理</a>
@@ -262,7 +262,7 @@
                     $("#host_table").append(host_record_tr);
                 }
                 // process_table
-                  for (let process_record of res["recent_process_record"]) {
+                for (let process_record of res["recent_process_record"]) {
                     let process_record_tr = $("<tr></tr>");
                     process_record_tr.append(
                         `<td>${process_record["process_id"]}</td>`,
