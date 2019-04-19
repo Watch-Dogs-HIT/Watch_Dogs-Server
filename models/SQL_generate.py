@@ -266,9 +266,16 @@ class SQL(object):
         )
 
     @staticmethod
+    def get_user_all_host_relation(user_id):
+        """获取主机与用户关系"""
+        return """SELECT relation_id, host_id, `comment`, `type` FROM `User_Host` WHERE user_id = {uid} """.format(
+            uid=user_id
+            )
+
+    @staticmethod
     def get_user_host_relation(user_id, host_id):
         """获取主机与用户关系"""
-        return """SELECT relation_id, `comment` FROM `User_Host` WHERE user_id = {uid} AND host_id = {hid}""".format(
+        return """SELECT relation_id, `comment`, `type` FROM `User_Host` WHERE user_id = {uid} AND host_id = {hid}""".format(
             hid=host_id, uid=user_id
         )
 
@@ -310,10 +317,9 @@ class SQL(object):
         return """SELECT * FROM Host_info WHERE `host_id` = {h}""".format(h=hid)
 
     @staticmethod
-    def get_host_records(hid, num):
+    def get_host_records(hid, num=20):
         """获取主机资源记录"""
-        return ("""SELECT * FROM Host_record WHERE `host` = (SELECT `host` FROM Host_info WHERE host_id = {h})"""
-                """ORDER BY `record_time` DESC LIMIT {n}""").format(
+        return """SELECT * FROM Host_record WHERE `host_id` = {h} ORDER BY `record_time` DESC LIMIT {n}""".format(
             h=hid, n=num
         )
 

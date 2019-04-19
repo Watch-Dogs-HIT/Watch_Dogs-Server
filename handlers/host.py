@@ -18,7 +18,7 @@ class HostHandler(BaseHandler):
     @gen.coroutine
     @tornado.web.authenticated
     def get(self, *args, **kwargs):
-        return self.render("process.html")
+        return self.render("host.html")
 
     @gen.coroutine
     @tornado.web.authenticated
@@ -32,10 +32,14 @@ class HostInfoHandler(BaseHandler):
     @gen.coroutine
     @tornado.web.authenticated
     def get(self, host_id):
-        """主机资源记录"""
-        record_num = self.get_argument("num", default=30)
-        res = yield self.data.get_host_record(host_id, record_num)
-        self.finish(res)
+        """主机信息"""
+
+        if host_id == "0":  # 获取所有主机
+            res = yield self.data.all_user_host_relation(self.uid)
+            self.finish(res)
+        else:
+            res = yield self.data.host_index_data(self.uid, host_id)
+            self.finish(res)
 
     @gen.coroutine
     @tornado.web.authenticated

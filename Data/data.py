@@ -155,27 +155,51 @@ class Data(object):
         raise gen.Return(res["host_exist"])
 
     @gen.coroutine
-    def get_host_record(self, hid, num):
-        """获取进程资源记录"""
-        records = yield self.db.query(SQL.get_host_records(hid, num))
-        host_info = yield self.db.query_one(SQL.get_host_info(hid))
-        # 修改datetime数据为str
-        for r in records:
-            r["record_time"] = r["record_time"].strftime('%Y-%m-%d %H:%M:%S')
-        if host_info:
+    def all_user_host_relation(self, user_id):
+        """获取所有用户关联主机"""
+        res = {}
+        # relation
+        relations = yield self.db.query(SQL.get_user_all_host_relation(user_id))
+        if relations:
+            res["relation"] = relations
+            for h in res["relation"]:
+                hi = yield self.db.query_one(SQL.get_host_info(h["host_id"]))
+
+                select_btn_str = "#" + str(hi["host_id"]) + " : " + hi["user"] + "@" + hi["host"] + \
+                                 " - " + h["comment"] + "/" + h["type"]
+                h["select_str"] = select_btn_str
+            raise gen.Return(res)
+        else:
+            raise gen.Return({"error": "user dont have host"})
+
+    @gen.coroutine
+    def host_index_data(self, user_id, host_id):
+        """主机首页数据"""
+        res = {}
+        # relation
+        relation_info = yield self.db.query_one(SQL.get_user_host_relation(user_id, host_id))
+        if relation_info:
+            # host_info
+            res["relation"] = relation_info
+            host_info = yield self.db.query_one(SQL.get_host_info(host_id))
             host_info["update_time"] = host_info["update_time"].strftime('%Y-%m-%d %H:%M:%S')
             host_info["disk_stat"] = eval(host_info["disk_stat"])
+            # 只筛选5G以上的磁盘信息(去掉虚拟磁盘的干扰)
+            host_info["disk_stat"] = filter(lambda x: x[2] > 5, host_info["disk_stat"])
+            host_info["disk_total_size"] = round(  # 磁盘总量求和
+                reduce(lambda x, y: x + y, map(lambda x: x[2], host_info["disk_stat"])), 2)
             host_info["CPU_info"] = eval(host_info["CPU_info"])
-
-        res = {
-            "host_id": hid,
-            "host_info": host_info if host_info else {},
-            "except_record_num": num,
-            "return_record_num": len(records),
-            "records": records[1:],
-            "now_record": records[0] if records else {}
-        }
-        raise gen.Return(res)
+            res["host_info"] = host_info
+            # host_records
+            host_records = yield self.db.query(SQL.get_host_records(host_id, 50))
+            for r in host_records:
+                r["record_time"] = r["record_time"].strftime('%Y-%m-%d %H:%M:%S')
+                r["CPUs"] = eval(r["CPUs"])
+            res["host_records"] = host_records
+            res["host_now_record"] = host_records[0]
+            raise gen.Return(res)
+        else:
+            raise gen.Return({"error": "no host"})
 
     # Process
 
