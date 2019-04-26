@@ -86,7 +86,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_cookie("user_status", str(user_status))
 
     def write_error(self, status_code, **kwargs):
-        """重写错误输出方法"""
+        """500"""
         error_message = ["Oops! Something wrong,"]
 
         if self.settings.get("serve_traceback") and "exc_info" in kwargs:
@@ -112,5 +112,4 @@ class NotFoundHandler(BaseHandler):
     """404"""
 
     def get(self):
-        a = 1 / 0
         return self.render("404.html", status_code=404)
