@@ -40,10 +40,19 @@
             <table cellspacing="0" cellpadding="0">
                 <tr>
                     <td>
-                        <h1>{{status_code}}</h1>
+                        <h1>{{http_code}}</h1>
                         <h3 style="background-color:yellow;color: red">/// ctOS Waring! /// </h3>
                         <p>艾登·皮尔斯入侵了你的系统!!!<br/>
                             <a href="/">返回主页 ></a>
+                        </p>
+                        <br/>
+                        <p style="color: #0d8aee;text-align:left">
+                            {% for i in error_message%}
+                            {% for j in xrange(35)%}
+                            &nbsp;
+                            {% end %}
+                            {{ i }} <br>
+                            {% end %}
                         </p>
                     </td>
                 </tr>

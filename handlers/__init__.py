@@ -87,24 +87,16 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def write_error(self, status_code, **kwargs):
         """重写错误输出方法"""
-        if self.settings.get("serve_traceback") and "exc_info" in kwargs:
-            message = ''
-            for line in traceback.format_exception(*kwargs["exc_info"]):
-                message += line + '<br>'
-            # debug模式错误界面
-            self.render(
-                'error.html',
-                message=message,
-                mode='debug'
-            )
-        else:
+        error_message = ["Oops! Something wrong,"]
 
-            self.render(
-                'error.html',
-                status_code=status_code,
-                message=self._reason,
-                mode='produce'
-            )
+        if self.settings.get("serve_traceback") and "exc_info" in kwargs:
+            error_message = traceback.format_exception(*kwargs["exc_info"])
+
+        return self.render(
+            'error.html',
+            http_code=500,
+            error_message=error_message
+        )
 
 
 class TestHandler(BaseHandler):
@@ -120,4 +112,5 @@ class NotFoundHandler(BaseHandler):
     """404"""
 
     def get(self):
+        a = 1 / 0
         return self.render("404.html", status_code=404)
