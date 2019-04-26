@@ -228,6 +228,11 @@
 <!--<script src="../static/js/easypiechart-data.js"></script>-->
 <!-- Custom Js -->
 <!--<script src="../static/js/custom-scripts.js"></script>-->
+<script src="../static/js/dataTables/jquery.dataTables.js"></script>
+<script src="../static/js/dataTables/dataTables.bootstrap.js"></script>
+<!--带search及换行的table,太难看= =!-->
+<!--$('#host_table').dataTable();-->
+<!--$('#process_table').dataTable();-->
 <!--页面逻辑-->
 <script>
     // 加载页面
@@ -285,6 +290,7 @@
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态" + msg);
             }
+
         });
     });
 

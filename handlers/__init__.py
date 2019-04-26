@@ -7,7 +7,7 @@ base handler
 """
 
 import json
-
+import traceback
 import tornado.web
 from tornado import gen
 
@@ -85,6 +85,27 @@ class BaseHandler(tornado.web.RequestHandler):
         user_status = yield self.data.update_cookie(self.uid)
         self.set_cookie("user_status", str(user_status))
 
+    def write_error(self, status_code, **kwargs):
+        """重写错误输出方法"""
+        if self.settings.get("serve_traceback") and "exc_info" in kwargs:
+            message = ''
+            for line in traceback.format_exception(*kwargs["exc_info"]):
+                message += line + '<br>'
+            # debug模式错误界面
+            self.render(
+                'error.html',
+                message=message,
+                mode='debug'
+            )
+        else:
+
+            self.render(
+                'error.html',
+                status_code=status_code,
+                message=self._reason,
+                mode='produce'
+            )
+
 
 class TestHandler(BaseHandler):
     """/"""
@@ -93,3 +114,10 @@ class TestHandler(BaseHandler):
         return self.render("test.html", date=self.setting.get_local_time(),
                            author="h-j-13",
                            repo_link="https://github.com/Watch-Dogs-HIT/Watch_Dogs-Server")
+
+
+class NotFoundHandler(BaseHandler):
+    """404"""
+
+    def get(self):
+        return self.render("404.html", status_code=404)
