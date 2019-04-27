@@ -229,7 +229,8 @@
                     }
                 },
                 error: function (msg) {
-                    alert("请求超时,请检查后台服务器状态" + msg);
+                    alert("请求超时,请检查后台服务器状态");
+                    console.log(msg);
                 }
             });
         }
@@ -248,7 +249,8 @@
                 $(window).attr('location', "/login");
             },
             error: function (msg) {
-                alert("请求超时,请检查后台服务器状态" + msg);
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
             }
         });
     });
@@ -288,14 +290,15 @@
                 if (res["updated"].length) {
                     $("#user_update_msg").stop();
                     $("#user_update_msg").css("color", "green").text("成功更新了 " + res["updated"].join(", ") + " 信息").fadeIn(500).delay(1500).fadeOut("slow");
-                    setTimeout('window.location.reload()',2000);
+                    setTimeout('window.location.reload()', 2000);
                 } else {
                     $("#user_update_msg").css("color", "red")
                         .text("错误 : 请填写需要更新的内容").fadeIn(500).delay(1500).fadeOut("slow");
                 }
             },
             error: function (msg) {
-                alert("请求超时,请检查后台服务器状态" + msg);
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
             }
         });
     });
@@ -327,7 +330,8 @@
                 console.log("成功更新了 " + res["updated"].join(", ") + " 信息");
             },
             error: function (msg) {
-                alert("请求超时,请检查后台服务器状态" + msg);
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
             }
         })
     }
@@ -359,7 +363,8 @@
                 console.log("成功更新了 " + res["updated"].join(", ") + " 信息");
             },
             error: function (msg) {
-                alert("请求超时,请检查后台服务器状态" + msg);
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
             }
         })
     }

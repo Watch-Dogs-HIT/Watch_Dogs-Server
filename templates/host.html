@@ -316,7 +316,8 @@
                 show_host_data(current_host_id);
             },
             error: function (msg) {
-                alert("请求超时,请检查后台服务器状态" + msg);
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
             }
         });
     });

@@ -253,7 +253,8 @@
                                             <input id="host_port" class="form-control" placeholder="SSH协议端口 (默认为22) ">
                                             <br/>
                                             <label for="host_user">用户名</label>
-                                            <input id="host_user" class="form-control" placeholder="远程主机登陆用户名 (推荐root) ">
+                                            <input id="host_user" class="form-control"
+                                                   placeholder="远程主机登陆用户名 (推荐root) ">
                                             <br/>
                                             <label for="host_password">密码</label>
                                             <input id="host_password" class="form-control" placeholder="远程主机登陆密码">
@@ -387,7 +388,8 @@
                 $(window).attr('location', "/login");
             },
             error: function (msg) {
-                alert("请求超时,请检查后台服务器状态" + msg);
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
             }
         });
     });

@@ -8,6 +8,7 @@ base handler
 
 import json
 import traceback
+
 import tornado.web
 from tornado import gen
 
@@ -31,7 +32,7 @@ class BaseHandler(tornado.web.RequestHandler):
     """"""
 
     def set_default_headers(self):
-        self.set_header("Access-Control-Allow-Origin", "*")  # 这个地方可以写域名
+        self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header("Access-Control-Allow-Headers", "x-requested-with")
         self.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
         self.set_header("Access-Control-Allow-Credentials", True)
