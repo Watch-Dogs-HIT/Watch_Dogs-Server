@@ -101,9 +101,9 @@ class SQL(object):
         )
 
     @staticmethod
-    def update_host_info_error(host):
+    def update_host_info_error(host_id):
         """更新主机信息(异常)"""
-        return ("""UPDATE `Watch_Dogs`.`Host_info` SET `status` = 0 WHERE `host` = "{h}" """).format(h=host)
+        return """UPDATE `Watch_Dogs`.`Host_info` SET `status` = 0 WHERE `host_id` = "{hid}" """.format(hid=host_id)
 
     @staticmethod
     def update_host_info(host_info):
@@ -178,47 +178,16 @@ class SQL(object):
             id=process_id)
 
     @staticmethod
-    def insert_process_record_cache(process_id, process_record_cache):
+    def insert_process_record(process_id, process_record):
         """插入进程记录"""
         # 去除单引号
-        return ("""INSERT INTO `Watch_Dogs`.`Process_record_cache`(`process_id`, `cpu`, `mem`, `read_MBs`,"""
+        return ("""INSERT INTO `Watch_Dogs`.`Process_record`(`process_id`, `cpu`, `mem`, `read_MBs`,"""
                 """`write_MBs`, `net_upload_kbps`, `net_download_kbps`) VALUES ("""
                 """{id}, {c}, {m}, {r}, {w}, {u}, {d})""").format(
-            id=process_id, c=process_record_cache['cpu'], m=process_record_cache['mem'],
-            r=process_record_cache['io'][0], w=process_record_cache['io'][1],
-            u=process_record_cache['net_recent'][0], d=process_record_cache['net_recent'][1]
+            id=process_id, c=process_record['cpu'], m=process_record['mem'],
+            r=process_record['io'][0], w=process_record['io'][1],
+            u=process_record['net_recent'][0], d=process_record['net_recent'][1]
         )
-
-    @staticmethod
-    def select_last_process_cache_record_num(process_id, limit=3):
-        """查询最近的进程缓存数据条目"""
-        return """SELECT count(*) FROM `Process_record_cache` WHERE process_id = {i} ORDER BY record_time DESC LIMIT 3""".format(
-            i=process_id, l=limit
-        )
-
-    @staticmethod
-    def process_cache2process_record(process_id, limit=3):
-        """取得最近的n条数据进行合并存储"""
-        return ("""INSERT INTO `Watch_Dogs`.`Process_record` (`process_id`,`cpu_max`,`cpu_avg`,`cpu_min`,`mem_max`,"""
-                """`mem_avg`,`mem_min`,`read_MBs_max`,`read_MBs_avg`,`read_MBs_min`,`write_MBs_max`,`write_MBs_avg`,`write_MBs_min`,"""
-                """`net_upload_kbps_max`,`net_upload_kbps_avg`,`net_upload_kbps_min`,`net_download_kbps_max`,"""
-                """`net_download_kbps_avg`,`net_download_kbps_min`)"""
-                """( SELECT min( `process_id` ) AS process_id,max( `cpu` ) AS cpu_max,avg( `cpu` ) AS cpu_avg,min( `cpu` ) AS cpu_min,"""
-                """max( `mem` ) AS mem_max,avg( `mem` ) AS mem_avg,min( `mem` ) AS mem_min,max( `read_MBs` ) AS read_MBs_max,"""
-                """avg( `read_MBs` ) AS read_MBs_avg,min( `read_MBs` ) AS read_MBs_min,max( `write_MBs` ) AS write_MBs_max,"""
-                """avg( `write_MBs` ) AS write_MBs_avg,min( `write_MBs` ) AS write_MBs_min,max( `net_upload_kbps` ) AS net_upload_kbps_max,"""
-                """avg( `net_upload_kbps` ) AS net_upload_kbps_avg,min( `net_upload_kbps` ) AS net_upload_kbps_min,"""
-                """max( `net_download_kbps` ) AS net_download_kbps_max,avg( `net_download_kbps` ) AS net_download_kbps_avg,min( `net_download_kbps` ) AS net_download_kbps_min"""
-                """ FROM ( SELECT * FROM `Process_record_cache` WHERE process_id = {i} ORDER BY record_time DESC LIMIT {l} )  AS t)""").format(
-            i=process_id, l=limit
-        )
-
-    @staticmethod
-    def delete_process_record_cache(process_id, limit=3):
-        """删除最近的n条进程缓存信息"""
-        return ("""DELETE FROM `Process_record_cache` WHERE `record_id` in (SELECT t.`record_id` FROM """
-                """( SELECT `record_id` FROM `Process_record_cache` WHERE process_id = {i} """
-                """ORDER BY record_time DESC LIMIT {l} ) AS t )""").format(i=process_id, l=limit)
 
     @staticmethod
     def delete_old_host_record(days=7):
@@ -233,14 +202,6 @@ class SQL(object):
         """删除days天数之前的进程状态数据"""
         return ("""DELETE FROM `Process_record` WHERE `record_id` in (SELECT t.record_id FROM("""
                 """SELECT `record_id` FROM `Process_record` WHERE DAY(now()) - DAY(`record_time`)  > {d}) AS t);""").format(
-            d=days
-        )
-
-    @staticmethod
-    def delete_old_process_cache_record(days=7):
-        """删除days天数之前的进程状态缓存数据"""
-        return ("""DELETE FROM `Process_record_cache` WHERE `record_id` in (SELECT t.record_id FROM("""
-                """SELECT `record_id` FROM `Process_record_cache` WHERE DAY(now()) - DAY(`record_time`)  > {d}) AS t);""").format(
             d=days
         )
 
@@ -371,12 +332,12 @@ class SQL(object):
 
     @staticmethod
     def get_process_record(pid):
-        """获取主机资源记录"""
+        """获取进程状态"""
         return """SELECT * FROM `Process` WHERE process_id = {p}""".format(p=pid)
 
     @staticmethod
     def get_process_records(pid, num):
-        """获取用户-进程关系id"""
+        """获取进程资源记录"""
         return """SELECT * FROM Process_record WHERE `process_id` = {p} ORDER BY `record_time` DESC LIMIT {n}""".format(
             p=pid, n=num
         )

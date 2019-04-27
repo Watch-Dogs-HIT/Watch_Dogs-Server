@@ -115,11 +115,12 @@ class Data(object):
         res["process"] = p
         res["host_num"] = len(h)
         res["process_num"] = len(p)
-        res["error_logs"] = -1  # todo : yield self.db.query(...)
+        res["error_logs"] = -1  # TODO : yield self.db.query(...)
         res["un_normal_process"] = filter(lambda x: x["state"] == u"X", p)
         res["un_normal_process_num"] = len(res["un_normal_process"])
         res["un_normal_host"] = filter(lambda x: x["status"] == 0, h)
         res["un_normal_host_num"] = len(res["un_normal_host"])
+        # host
         for host_info in h:
             t = {}
             host_id = host_info["host_id"]
@@ -132,6 +133,7 @@ class Data(object):
             t["record_time"] = t["record_time"].strftime('%Y-%m-%d %H:%M:%S')
             t["update_time"] = t["update_time"].strftime('%Y-%m-%d %H:%M:%S')
             res["recent_host_record"].append(t)
+        # process
         for process_info in p:
             t = {}
             process_id = process_info["process_id"]

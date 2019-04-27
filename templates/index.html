@@ -277,10 +277,10 @@
                         `<td>${process_record["pid"]}</td>`,
                         `<td>${process_record["state"]}</td>`,
                         `<td>${process_record["thread_num"]}</td>`,
-                        `<td>${process_record["cpu_avg"]} %</td>`,
-                        `<td>${process_record["mem_avg"]} M</td>`,
-                        `<td>${process_record["net_upload_kbps_avg"]}/${process_record["net_download_kbps_avg"]}</td>`,
-                        `<td>${process_record["read_MBs_avg"]}/${process_record["write_MBs_avg"]}</td>`,
+                        `<td>${process_record["cpu"]} %</td>`,
+                        `<td>${process_record["mem"]} M</td>`,
+                        `<td>${process_record["net_upload_kbps"]}/${process_record["net_download_kbps"]}</td>`,
+                        `<td>${process_record["read_MBs"]}/${process_record["write_MBs"]}</td>`,
                         `<td>${process_record["update_time"]}</td>`
                     );
                     $("#process_table").append(process_record_tr);

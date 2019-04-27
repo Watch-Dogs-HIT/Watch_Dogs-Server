@@ -78,7 +78,8 @@ class ClientManager(object):
                     logger_client_manage.info(
                         host_ip + "Watch_Dogs-Client connect ok, [nethogs env] : " + str(test_connect["nethogs env"]))
                     self.client[host_ip.strip()] = remote_api_client
-                return remote_api_client
+                    return remote_api_client
+            return remote_api_client
         else:
             return self.client[host_ip.strip()]
 
@@ -101,7 +102,6 @@ class ClientManager(object):
             if wdc.is_error_happen(hi):
                 logger_client_manage.error("Error : " + str(host_ip) + " WDC host info get error")
                 logger_client_manage.error("Error details: " + str(hi))
-                self.db.execute(SQL.update_host_info_error(host_ip))
             else:
                 logger_client_manage.info("update " + str(host_ip) + " system info")
                 self.db.execute(SQL.update_host_info(hi))
@@ -117,6 +117,7 @@ class ClientManager(object):
             if wdc.is_error_happen(hr):
                 logger_client_manage.error("Error : " + str(host_ip) + " WDC host record get error")
                 logger_client_manage.error("Error details: " + str(hr))
+                self.db.execute(SQL.update_host_info_error(host_id))  # 更新主机状态为异常
             else:
                 logger_client_manage.info("insert " + str(host_ip) + " system record")
                 self.db.execute(SQL.insert_host_record(host_id, hr))
@@ -139,7 +140,7 @@ class ClientManager(object):
                     logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
                                                str(process_host) + " get process info fialed!")
                     logger_client_manage.error("Error details: " + str(pi))
-                # todo : 添加重新探测进程处理逻辑,利用re_detect_process()方法
+                # TODO : 添加重新探测进程处理逻辑,利用 re_detect_process() 方法 重新获取现在的进程号,并更新记录
             else:
                 logger_client_manage.info("update " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
                                           str(process_host) + " process info")
@@ -147,7 +148,7 @@ class ClientManager(object):
         self.db.commit()
         self.db.close()
 
-    def cache_process_record(self):
+    def insert_process_record(self):
         """插入进程状态数据"""
         self.db.connect()
         for process_id, process_host, process_pid, process_cmd in self.process_info_list:
@@ -161,29 +162,11 @@ class ClientManager(object):
                     logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
                                                str(process_host) + " get process record fialed!")
                     logger_client_manage.error("Error details: " + str(pic))
-                # todo : 添加重新探测进程处理逻辑,利用re_detect_process()方法
-
+                # TODO : 添加重新探测进程处理逻辑,同上...
             else:
                 logger_client_manage.info("insert " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
                                           str(process_host) + " process record cache")
-                self.db.execute(SQL.insert_process_record_cache(process_id, pic))
-        self.db.commit()
-        self.db.close()
-
-    def insert_process_record(self):
-        """整理缓存的进程状态数据"""
-        self.db.connect()
-        for process_id, process_host, process_pid, process_cmd in self.process_info_list:
-            cache_record_num = self.db.execute(SQL.select_last_process_cache_record_num(process_id))
-            if cache_record_num:
-                if cache_record_num[0][0] >= 3:
-                    self.db.execute(SQL.process_cache2process_record(process_id))
-                    self.db.execute(SQL.delete_process_record_cache(process_id))
-                    logger_client_manage.info("insert " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
-                                              str(process_host) + " process record")
-                else:  # 没有足够的数据进行整理合并
-                    logger_client_manage.info("not enough " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
-                                              str(process_host) + " process cache record, just hang-up")
+                self.db.execute(SQL.insert_process_record(process_id, pic))
         self.db.commit()
         self.db.close()
 
@@ -199,7 +182,7 @@ class ClientManager(object):
         logger_client_manage.info("clear old data")
         self.db.execute(SQL.delete_old_host_record(days))
         self.db.execute(SQL.delete_old_process_record(days))
-        self.db.execute(SQL.delete_old_process_cache_record(days))
+        # self.db.execute(SQL.delete_old_process_cache_record(days))
         self.db.commit()
         self.db.close()
 
@@ -209,15 +192,15 @@ class ClientManager(object):
         print "HOST_INFO_INTERVAL_HOUR", Setting.HOST_INFO_INTERVAL_HOUR
         print "HOST_RECORD_INTERVAL_MIN", Setting.HOST_RECORD_INTERVAL_MIN
         print "PROCESS_INFO_INTERVAL_MIN", Setting.PROCESS_INFO_INTERVAL_MIN
-        print "PROCESS_RECORD_CACHE_INTERVAL_MIN", Setting.PROCESS_RECORD_CACHE_INTERVAL_MIN
+        # print "PROCESS_RECORD_CACHE_INTERVAL_MIN", Setting.PROCESS_RECORD_CACHE_INTERVAL_MIN
         print "PROCESS_RECORD_INTERVAL_MIN", Setting.PROCESS_RECORD_INTERVAL_MIN
         print "OLD_DATE_CLEAR_INTERVAL_DAY", Setting.OLD_DATE_CLEAR_INTERVAL_DAY
         # 测试功能
         self.update_host_info()
         self.insert_host_record()
         self.update_process_info()
-        self.cache_process_record()
         self.insert_process_record()
+        # self.insert_process_record()
         self.clear_old_data()
 
     def manage_main_thread(self):
@@ -228,8 +211,8 @@ class ClientManager(object):
         schedule.every(Setting.HOST_RECORD_INTERVAL_MIN).minutes.do(self.insert_host_record)
         # process
         schedule.every(Setting.PROCESS_INFO_INTERVAL_MIN).minutes.do(self.update_process_info)
-        schedule.every(Setting.PROCESS_RECORD_CACHE_INTERVAL_MIN).minutes.do(self.cache_process_record)
         schedule.every(Setting.PROCESS_RECORD_INTERVAL_MIN).minutes.do(self.insert_process_record)
+        # schedule.every(Setting.PROCESS_RECORD_INTERVAL_MIN).minutes.do(self.insert_process_record)
         # clear
         schedule.every(Setting.OLD_DATE_CLEAR_INTERVAL_DAY).days.do(self.clear_old_data)
         while True:
@@ -240,4 +223,4 @@ class ClientManager(object):
 if __name__ == '__main__':
     c = ClientManager()
     # c.test_api()
-    c.manage_main_thread()
+    # c.manage_main_thread()
