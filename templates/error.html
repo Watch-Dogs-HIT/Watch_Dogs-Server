@@ -22,8 +22,8 @@
         }
 
         h1 {
-            font-size: 100px;
-            line-height: 1em;
+            font-size: 200px;
+            line-height: 1.13em;
         }
 
         table {
@@ -41,18 +41,21 @@
                 <tr>
                     <td>
                         <h1>{{http_code}}</h1>
-                        <h3 style="background-color:yellow;color: red">/// ctOS Waring! /// </h3>
-                        <p>艾登·皮尔斯入侵了你的系统!!!<br/>
-                            <a href="/">返回主页 ></a>
+                        <h3 style="background-color:black;color:red;font-size: 25px">/// ctOS ERROR! /// </h3>
+                        <p style="font-size: 20px"><strong>DedSec</strong> 正在入侵你的 <strong
+                                style="background-color:black;color: whitesmoke">ct</strong>OS !<br/>
+                            <a style="background-color:black;color: whitesmoke" href="/"> > return Home</a>
                         </p>
-                        <br/>
-                        <p style="color: #0d8aee;text-align:left">
+                        <p style="font-size: 25px"><span style="background-color:black;color: whitesmoke">ct</span>OS log:</p>
+                        <p style="font-size: 20px;color: #0d8aee;text-align:left">
                             {% for i in error_message%}
                             {% for j in xrange(35)%}
                             &nbsp;
                             {% end %}
+
                             {{ i }} <br>
                             {% end %}
+
                         </p>
                     </td>
                 </tr>
