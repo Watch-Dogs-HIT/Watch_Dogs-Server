@@ -37,9 +37,9 @@ class AuthenticationHandler(BaseHandler):
             if user_status == USER_STATUS["locked"]:
                 self.finish({"login": False, "msg": "用户被锁定,请联系管理员"})
             elif uid:
-                self.set_cookie('uid', uid, expires_days=30)
-                self.set_cookie('user', user, expires_days=30)
-                self.set_cookie('user_status', user_status, expires_days=30)
+                self.set_cookie('uid', uid, expires_days=90)
+                self.set_cookie('user', user, expires_days=90)
+                self.set_cookie('user_status', user_status, expires_days=90)
                 self.finish({"login": True, "next_url": next_url})
             else:
                 self.finish({"login": False, "msg": "用户名/密码错误"})

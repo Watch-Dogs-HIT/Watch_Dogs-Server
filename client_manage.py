@@ -223,4 +223,4 @@ class ClientManager(object):
 if __name__ == '__main__':
     c = ClientManager()
     # c.test_api()
-    # c.manage_main_thread()
+    c.manage_main_thread()
