@@ -77,8 +77,8 @@
     </nav>
     <!-- /. NAV SIDE  -->
     <div id="page-wrapper">
-        <h1 class="page-header">主机管理
-            <small>远程Linux主机资源监控</small>
+        <h1 class="page-header">进程监控
+            <small>远程Linux主机进程监控及管理</small>
         </h1>
         <div id="page-inner">
             <div class="row">
@@ -87,21 +87,24 @@
                         <div class="panel-heading">
                             <div class="btn-group">
                                 <button data-toggle="dropdown" class="btn btn-default dropdown-toggle"
-                                        aria-expanded="false" id="host_select_btn">1<span class="caret"></span></button>
-                                <ul class="dropdown-menu" id="host_select_id">
+                                        aria-expanded="false" id="process_select_btn">1<span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" id="process_select_id">
                                     <li><a href="">1</a></li>
-                                    <li><a href="">2</a></li>
-                                    <li><a href="">3</a></li>
-                                    <li><a href="">4</a></li>
                                 </ul>
                             </div>
+                            &nbsp;
+                            <a href="#" class="btn btn-danger" id="delete_process_btn">不再关注进程</a>
                         </div>
                         <div class="panel-body">
+                            <div id="process_status" class="alert alert-success">
+                                default massage
+                            </div>
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
-                                            主机资源
+                                            进程占用资源
                                         </div>
                                         <div class="panel-body">
                                             <ul class="nav nav-tabs">
@@ -116,22 +119,16 @@
                                             </ul>
                                             <div class="tab-content">
                                                 <div class="tab-pane fade active in" id="CPU">
-                                                    <div id="cpu_graph" style="width: 1200px;height:450px;"></div>
-                                                    <ui id="cpu_info">CPU 硬件信息</ui>
-                                                    <li>1</li>
-                                                    <p>共<span id="cpu_cores_num">1</span>个核心</p>
+                                                    <div id="cpu_graph" style="width: 1000px;height:450px;"></div>
                                                 </div>
                                                 <div class="tab-pane fade in" id="Memory">
-                                                    <div id="mem_graph" style="width: 1200px;height:450px;"></div>
-                                                    <p>总内存大小 : <span id="mem_max_size">1</span> MB</p>
+                                                    <div id="mem_graph" style="width: 1000px;height:450px;"></div>
                                                 </div>
                                                 <div class="tab-pane fade in" id="Net">
-                                                    <div id="io_graph" style="width: 1200px;height:450px;"></div>
-                                                    <p>默认网卡设备 : <span id="net_device">1</span></p>
+                                                    <div id="io_graph" style="width: 1000px;height:450px;"></div>
                                                 </div>
                                                 <div class="tab-pane fade in" id="Disk">
-                                                    <div id="net_graph" style="width: 1200px;height:450px;"></div>
-                                                    <p>总磁盘空间 : <span id="disk_size">1</span> GB</p>
+                                                    <div id="net_graph" style="width: 1000px;height:450px;"></div>
                                                 </div>
                                             </div>
 
@@ -141,102 +138,80 @@
                                 <div class="col-md-4">
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
-                                            主机配置
+                                            进程信息
                                         </div>
 
                                         <div class="panel-body">
-                                            <h4>配置信息</h4>
+                                            <h4>进程详细信息</h4>
                                             <div class="table-responsive">
-                                                <table class="table">
+                                                <table class="table table-striped">
                                                     <thead>
                                                     </thead>
                                                     <tbody>
                                                     <tr>
-                                                        <td>用户名</td>
+                                                        <td>所在主机</td>
+                                                        <td>0.0.0.0</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>进程号</td>
+                                                        <td>pid</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>名称</td>
+                                                        <td>comm</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>状态</td>
+                                                        <td>S</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>命令</td>
+                                                        <td>cmdline</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>父进程号</td>
+                                                        <td>ppid</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>进程组号</td>
+                                                        <td>pgrp</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>线程数</td>
                                                         <td>Mark</td>
                                                     </tr>
                                                     <tr>
-                                                        <td>IP地址（外网）</td>
-                                                        <td>Mark</td>
+                                                        <td>执行地址</td>
+                                                        <td>pwdx</td>
                                                     </tr>
                                                     <tr>
-                                                        <td>IP地址（内网）</td>
-                                                        <td>Mark</td>
+                                                        <td>进程类型</td>
+                                                        <td>type</td>
                                                     </tr>
                                                     <tr>
-                                                        <td>操作系统</td>
-                                                        <td>Mark</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>内核版本</td>
-                                                        <td>Mark</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>空闲率</td>
-                                                        <td>Mark</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>nr</td>
-                                                        <td>Mark</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>lavg_1/5/15</td>
-                                                        <td>Mark</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>运行时间</td>
-                                                        <td>Mark</td>
+                                                        <td>进程备注</td>
+                                                        <td>comment</td>
                                                     </tr>
                                                     </tbody>
                                                 </table>
-                                                <hr/>
-                                                <h4>磁盘信息</h4>
-                                                <div class="table-responsive">
-                                                    <table class="table table-striped">
-                                                        <thead>
-                                                        <tr>
-                                                            <th>文件系统</th>
-                                                            <th>大小</th>
-                                                            <th>已用</th>
-                                                            <th>占用 %</th>
-                                                            <th>挂载点</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        <tr>
-                                                            <td>1</td>
-                                                            <td>Mark</td>
-                                                            <td>Otto</td>
-                                                            <td>@mdo</td>
-                                                            <td>@fat</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>2</td>
-                                                            <td>Jacob</td>
-                                                            <td>Thornton</td>
-                                                            <td>@fat</td>
-                                                            <td>@fat</td>
-                                                        </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
                                             </div>
-
                                         </div>
+
                                     </div>
                                 </div>
-                                <p class="pull-right" style="margin-right:20px">&nbsp;&nbsp;监控信息生成于&nbsp;<span
-                                        id="record_time">2019年4月18日16:41:40</span></p>
                             </div>
+                            <p class="pull-right" style="margin-right:20px">&nbsp;&nbsp;进程监控信息生成于&nbsp;<span
+                                    id="record_time">YYYY-MM-DD HH:mm:SS</span></p>
                         </div>
-
                     </div>
-                </div>
 
+                </div>
+            </div>
+            <div class="row">
                 <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            添加远程主机
+                            进程控制
                         </div>
                         <div class="panel-body">
                             <div class="col-md-6">
@@ -279,17 +254,15 @@
                     </div>
                 </div>
             </div>
+            <footer>
+                <p>&copy; 2019 <a href="https://github.com/h-j-13" target="_blank" title="侯捷">h-j-13</a>
+                </p>
+            </footer>
         </div>
     </div>
+    <!-- /. PAGE WRAPPER  -->
 </div>
 
-<footer>
-    <p>&copy; 2019 <a href="https://github.com/h-j-13" target="_blank" title="侯捷">h-j-13</a>
-    </p>
-</footer>
-</div>
-<!-- /. PAGE WRAPPER  -->
-</div>
 
 <!-- /. WRAPPER  -->
 <!-- JS Scripts-->
