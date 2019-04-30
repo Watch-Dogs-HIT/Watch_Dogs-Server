@@ -69,7 +69,7 @@ class UserHandler(BaseHandler):
         """注册"""
         try:
             json = self.get_json()
-            if "user" in json and "password" in json:
+            if "user" in json and "password" in json and "email" in json:
                 res = yield self.data.create_user(**json)
                 self.log.info(json["user"] + " registered")
                 self.finish(res)
@@ -85,7 +85,7 @@ class UserHandler(BaseHandler):
         try:
             json = self.get_json()
             if "update_field" in json and "update_value" in json and "update_uid" in json:
-                if set(json["update_field"]) < set(["brief", "password", "status"]):
+                if set(json["update_field"]) < set(["brief", "password", "status", "email"]):
                     yield self.data.update_user_info(json["update_uid"], json["update_field"], json["update_value"])
                     self.log.info("User uid(" + self.uid + ") update " + str(json["update_field"]))
                     self.finish({"updated": json["update_field"]})

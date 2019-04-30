@@ -42,10 +42,10 @@ class SQL(object):
         )
 
     @staticmethod
-    def create_user(user, password_aes):
+    def create_user(user, password_aes, email):
         """注册用户"""
-        return """INSERT INTO `Watch_Dogs`.`User`(`user`, `password`) VALUES ("{u}", "{p}") ;""".format(
-            u=user, p=password_aes
+        return """INSERT INTO `Watch_Dogs`.`User`(`user`, `password`, `email`) VALUES ("{u}", "{p}", "{e}") ;""".format(
+            u=user, p=password_aes, e=email
         )
 
     @staticmethod
@@ -71,7 +71,7 @@ class SQL(object):
     @staticmethod
     def show_all_user():
         """查看所有用户信息"""
-        return """SELECT `user_id`, `user`, `brief`, `password`, `status` FROM `User`"""
+        return """SELECT `user_id`, `user`, `brief`, `password`, `status`, `email` FROM `User`"""
 
     @staticmethod
     def get_user_watch_host_num(uid):

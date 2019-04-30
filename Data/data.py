@@ -60,7 +60,7 @@ class Data(object):
         """用户注册"""
         res = yield self.db.query_one(SQL.select_user_by_name(json["user"]))
         if not res["COUNT(*)"]:
-            yield self.db.execute(SQL.create_user(json["user"], self.prpcrypt.encrypt(json["password"])))
+            yield self.db.execute(SQL.create_user(json["user"], self.prpcrypt.encrypt(json["password"]), json["email"]))
             raise gen.Return({"register": True})
         else:  # 已有同名用户
             raise gen.Return({"register": False, "msg": "已经存在的用户名"})
@@ -82,7 +82,7 @@ class Data(object):
         for user_info in user_infos:
             r = [user_info["user_id"], user_info["user"], user_info["brief"],
                  self.prpcrypt.decrypt(user_info["password"]),
-                 USER_STATUS[str(user_info["status"])]]
+                 USER_STATUS[str(user_info["status"])], user_info["email"] if user_info["email"] else "无"]
             hn = yield self.db.query_one(SQL.get_user_watch_host_num(user_info["user_id"]))
             pn = yield self.db.query_one(SQL.get_user_watch_process_num(user_info["user_id"]))
             r.extend([hn["host_num"], pn["process_num"]])

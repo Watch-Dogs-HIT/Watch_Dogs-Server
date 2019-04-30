@@ -93,8 +93,8 @@
                                 <div class="col-lg-8">
                                     <form role="form">
                                         <div class="form-group has-warning">
-                                            <p class="help-block" id="user_name" style="font-size: 35px">Default User
-                                                Name</p>
+                                            <p class="help-block" style="font-size: 35px">Hello, <span id="user_name">Default User
+                                                Name</span></p>
                                             <br/>
                                             <label for="new_password" class="control-label">密码</label>
                                             <input class="form-control" placeholder="Your new password "
@@ -103,6 +103,10 @@
                                             <label for="new_brief" class="control-label">简介</label>
                                             <input class="form-control" placeholder="Your new brief introduction"
                                                    id="new_brief">
+                                            <br/>
+                                            <label for="new_email" class="control-label">邮箱</label>
+                                            <input class="form-control" placeholder="Your new email address"
+                                                   id="new_email">
                                             <br/>
                                             <button class="btn btn-default"
                                                     id="user_info_update_submit">更新信息
@@ -136,6 +140,7 @@
                                         <th>简介</th>
                                         <th>身份</th>
                                         <th>登录密码</th>
+                                        <th>关联邮箱</th>
                                         <th>主机数</th>
                                         <th>进程数</th>
                                         <th>权限</th>
@@ -223,6 +228,7 @@
                             "<td>" + user_info[3] + "</td>",
                             "<td>" + user_info[5] + "</td>",
                             "<td>" + user_info[6] + "</td>",
+                            "<td>" + user_info[7] + "</td>",
                             update_status,
                             lock_btn
                         );
@@ -267,6 +273,7 @@
             };
             let new_password = $.trim($("#new_password").val());
             let new_brief = $.trim($("#new_brief").val());
+            let new_email = $.trim($("#new_email").val());
             if (new_password !== "") {
                 request_json["update_field"].push("password");
                 request_json["update_value"].push(new_password);
@@ -274,6 +281,10 @@
             if (new_brief !== "") {
                 request_json["update_field"].push("brief");
                 request_json["update_value"].push(new_brief);
+            }
+            if (new_email !== "") {
+                request_json["update_field"].push("email");
+                request_json["update_value"].push(new_email);
             }
             return request_json
         }
@@ -371,8 +382,5 @@
     }
 
 </script>
-
-
 </body>
-
 </html>
