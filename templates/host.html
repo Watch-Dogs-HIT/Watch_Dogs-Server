@@ -91,8 +91,12 @@
                             </div>
                             &nbsp;
                             <a href="#" class="btn btn-danger" id="delete_host_btn">删除主机</a>
+
                         </div>
+
                         <div class="panel-body">
+                            <div id="host_status" class="alert alert-success">
+                            </div>
                             <div class="row">
                                 <div class="col-md-8">
                                     <div class="panel panel-default">
@@ -354,6 +358,7 @@
         };
     }
 
+    // 展示选中主机数据
     function show_host_data(host_id) {
         // 获取主机数据
         $.ajax({
@@ -364,6 +369,18 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (res) {
+                // 状态提示框
+                if (res["host_info"]["status"] == 0) {
+                    $("#host_status").removeClass();
+                    $("#host_status").addClass("alert alert-danger");
+                    $("#host_status").text("[警告] 当前主机状态存在问题!  请检查远程主机状态及监测进程状态");
+                } else {
+                    $("#host_status").removeClass();
+                    $("#host_status").addClass("alert alert-success");
+                    $("#host_status_tips").text("[OK]");
+                    $("#host_status").text("[OK] 当前主机运行情况良好.");
+                }
+
                 // 右侧配置数据
                 $("#user").text(res["host_info"]["user"]);
                 $("#ex_ip").text(res["host_info"]["extranet_ip"]);
@@ -388,7 +405,7 @@
                 }
 
                 // 下方时间戳
-                $("#record_time").text(res["host_now_record"]["record_time"]);
+                $("#record_time").text(res["record_time"]);
 
                 // 左侧资源图表
                 // CPU
@@ -518,7 +535,7 @@
 
             },
             error: function (msg) {
-                alert("请求超时,请检查后台服务器状态" + msg);
+                alert("请求超时,请检查后台服务器状态");
             }
         });
     }
@@ -561,7 +578,7 @@
                 alert("删除成功");
             },
             error: function (msg) {
-                alert("请求超时,请检查后台服务器状态" + msg);
+                alert("请求超时,请检查后台服务器状态");
             }
         });
     });
@@ -579,7 +596,7 @@
                 $(window).attr('location', "/login");
             },
             error: function (msg) {
-                alert("请求超时,请检查后台服务器状态" + msg);
+                alert("请求超时,请检查后台服务器状态");
             }
         });
     });

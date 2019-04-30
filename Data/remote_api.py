@@ -80,7 +80,9 @@ class Watch_Dogs_Client(object):
         except requests.exceptions.ConnectTimeout as err:
             logger_client.error("time out : " + request_addr)
             return {"Error": "time out -" + request_addr}
-
+        except requests.exceptions.ConnectionError as err:
+            logger_client.error("connect error : " + request_addr)
+            return {"Error": "connect error at " + request_addr}
         return yaml.safe_load(r.text.encode("utf8"))
 
     def is_error_happen(self, res):
@@ -214,4 +216,3 @@ if __name__ == '__main__':
 
     c = Watch_Dogs_Client("10.245.146.202")
     print c.host_info()
-

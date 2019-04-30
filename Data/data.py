@@ -200,6 +200,9 @@ class Data(object):
                 r["CPUs"] = eval(r["CPUs"])
             res["host_records"] = host_records
             res["host_now_record"] = host_records[0]
+            res["record_time"] = res["host_now_record"]["record_time"] if res["host_now_record"]["record_time"] > \
+                                host_info["update_time"] else host_info["update_time"]
+
             raise gen.Return(res)
         else:
             raise gen.Return({"error": "no host"})

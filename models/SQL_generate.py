@@ -103,7 +103,8 @@ class SQL(object):
     @staticmethod
     def update_host_info_error(host_id):
         """更新主机信息(异常)"""
-        return """UPDATE `Watch_Dogs`.`Host_info` SET `status` = 0 WHERE `host_id` = "{hid}" """.format(hid=host_id)
+        return """UPDATE `Watch_Dogs`.`Host_info` SET `status` = 0, `update_time`=now() WHERE `host_id` = "{hid}" """.format(
+            hid=host_id)
 
     @staticmethod
     def update_host_info(host_info):
