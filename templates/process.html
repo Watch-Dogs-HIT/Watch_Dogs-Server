@@ -90,14 +90,13 @@
                                         aria-expanded="false" id="process_select_btn">1<span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu" id="process_select_id">
-                                    <li><a href="">1</a></li>
                                 </ul>
                             </div>
                             &nbsp;
                             <a href="#" class="btn btn-danger" id="delete_process_btn">不再关注进程</a>
                         </div>
                         <div class="panel-body">
-                            <div id="process_status" class="alert alert-success">
+                            <div id="process_state" class="alert alert-success">
                                 default massage
                             </div>
                             <div class="row">
@@ -123,6 +122,7 @@
                                                 </div>
                                                 <div class="tab-pane fade in" id="Memory">
                                                     <div id="mem_graph" style="width: 1000px;height:450px;"></div>
+                                                    <p>总内存大小 : <span id="mem_max_size">1</span> MB</p>
                                                 </div>
                                                 <div class="tab-pane fade in" id="Net">
                                                     <div id="io_graph" style="width: 1000px;height:450px;"></div>
@@ -150,47 +150,51 @@
                                                     <tbody>
                                                     <tr>
                                                         <td>所在主机</td>
-                                                        <td>0.0.0.0</td>
+                                                        <td id="host">0.0.0.0</td>
                                                     </tr>
                                                     <tr>
                                                         <td>进程号</td>
-                                                        <td>pid</td>
+                                                        <td id="pid">pid</td>
                                                     </tr>
                                                     <tr>
                                                         <td>名称</td>
-                                                        <td>comm</td>
+                                                        <td id="comm">comm</td>
                                                     </tr>
                                                     <tr>
                                                         <td>状态</td>
-                                                        <td>S</td>
+                                                        <td id="state">S</td>
                                                     </tr>
                                                     <tr>
                                                         <td>命令</td>
-                                                        <td>cmdline</td>
+                                                        <td id="cmdline">cmdline</td>
                                                     </tr>
                                                     <tr>
                                                         <td>父进程号</td>
-                                                        <td>ppid</td>
+                                                        <td id="ppid">ppid</td>
                                                     </tr>
                                                     <tr>
                                                         <td>进程组号</td>
-                                                        <td>pgrp</td>
+                                                        <td id="pgrp">pgrp</td>
                                                     </tr>
                                                     <tr>
                                                         <td>线程数</td>
-                                                        <td>Mark</td>
+                                                        <td id="thead_num">thead_num</td>
                                                     </tr>
                                                     <tr>
                                                         <td>执行地址</td>
-                                                        <td>pwdx</td>
+                                                        <td id="pwdx">pwdx</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>日志地址</td>
+                                                        <td id="log_path">log_path</td>
                                                     </tr>
                                                     <tr>
                                                         <td>进程类型</td>
-                                                        <td>type</td>
+                                                        <td id="type">type</td>
                                                     </tr>
                                                     <tr>
                                                         <td>进程备注</td>
-                                                        <td>comment</td>
+                                                        <td id="comment">comment</td>
                                                     </tr>
                                                     </tbody>
                                                 </table>
@@ -200,12 +204,24 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-md-12" id="log_div">
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            进程日志监控
+                                        </div>
+                                        <div class="panel-body">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <p class="pull-right" style="margin-right:20px">&nbsp;&nbsp;进程监控信息生成于&nbsp;<span
                                     id="record_time">YYYY-MM-DD HH:mm:SS</span></p>
                         </div>
                     </div>
 
                 </div>
+
             </div>
             <div class="row">
                 <div class="col-md-12">
@@ -283,19 +299,47 @@
 <!--页面逻辑-->
 <!--<script src="../static/js/jquery-3.4.0.js"></script>-->
 <script>
-    // 基于准备好的dom，初始化echarts实例
+    // 当前选择的进程id
+    let current_process_id = -1;
 
+    // 初始化页面
     $(document).ready(function () {
-        // 指定图表的配置项和数据
-        var option = {
+        $.ajax({
+            type: 'get',
+            async: true,
+            url: "/process/0",
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                // 设置默认进程
+                $("#process_select_btn").text(res["relation"][0]["select_str"]);
+                current_process_id = res["relation"][0]["host_id"];
+
+                // 添加选择进程按钮
+                for (let process_relation of res["relation"]) {
+                    $("#process_select_id").append("<li><a href=\"#\">" + process_relation["select_str"] + "</a></li>");
+                }
+                show_host_data(current_process_id);
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    });
+
+    // 初始化ECharts图表数据结构
+    function init_echarts_graph_data(title) {
+        return {
             title: {
-                text: 'CPU占用率'
+                text: title
             },
             tooltip: {
                 trigger: 'axis'
             },
             legend: {
-                data: ['CPUs', 'CPU0', 'CPU1']
+                data: []
             },
             grid: {
                 left: '3%',
@@ -306,46 +350,195 @@
             xAxis: {
                 type: 'category',
                 boundaryGap: false,
-                data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+                data: [] // 时间
             },
             yAxis: {
                 type: 'value',
-                max: 100,
-                min: 0,
             },
-            series: [
-                {
-                    name: 'CPUs',
-                    type: 'line',
-                    smooth: true,
-
-                    data: [12, 13, 10, 14, 0, 23, 21]
-                },
-                {
-                    name: 'CPU0',
-                    type: 'line',
-                    smooth: true,
-                    data: [20, 12, 91, 24, 20, 30, 30]
-                },
-                {
-                    name: 'CPU1',
-                    type: 'line',
-                    smooth: true,
-                    data: [10, 23, 21, 14, 10, 30, 10]
-                }
-            ]
+            series: []
         };
-        // 使用刚指定的配置项和数据显示图表。
-        echarts.init(document.getElementById('cpu_graph')).setOption(option);
-        echarts.init(document.getElementById('mem_graph')).setOption(option);
-        echarts.init(document.getElementById('io_graph')).setOption(option);
-        echarts.init(document.getElementById('net_graph')).setOption(option);
+    }
+
+    // 展示选中进程数据
+    function show_host_data(process_id) {
+        // 获取进程数据
+        $.ajax({
+            type: 'get',
+            async: true,
+            url: "/process/" + process_id,
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                // 状态提示框
+                if (res["process_info"]["state"] == "X") {
+                    $("#process_state").removeClass();
+                    $("#process_state").addClass("alert alert-danger");
+                    $("#process_state").text("[错误] 进程不存在, 进程可能崩溃了!");
+                } else if (res["process_info"]["state"] == "0") {
+                    $("#process_state").removeClass();
+                    $("#process_state").addClass("alert alert-success");
+                    $("#process_state").text("[警告] 进程状态获取出现问题! 请检查远程客户端运行情况");
+                } else {
+                    $("#process_state").removeClass();
+                    $("#process_state").addClass("alert alert-success");
+                    $("#process_state").text("[OK] 当前进程运行情况良好.");
+                }
+
+                // 右侧配置数据
+                $("#host").text(res["host_info"]["intranet_ip"]);
+                $("#pid").text(res["host_info"]["pid"]);
+                $("#comm").text(res["process_info"]["comm"]);
+                $("#state").text(res["process_info"]["state"]);
+                $("#cmdline").text(res["process_info"]["cmdline"]);
+                $("#ppid").text(res["process_info"]["ppid"]);
+                $("#pgrp").text(res["process_info"]["pgrp"]);
+                $("#thead_num").text(res["process_info"]["thread_num"]);
+                $("#pwdx").text(res["process_info"]["process_path"]);
+                $("#log_path").text(res["process_info"]["log_path"]);
+                $("#type").text(res["relation"]["type"]);
+                $("#comment").text(res["relation"]["comment"]);
+                $("#uptime").text(res["process_info"]["uptime"]);
+
+                // 下方时间戳
+                $("#record_time").text(res["record_time"]);
+
+                // 左侧资源图表
+                // CPU
+                let cpu_table_option = init_echarts_graph_data("进程CPU占用率 %");
+                cpu_table_option.legend.data.push("CPU");
+                let cpu_data = {
+                    name: 'CPU',
+                    type: 'line',
+                    smooth: true,
+                    data: [] // cpu占用率
+                };
+                cpu_table_option.series.push(cpu_data);
+                for (let hi of res["process_records"]) {
+                    cpu_table_option.xAxis.data.push(hi["record_time"]); // X轴时间
+                    cpu_table_option.series[0].data.push(hi["cpu"]); // Y轴CPU占用率
+                }
+
+                // 绘图
+                echarts.init(document.getElementById('cpu_graph')).setOption(cpu_table_option);
+
+                // 内存
+                let mem_table_option = init_echarts_graph_data("进程内存占用 M");
+                mem_table_option.legend.data.push("内存占用 M");
+                mem_table_option.series.push({
+                    name: '内存占用 M',
+                    type: 'line',
+                    smooth: true,
+                    data: []
+                });
+                for (let hi of res["process_records"]) {
+                    mem_table_option.xAxis.data.unshift(hi["record_time"]); // X轴时间
+                    mem_table_option.series[0].data.unshift(hi["mem"]); // Y轴内存占用率
+                }
+                // 绘图
+                echarts.init(document.getElementById('mem_graph')).setOption(mem_table_option);
+                // 内存下方文字
+                $("#mem_max_size").text(res["host_info"]["mem_M"]);
+
+                // net
+                let net_table_option = init_echarts_graph_data("主机网络使用情况 Kbps");
+                net_table_option.yAxis = {type: 'value'};
+                net_table_option.legend.data.push("上传速度");
+                net_table_option.legend.data.push("下载速度");
+                net_table_option.series.push({
+                    name: '上传速度',
+                    type: 'line',
+                    smooth: true,
+                    data: []
+                });
+                net_table_option.series.push({
+                    name: '下载速度',
+                    type: 'line',
+                    smooth: true,
+                    data: []
+                });
+                for (let hi of res["process_records"]) {
+                    net_table_option.xAxis.data.unshift(hi["record_time"]);
+                    net_table_option.series[0].data.unshift(hi["net_upload_kbps"]);
+                    net_table_option.series[1].data.unshift(hi["net_download_kbps"]);
+                }
+                // 绘图
+                echarts.init(document.getElementById('net_graph')).setOption(net_table_option);
+
+                // 磁盘
+                let io_table_option = init_echarts_graph_data("主机磁盘读写 MB/s");
+                io_table_option.yAxis = {type: 'value'};
+                io_table_option.legend.data.push("读取速度");
+                io_table_option.legend.data.push("写入速度");
+                io_table_option.series.push({
+                    name: '读取速度',
+                    type: 'line',
+                    smooth: true,
+                    data: []
+                });
+                io_table_option.series.push({
+                    name: '写入速度',
+                    type: 'line',
+                    smooth: true,
+                    data: []
+                });
+                for (let hi of res["process_records"]) {
+                    io_table_option.xAxis.data.unshift(hi["record_time"]);
+                    io_table_option.series[0].data.unshift(hi["read_MBs"]);
+                    io_table_option.series[1].data.unshift(hi["write_MBs"]);
+                }
+                // 绘图
+                echarts.init(document.getElementById('io_graph')).setOption(io_table_option);
+
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    }
+
+    // 获取选择主机id
+    $("#process_select_id").click(function (event) {
+        current_process_id = event.target.innerHTML.split(" | ")[0].split("#")[1];
+        show_host_data(current_process_id);
     });
 
+    // 添加主机
+    $("#add_host_btn").click(function () {
+        let request_data = {
+            host_ip: $("#host_ip").val(),
+            host_port: $("#host_port").val(),
+            host_user: $("#host_user").val(),
+            host_password: $("#host_password").val(),
+            host_comment: $("#host_comment").val(),
+            host_type: $("#host_type").val()
+        };
+        // 添加主机提示信息
+        let add_host_log_text = $("#add_host_info");
+        if (request_data.host_ip != "" && request_data.host_port != "" && request_data.host_user != "") {
+            console.log(request_data);
+            add_host_log_text.append("<br />准备向服务器发送添加主机请求...");
+        }
 
-    // 选择主机id
-    $("#host_select_id").click(function (event) {
-        alert(event.target.innerHTML);
+    });
+
+    // 删除进程
+    $("#delete_process_btn").click(function () {
+        $.ajax({
+            type: 'delete',
+            async: true,
+            url: "/process/" + current_process_id,
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                alert("删除成功");
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+            }
+        });
     });
 
     // 登出
@@ -362,10 +555,10 @@
             },
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态");
-                console.log(msg);
             }
         });
     });
+
 
 </script>
 

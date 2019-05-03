@@ -201,7 +201,8 @@ class Data(object):
             res["host_records"] = host_records
             res["host_now_record"] = host_records[0]
             res["record_time"] = res["host_now_record"]["record_time"] if res["host_now_record"]["record_time"] > \
-                                host_info["update_time"] else host_info["update_time"]
+                                                                          host_info["update_time"] else host_info[
+                "update_time"]
 
             raise gen.Return(res)
         else:
@@ -210,7 +211,7 @@ class Data(object):
     @gen.coroutine
     def delete_host(self, user_id, host_id):
         """删除用户与主机的关联"""
-        yield self.db.query_one(SQL.delete_user_host_relation(user_id, host_id))
+        yield self.db.execute(SQL.delete_user_host_relation(user_id, host_id))
 
     # Process
 
@@ -261,3 +262,57 @@ class Data(object):
             "now_record": records[0] if records else {}
         }
         raise gen.Return(res)
+
+    @gen.coroutine
+    def all_user_process_relation(self, user_id):
+        """获取所有用户关联进程"""
+        res = {}
+        # relation
+        relations = yield self.db.query(SQL.get_user_all_process_relation(user_id))
+        if relations:
+            res["relation"] = relations
+            for p in res["relation"]:
+                pi = yield self.db.query_one(SQL.get_process_info(p["process_id"]))
+                hi = yield self.db.query_one(SQL.get_host_info(p["host_id"]))
+                select_btn_str = "#" + str(p["process_id"]) + " | " + p["type"] + "(" + p["comment"] + ", pid=" + \
+                                 str(pi["pid"]) + ")" + " @ " + hi["host"]
+                p["select_str"] = select_btn_str
+            raise gen.Return(res)
+        else:
+            raise gen.Return({"error": "user dont have any process !"})
+
+    @gen.coroutine
+    def process_index_data(self, user_id, process_id):
+        """进程首页数据"""
+        res = {}
+        # relation
+        relation_info = yield self.db.query_one(SQL.get_user_process_relation(user_id, process_id))
+        if relation_info:
+            # process at host
+            host_info = yield self.db.query_one(SQL.get_host_info(relation_info["host_id"]))
+            host_info["update_time"] = host_info["update_time"].strftime('%Y-%m-%d %H:%M:%S')
+            res["host_info"] = host_info
+            # process_info
+            res["relation"] = relation_info
+            process_info = yield self.db.query_one(SQL.get_process_info(process_id))
+            process_info["update_time"] = process_info["update_time"].strftime('%Y-%m-%d %H:%M:%S')
+            process_info["log_path"] = process_info["log_path"] if process_info["log_path"] else "暂无"
+            process_info["process_path"] = process_info["process_path"] if process_info["process_path"] else "暂无"
+            res["process_info"] = process_info
+            # process_records
+            process_records = yield self.db.query(SQL.get_process_records(process_id, 288))
+            for r in process_records:
+                r["record_time"] = r["record_time"].strftime('%Y-%m-%d %H:%M:%S')
+            res["process_records"] = process_records
+            res["host_now_record"] = process_records[0]
+            res["record_time"] = res["host_now_record"]["record_time"] if res["host_now_record"]["record_time"] > \
+                                                                          process_info["update_time"] else process_info[
+                "update_time"]
+            raise gen.Return(res)
+        else:
+            raise gen.Return({"error": "no process"})
+
+    @gen.coroutine
+    def delete_process(self, user_id, process_id):
+        """删除用户与进程的关联"""
+        yield self.db.execute(SQL.delete_user_process_relation(user_id, process_id))

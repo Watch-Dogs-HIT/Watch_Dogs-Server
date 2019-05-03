@@ -103,7 +103,7 @@ class SQL(object):
     @staticmethod
     def update_host_info_error(host_id):
         """更新主机信息(异常)"""
-        return """UPDATE `Watch_Dogs`.`Host_info` SET `status` = 0, `update_time`=now() WHERE `host_id` = "{hid}" """.format(
+        return """UPDATE `Watch_Dogs`.`Host_info` SET `status` = "0", `update_time`=now() WHERE `host_id` = "{hid}" """.format(
             hid=host_id)
 
     @staticmethod
@@ -341,6 +341,20 @@ class SQL(object):
         """获取进程资源记录"""
         return """SELECT * FROM Process_record WHERE `process_id` = {p} ORDER BY `record_time` DESC LIMIT {n}""".format(
             p=pid, n=num
+        )
+
+    @staticmethod
+    def get_user_all_process_relation(user_id):
+        """获取主机与进程关系"""
+        return """SELECT relation_id, host_id, process_id, `comment`, `type` FROM `User_Process` WHERE user_id = {uid} """.format(
+            uid=user_id
+        )
+
+    @staticmethod
+    def delete_user_process_relation(uid, pid):
+        """删除主机与用户关系"""
+        return """DELETE FROM `Watch_Dogs`.`User_Process` WHERE `user_id` = {u} AND `process_id` = {p}""".format(
+            u=uid, p=pid
         )
 
 

@@ -370,14 +370,13 @@
             dataType: "json",
             success: function (res) {
                 // 状态提示框
-                if (res["host_info"]["status"] == 0) {
+                if (res["host_info"]["status"] == "0") {
                     $("#host_status").removeClass();
                     $("#host_status").addClass("alert alert-danger");
                     $("#host_status").text("[警告] 当前主机状态存在问题!  请检查远程主机状态及监测进程状态");
                 } else {
                     $("#host_status").removeClass();
                     $("#host_status").addClass("alert alert-success");
-                    $("#host_status_tips").text("[OK]");
                     $("#host_status").text("[OK] 当前主机运行情况良好.");
                 }
 
@@ -396,6 +395,7 @@
 
                 // 右侧磁盘信息
                 let disk_info_tbody = $("#disk_info");
+                disk_info_tbody.empty();
                 for (let disk_info of res["host_info"]["disk_stat"]) {
                     let disk_info_tr = $("<tr></tr>");
                     for (let info of disk_info) {
@@ -457,6 +457,8 @@
                 echarts.init(document.getElementById('cpu_graph')).setOption(cpu_table_option);
                 // 图标下方文字
                 let cpu_info_ui = $("#cpu_info");
+                // 清空所有子元素
+                cpu_info_ui.empty();
                 for (let cpu of res["host_info"]["CPU_info"])
                     cpu_info_ui.append(`<li>${cpu}</li>`);
                 $("#cpu_cores_num").text(res["host_info"]["CPU_info"].length);
@@ -543,6 +545,7 @@
     // 选择主机id
     $("#host_select_id").click(function (event) {
         current_host_id = event.target.innerHTML.split(" : ")[0].split("#")[1];
+        show_host_data(current_host_id);
     });
 
     // 添加主机

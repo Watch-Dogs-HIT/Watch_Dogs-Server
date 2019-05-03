@@ -5,6 +5,7 @@
 Watch_Dogs
 进程相关api
 """
+
 import tornado.web
 from tornado import gen
 
@@ -50,16 +51,21 @@ class ProcessInfoHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self, process_id):
         """进程信息"""
-        record_num = self.get_argument("num", default=30)
-        res = yield self.data.get_process_record(process_id, record_num)
-        self.finish(res)
+        if process_id == "0":  # 获取所有主机
+            res = yield self.data.all_user_process_relation(self.uid)
+            self.finish(res)
+        else:
+            res = yield self.data.process_index_data(self.uid, process_id)
+            self.finish(res)
 
     @gen.coroutine
     @tornado.web.authenticated
     def put(self, process_id):
         """更新进程信息"""
+        # todo : for what?
 
     @gen.coroutine
     @tornado.web.authenticated
     def delete(self, process_id):
         """不再关注进程"""
+        yield self.data.delete_process(self.uid, process_id)
