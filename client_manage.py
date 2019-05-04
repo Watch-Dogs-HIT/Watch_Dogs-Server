@@ -46,11 +46,12 @@ class ClientManager(object):
                                   str(len(self.process_info_list)) + " process")
         # 建立远程监控客户端
         for host_id, host_ip in self.host_info_list:
-            self.connect_remote_api(host_ip)
+            self.connect_remote_api(host_id, host_ip)
         # 远程监控进程初始化
         for process_id, process_host, process_pid, process_cmd in self.process_info_list:
             self.ini_watched_process(process_id, process_host, process_pid, process_cmd)
 
+    # init
     def read_remote_api_conf(self):
         """从数据库中读取远程监控数据"""
         with DataBase() as db:
@@ -65,7 +66,7 @@ class ClientManager(object):
         self.host_info_list = []
         self.read_remote_api_conf()
 
-    def connect_remote_api(self, host_ip, api_port=8000):
+    def connect_remote_api(self, host_id, host_ip, api_port=8000):
         """连接到远程api客户端"""
         if host_ip.strip() not in self.client:
             remote_api_client = Watch_Dogs_Client(host_ip, remote_port=api_port)
@@ -77,9 +78,9 @@ class ClientManager(object):
                 else:
                     logger_client_manage.info(
                         host_ip + "Watch_Dogs-Client connect ok, [nethogs env] : " + str(test_connect["nethogs env"]))
-                    self.client[host_ip.strip()] = remote_api_client
+                    self.client[str(host_id)] = remote_api_client
                     return remote_api_client
-            self.client[host_ip.strip()] = remote_api_client  # 为了健壮性,即使连接错误也创建远程管理对象并返回
+            self.client[str(host_id)] = remote_api_client  # 为了健壮性,即使连接错误也创建远程管理对象并返回
             return remote_api_client
         else:
             return self.client[host_ip.strip()]
@@ -94,11 +95,12 @@ class ClientManager(object):
         else:
             return True
 
+    # host
     def update_host_info(self):
         """更新主机信息"""
         self.db.connect()
         for host_id, host_ip in self.host_info_list:
-            wdc = self.client[host_ip]
+            wdc = self.client[str(host_id)]
             hi = wdc.host_info()
             if wdc.is_error_happen(hi):
                 logger_client_manage.error("Error : " + str(host_ip) + " WDC host info get error")
@@ -113,7 +115,7 @@ class ClientManager(object):
         """插入主机状态记录"""
         self.db.connect()
         for host_id, host_ip in self.host_info_list:
-            wdc = self.client[host_ip]
+            wdc = self.client[str(host_id)]
             hr = wdc.host_record()
             if wdc.is_error_happen(hr):
                 logger_client_manage.error("Error : " + str(host_ip) + " WDC host record get error")
@@ -125,26 +127,27 @@ class ClientManager(object):
         self.db.commit()
         self.db.close()
 
+    # process
     def update_process_info(self):
         """更新进程信息"""
         self.db.connect()
-        for process_id, process_host, process_pid, process_cmd in self.process_info_list:
-            wdc = self.client[process_host]
+        for process_id, process_host_id, process_pid, process_cmd in self.process_info_list:
+            wdc = self.client[str(process_host_id)]
             pi = wdc.process_info(process_pid)
             if wdc.is_error_happen(pi):
                 if pi["Error"].find("process no longer exists") != -1:  # 进程崩溃
                     self.db.execute(SQL.update_process_info_not_exit(process_id))
-                    logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
-                                               str(process_host) + "process not exit!")
+                    logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ no." +
+                                               str(process_host_id) + " host process not exit!")
                 else:  # other error
                     self.db.execute(SQL.update_process_info_error(process_id))
-                    logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
-                                               str(process_host) + " get process info fialed!")
+                    logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ no." +
+                                               str(process_host_id) + " host get process info fialed!")
                     logger_client_manage.error("Error details: " + str(pi))
                 # TODO : 添加重新探测进程处理逻辑,利用 re_detect_process() 方法 重新获取现在的进程号,并更新记录
             else:
-                logger_client_manage.info("update " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
-                                          str(process_host) + " process info")
+                logger_client_manage.info("update " + str(process_cmd) + "(" + str(process_pid) + ") @ no." +
+                                          str(process_host_id) + " host process info")
                 self.db.execute(SQL.update_process_info(process_id, pi))
         self.db.commit()
         self.db.close()
@@ -152,25 +155,47 @@ class ClientManager(object):
     def insert_process_record(self):
         """插入进程状态数据"""
         self.db.connect()
-        for process_id, process_host, process_pid, process_cmd in self.process_info_list:
-            wdc = self.client[process_host]
+        for process_id, process_host_id, process_pid, process_cmd in self.process_info_list:
+            wdc = self.client[str(process_host_id)]
             pic = wdc.process_record_cache(process_pid)
             if wdc.is_error_happen(pic):
                 if pic["Error"].find("process no longer exists"):  # 进程崩溃
-                    logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
-                                               str(process_host) + " process not exit.")
+                    logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ no." +
+                                               str(process_host_id) + " host process not exit.")
                 else:  # other error
-                    logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
-                                               str(process_host) + " get process record fialed!")
+                    logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ no." +
+                                               str(process_host_id) + " host get process record fialed!")
                     logger_client_manage.error("Error details: " + str(pic))
                 # TODO : 添加重新探测进程处理逻辑,同上...
             else:
-                logger_client_manage.info("insert " + str(process_cmd) + "(" + str(process_pid) + ") @ " +
-                                          str(process_host) + " process record cache")
+                logger_client_manage.info("insert " + str(process_cmd) + "(" + str(process_pid) + ") @ no." +
+                                          str(process_host_id) + " host process record cache")
                 self.db.execute(SQL.insert_process_record(process_id, pic))
         self.db.commit()
         self.db.close()
 
+    # log
+    def log_status(self, host_id, path, n=30):
+        """获取日志状态"""
+        # .strftime('%Y-%m-%d %H:%M:%S')
+        log_exist = self.client[str(host_id)].get_log_exist(path)
+        if type(log_exist) == bool and log_exist:
+            res = {"exist": True,
+                   "last_update_time": self.client[str(host_id)].get_log_last_update_time(path),
+                   "tail": self.client[str(host_id)].get_log_tail(path, n),
+                   "size_KB": self.client[str(host_id)].get_log_size(path)
+                   }
+            for v in res.values():
+                if type(v) == dict:
+                    return {"error": "log func network error"}
+            res["last_update_time"] = res["last_update_time"].strftime('%Y-%m-%d %H:%M:%S')
+            return res
+        elif type(log_exist) == dict:
+            return log_exist  # 网络错误
+        else:
+            return {"exist": False}
+
+    # magpie
     def re_detect_process(self, prev_process_cmd):
         """重新探测进程"""
         # ...
@@ -187,6 +212,7 @@ class ClientManager(object):
         self.db.commit()
         self.db.close()
 
+    # test
     def test_api(self):
         """测试api"""
         # 测试参数
@@ -204,6 +230,7 @@ class ClientManager(object):
         # self.insert_process_record()
         self.clear_old_data()
 
+    # work thread
     def manage_main_thread(self):
         """远程客户端管理主进程"""
         logger_client_manage.info("主机状态数据收集进程启动...")
@@ -223,5 +250,6 @@ class ClientManager(object):
 
 if __name__ == '__main__':
     c = ClientManager()
-    # c.test_api()
-    c.manage_main_thread()
+    # print c.log_status(2, "/home/houjie/Watch_Dogs/Watch_Dogs-Server/Watch_Dogs-Server.log")
+    c.test_api()
+    # c.manage_main_thread()

@@ -24,7 +24,7 @@ class SQL(object):
     @staticmethod
     def get_all_process():
         """获取所有进程"""
-        return """SELECT `process_id`, `host`, `pid`, `comm` FROM `Process`"""
+        return """SELECT `process_id`, `host_id`, `pid`, `comm` FROM `Process`"""
 
     # User
     @staticmethod
@@ -120,7 +120,7 @@ class SQL(object):
                 """`disk_stat` = "{ds}", """
                 """`default_net_device` = "{dnd}", """
                 """`intranet_ip` = "{i}", """
-                """`extranet_ip` = "{e}" WHERE `host` = "{h}";""").format(
+                """`extranet_ip` = "{e}", `update_time` = now() WHERE `host` = "{h}";""").format(
             p=host_info['port'], s=host_info['system'], k=host_info['kernel'], C=host_info['CPU_info'],
             m=host_info['mem_KB'], ds=host_info['disk_stat'], dnd=host_info['default_net_device'],
             i=host_info['intranet_ip'], e=host_info['extranet_ip'], h=host_info['host']
@@ -156,10 +156,10 @@ class SQL(object):
         """更新进程信息"""
 
         return (
-            """UPDATE `Watch_Dogs`.`Process` SET `process_id` = {id}, `host` = "{h}", `pid` = {pid}, `comm` = "{c}","""
+            """UPDATE `Watch_Dogs`.`Process` SET `process_id` = {id}, `pid` = {pid}, `comm` = "{c}","""
             """`cmdline` = "{cm}", `ppid` = {pp}, `pgrp` = {pg}, `state` =  "{s}", `thread_num` = {t}, `update_time` = now() """
             """WHERE `process_id` = {id} ;""").format(
-            id=process_id, h=process_info['host'], pid=process_info['pid'], c=process_info['comm'],
+            id=process_id, pid=process_info['pid'], c=process_info['comm'],
             cm=process_info['cmdline'], pp=process_info['ppid'], pg=process_info['pgrp'], s=process_info['state'],
             t=process_info['thread num']
         )
@@ -211,7 +211,7 @@ class SQL(object):
     @staticmethod
     def get_user_watch_process(uid):
         """查看用户关注进程信息"""
-        return ("""SELECT `host`, `process_id`, `pid`, `comm`, `state`  FROM `Process` WHERE `process_id` IN """
+        return ("""SELECT `host_id`, `process_id`, `pid`, `comm`, `state`  FROM `Process` WHERE `process_id` IN """
                 """(SELECT `process_id` FROM `User_Process` WHERE user_id = {uid})""").format(uid=uid)
 
     @staticmethod
