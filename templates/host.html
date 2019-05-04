@@ -38,9 +38,9 @@
                     <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-user">
-                    <li><a href="#user_info"><i class="fa fa-user fa-fw"></i> User Profile</a>
+                    <li><a href="/user#user_info"><i class="fa fa-user fa-fw"></i> User Profile</a>
                     </li>
-                    <li><a href="#user_admin"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                    <li><a href="/user#user_admin"><i class="fa fa-gear fa-fw"></i> Settings</a>
                     </li>
                     <li class="divider"></li>
                     <li><a href="#" id="logout_btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
@@ -101,7 +101,7 @@
                                 <div class="col-md-8">
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
-                                            主机资源占用
+                                            <h4>主机资源占用</h4>
                                         </div>
                                         <div class="panel-body">
                                             <ul class="nav nav-tabs">
@@ -297,6 +297,7 @@
 <!--页面逻辑-->
 <script>
     // 当前选择的主机id
+    let user_all_host_relation;
     let current_host_id = -1;
 
     // 初始化页面
@@ -309,6 +310,7 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (res) {
+                user_all_host_relation = res;
                 // 设置默认主机
                 $("#host_select_btn").text(res["relation"][0]["select_str"]);
                 current_host_id = res["relation"][0]["host_id"];
@@ -544,7 +546,13 @@
 
     // 选择主机id
     $("#host_select_id").click(function (event) {
-        current_host_id = event.target.innerHTML.split(" : ")[0].split("#")[1];
+        current_host_id = parseInt(event.target.innerHTML.split(" : ")[0].split("#")[1])
+        for (let host_relation of user_all_host_relation["relation"]) {
+            if (current_host_id === host_relation["host_id"]) {// 修改选项文本
+                $("#host_select_btn").text(host_relation["select_str"]);
+                break;
+            }
+        }
         show_host_data(current_host_id);
     });
 

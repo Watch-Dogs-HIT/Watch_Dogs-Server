@@ -40,9 +40,9 @@
                     <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-user">
-                    <li><a href="#user_info"><i class="fa fa-user fa-fw"></i> User Profile</a>
+                    <li><a href="/user#user_info"><i class="fa fa-user fa-fw"></i> User Profile</a>
                     </li>
-                    <li><a href="#user_admin"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                    <li><a href="/user#user_admin"><i class="fa fa-gear fa-fw"></i> Settings</a>
                     </li>
                     <li class="divider"></li>
                     <li><a href="#" id="logout_btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
@@ -103,7 +103,7 @@
                                 <div class="col-md-8">
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
-                                            进程占用资源
+                                            <h4>进程占用资源</h4>
                                         </div>
                                         <div class="panel-body">
                                             <ul class="nav nav-tabs">
@@ -150,7 +150,7 @@
                                                     <tbody>
                                                     <tr>
                                                         <td>所在主机</td>
-                                                        <td id="host">0.0.0.0</td>
+                                                        <td id="host" style="width:75%">0.0.0.0</td>
                                                     </tr>
                                                     <tr>
                                                         <td>进程号</td>
@@ -208,9 +208,100 @@
                                 <div class="col-md-12" id="log_div">
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
-                                            进程日志监控
+                                            <h4>进程日志监控</h4>
+                                            <div class="form-group input-group" style="display:flex">
+                                                <button class="btn btn-default"><i class="fa fa-refresh"
+                                                                                   id="log_refresh"></i> 刷新
+                                                </button>
+                                                &nbsp;&nbsp;&nbsp;
+                                                <input type="text" class="form-control" style="width: 500px"
+                                                       placeholder="搜索最近1000行中包含关键词的内容" id="log_search_word">
+                                                <span class="input-group-btn">
+                                                <button class="btn btn-default" type="button" id="log_search_btn"><i
+                                                        class="fa fa-search"></i>
+                                                </button>
+                                            </span>
+                                            </div>
                                         </div>
                                         <div class="panel-body">
+                                            <div class="panel panel-primary">
+                                                <div class="panel-heading" id="log_head">
+                                                    <span id="log_full_path_name">a.log</span>
+                                                    <span id="log_size"
+                                                          style="float:right;text-align:right">0.0KB</span>
+                                                </div>
+                                                <div class="panel-body" id="log_text"
+                                                     style="overflow-y:scroll;height:500px;width:100%;overflow-x:hidden;word-break:break-all">
+                                                    <br/>123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                    <br/>123
+                                                </div>
+                                                <div class="panel-footer" id="log_footer">
+                                                    最后更新时间 <span id="log_last_update_time">YYYY-MM-DD HH:mm:SS</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -300,7 +391,9 @@
 <!--<script src="../static/js/jquery-3.4.0.js"></script>-->
 <script>
     // 当前选择的进程id
+    let user_all_process_relation;
     let current_process_id = -1;
+    let current_process_at_host_id = -1;
 
     // 初始化页面
     $(document).ready(function () {
@@ -312,9 +405,11 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (res) {
+                user_all_process_relation = res;
                 // 设置默认进程
                 $("#process_select_btn").text(res["relation"][0]["select_str"]);
-                current_process_id = res["relation"][0]["host_id"];
+                current_process_id = res["relation"][0]["process_id"];
+                current_process_at_host_id = res["relation"][0]["host_id"];
 
                 // 添加选择进程按钮
                 for (let process_relation of res["relation"]) {
@@ -498,13 +593,20 @@
         });
     }
 
-    // 获取选择主机id
+    // 获取选择进程id
     $("#process_select_id").click(function (event) {
-        current_process_id = event.target.innerHTML.split(" | ")[0].split("#")[1];
+        current_process_id = parseInt(event.target.innerHTML.split(" | ")[0].split("#")[1]);
+        for (let process_relation of user_all_process_relation["relation"]) {
+            if (current_process_id === process_relation["process_id"]) {// 修改选项文本及当前主机id
+                current_process_at_host_id = process_relation["host_id"];
+                $("#process_select_btn").text(process_relation["select_str"]);
+                break;
+            }
+        }
         show_host_data(current_process_id);
     });
 
-    // 添加主机
+    // 添加进程
     $("#add_host_btn").click(function () {
         let request_data = {
             host_ip: $("#host_ip").val(),
@@ -561,8 +663,5 @@
 
 
 </script>
-
-
 </body>
-
 </html>
