@@ -30,7 +30,7 @@ class AuthenticationHandler(BaseHandler):
     def post(self, *args, **kwargs):
         """登录"""
         try:
-            json = self.get_json()
+            json = self.get_request_json()
             next_url = self.get_argument("next", default="/")
             yield self.data.check_login(**json)
             uid, user, user_status = yield self.data.check_login(**json)
@@ -68,7 +68,7 @@ class UserHandler(BaseHandler):
     def post(self, *args, **kwargs):
         """注册"""
         try:
-            json = self.get_json()
+            json = self.get_request_json()
             if "user" in json and "password" in json and "email" in json:
                 res = yield self.data.create_user(**json)
                 self.log.info(json["user"] + " registered")
@@ -83,7 +83,7 @@ class UserHandler(BaseHandler):
     def put(self, *args, **kwargs):
         """更新用户信息"""
         try:
-            json = self.get_json()
+            json = self.get_request_json()
             if "update_field" in json and "update_value" in json and "update_uid" in json:
                 if set(json["update_field"]) < set(["brief", "password", "status", "email"]):
                     yield self.data.update_user_info(json["update_uid"], json["update_field"], json["update_value"])

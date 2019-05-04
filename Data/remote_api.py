@@ -105,8 +105,6 @@ class Watch_Dogs_Client(object):
     def process_info(self, pid):
         """进程信息"""
         process_info = self.get_api("/proc/{}/info".format(str(pid)))
-        process_info["host"] = self.remote_host
-
         return process_info
 
     # -----system-----
@@ -201,18 +199,42 @@ class Watch_Dogs_Client(object):
     def sys_disk_stat(self):
         return self.get_api("/sys/disk/stat")
 
-    # -----func-----
+    # -----log-----
+    def get_log_exist(self, path):
+        """检测日志文件是否存在"""
+        payload = {"path": path}
+        return self.get_api("/log/exist", payload=payload)
+
+    def get_log_size(self, path):
+        """获取日志文件大小"""
+        payload = {"path": path}
+        return self.get_api("/log/size", payload=payload)
+
     def get_log_head(self, path, n=100):
         """获取日志前n行"""
         payload = {"path": path, "n": n}
         return self.get_api("/log/head", payload=payload)
 
+    def get_log_tail(self, path, n=100):
+        """获取日志后n行"""
+        payload = {"path": path, "n": n}
+        return self.get_api("/log/tail", payload=payload)
+
+    def get_log_last_update_time(self, path, n=100):
+        """获取日志上次更新时间"""
+        payload = {"path": path, "n": n}
+        return self.get_api("/log/last_update_time", payload=payload)
+
+    def get_keyword_lines(self, path, key_word):
+        """搜索日志关键词"""
+        payload = {"path": path, "key_word": key_word}
+        return self.get_api("/log/keyword_lines", payload=payload)
+
+    def get_keyword_lines_by_tail_n_line(self, path, key_word, n=100):
+        """获取最后n行中包含关键词key_word的行"""
+        payload = {"path": path, "n": n}
+        return filter(lambda s: s.find(key_word) != -1, self.get_api("/log/tail", payload=payload))
+
     # -----manage-----
     # todo 完成剩余的所有功能函数 2019.3.13
 
-
-if __name__ == '__main__':
-    from models.SQL_generate import SQL
-
-    c = Watch_Dogs_Client("10.245.146.202")
-    print c.host_info()

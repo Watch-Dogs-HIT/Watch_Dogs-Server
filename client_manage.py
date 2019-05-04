@@ -175,9 +175,8 @@ class ClientManager(object):
         self.db.close()
 
     # log
-    def log_status(self, host_id, path, n=30):
+    def log_status(self, host_id, path, n=100):
         """获取日志状态"""
-        # .strftime('%Y-%m-%d %H:%M:%S')
         log_exist = self.client[str(host_id)].get_log_exist(path)
         if type(log_exist) == bool and log_exist:
             res = {"exist": True,
@@ -194,6 +193,14 @@ class ClientManager(object):
             return log_exist  # 网络错误
         else:
             return {"exist": False}
+
+    def log_search_keyword(self, host_id, path, key_word, n=1000):
+        """在日志中搜索关键词"""
+        res = self.client[str(host_id)].get_keyword_lines_by_tail_n_line(path, key_word, n)
+        if type(res) == list:  # ok
+            return {"search_result": self.client[str(host_id)].get_keyword_lines_by_tail_n_line(path, key_word, n)}
+        else:  # network error
+            return res
 
     # magpie
     def re_detect_process(self, prev_process_cmd):
@@ -250,6 +257,5 @@ class ClientManager(object):
 
 if __name__ == '__main__':
     c = ClientManager()
-    # print c.log_status(2, "/home/houjie/Watch_Dogs/Watch_Dogs-Server/Watch_Dogs-Server.log")
-    c.test_api()
-    # c.manage_main_thread()
+    # c.test_api()
+    c.manage_main_thread()

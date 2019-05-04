@@ -24,5 +24,6 @@ HANDLERS = [
     (r'/host/([0-9]+)', HostInfoHandler),  # 主机信息
     (r'/process', ProcessHandler),  # 进程
     (r'/process/([0-9]+)', ProcessInfoHandler),  # 进程信息
+    (r'/log', ProcessLogHandler),  # 进程日志
     (r'.*', NotFoundHandler)  # 404
 ]

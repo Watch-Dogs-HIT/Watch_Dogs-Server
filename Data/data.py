@@ -110,7 +110,6 @@ class Data(object):
 
         h = yield self.db.query(SQL.get_user_watch_host(uid))
         p = yield self.db.query(SQL.get_user_watch_process(uid))
-
         res["host"] = h
         res["process"] = p
         res["host_num"] = len(h)

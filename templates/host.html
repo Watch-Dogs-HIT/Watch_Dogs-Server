@@ -423,8 +423,8 @@
                     };
                     cpu_table_option.series.push(cpu_data);
                     for (let hi of res["host_records"]) {
-                        cpu_table_option.xAxis.data.push(hi["record_time"]); // X轴时间
-                        cpu_table_option.series[0].data.push(hi["CPU"]); // Y轴CPU占用率
+                        cpu_table_option.xAxis.data.unshift(hi["record_time"]); // X轴时间
+                        cpu_table_option.series[0].data.unshift(hi["CPU"]); // Y轴CPU占用率
                     }
                 } else {// 多核
                     cpu_table_option.legend.data.push("CPUs");

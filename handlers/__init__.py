@@ -60,8 +60,13 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @property
     def setting(self):
-        """设置对象"""
+        """静态设置"""
         return self.application.setting
+
+    @property
+    def remote_api(self):
+        """远程API"""
+        return self.application.remote_api
 
     @property
     def uid(self):
@@ -74,7 +79,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
         return self.get_cookie("user")
 
-    def get_json(self):
+    def get_request_json(self):
         """解析json"""
         if "Content-Type" in self.request.headers and "application/json" in self.request.headers["Content-Type"]:
             return byteify(json.loads(self.request.body))  # return str dict

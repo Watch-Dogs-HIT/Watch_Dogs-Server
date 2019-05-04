@@ -47,7 +47,7 @@ def createApp():
     app.log = Setting.logger
     app.data = data.Data()
     app.setting = Setting
-
+    app.remote_api = ClientManager()
     return app
 
 

@@ -210,12 +210,13 @@
                                         <div class="panel-heading">
                                             <h4>进程日志监控</h4>
                                             <div class="form-group input-group" style="display:flex">
-                                                <button class="btn btn-default"><i class="fa fa-refresh"
-                                                                                   id="log_refresh"></i> 刷新
+                                                <button class="btn btn-default" id="log_refresh"><i
+                                                        class="fa fa-refresh"
+                                                ></i> 刷新
                                                 </button>
                                                 &nbsp;&nbsp;&nbsp;
                                                 <input type="text" class="form-control" style="width: 500px"
-                                                       placeholder="搜索最近1000行中包含关键词的内容" id="log_search_word">
+                                                       placeholder="搜索最近1000行中所有包含关键词的内容" id="log_search_word">
                                                 <span class="input-group-btn">
                                                 <button class="btn btn-default" type="button" id="log_search_btn"><i
                                                         class="fa fa-search"></i>
@@ -226,77 +227,12 @@
                                         <div class="panel-body">
                                             <div class="panel panel-primary">
                                                 <div class="panel-heading" id="log_head">
-                                                    <span id="log_full_path_name">a.log</span>
-                                                    <span id="log_size"
-                                                          style="float:right;text-align:right">0.0KB</span>
+                                                    <span id="log_full_path_name">a.log</span>&nbsp;&nbsp;中最近100行的内容
+                                                    <span style="float:right;text-align:right"><span
+                                                            id="log_size">0.0</span>&nbsp;KB</span>
                                                 </div>
                                                 <div class="panel-body" id="log_text"
                                                      style="overflow-y:scroll;height:500px;width:100%;overflow-x:hidden;word-break:break-all">
-                                                    <br/>123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
-                                                    <br/>123
                                                 </div>
                                                 <div class="panel-footer" id="log_footer">
                                                     最后更新时间 <span id="log_last_update_time">YYYY-MM-DD HH:mm:SS</span>
@@ -482,7 +418,7 @@
 
                 // 右侧配置数据
                 $("#host").text(res["host_info"]["intranet_ip"]);
-                $("#pid").text(res["host_info"]["pid"]);
+                $("#pid").text(res["process_info"]["pid"]);
                 $("#comm").text(res["process_info"]["comm"]);
                 $("#state").text(res["process_info"]["state"]);
                 $("#cmdline").text(res["process_info"]["cmdline"]);
@@ -510,8 +446,8 @@
                 };
                 cpu_table_option.series.push(cpu_data);
                 for (let hi of res["process_records"]) {
-                    cpu_table_option.xAxis.data.push(hi["record_time"]); // X轴时间
-                    cpu_table_option.series[0].data.push(hi["cpu"]); // Y轴CPU占用率
+                    cpu_table_option.xAxis.data.unshift(hi["record_time"]); // X轴时间
+                    cpu_table_option.series[0].data.unshift(hi["cpu"]); // Y轴CPU占用率
                 }
 
                 // 绘图
@@ -585,6 +521,8 @@
                 // 绘图
                 echarts.init(document.getElementById('io_graph')).setOption(io_table_option);
 
+                // 展示日志相关内容
+                show_process_log(current_process_at_host_id, res["process_info"]["log_path"])
             },
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态");
@@ -592,6 +530,91 @@
             }
         });
     }
+
+    // 获取进程日志
+    function show_process_log(host_id, path) {
+        if (path.indexOf("/") != -1) // 有日志地址,进行展示
+        {
+            $("#log_div").show();
+            $.ajax({
+                type: 'post',
+                async: true,
+                url: "/log",
+                data: JSON.stringify({
+                    host_id: host_id,
+                    path: path
+                }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    if (res.hasOwnProperty("error")) {
+                        $("#log_div").hide();
+                        alert("日志请求错误, 详细信息请查看控制台日志");
+                        console.log(res);
+                    } else {// 展示日志内容
+                        if (res["exist"]) {
+                            $("#log_last_update_time").text(res["last_update_time"]);
+                            $("#log_full_path_name").text(path);
+                            $("#log_size").text(res["size_KB"]);
+                            $("#log_text").empty();
+                            for (let line of res["tail"]) {
+                                $("#log_text").append(line + "<br />")
+                            }
+
+                        } else {
+                            $("#log_div").hide();
+                            alert("没有在指定路径下找到该进程的日志文件,请登陆服务器进行检查");
+                            console.log(res);
+                        }
+                    }
+                },
+                error: function (msg) {
+                    alert("请求超时,请检查后台服务器状态");
+                    console.log(msg);
+                }
+            });
+        } else { // 无日志文件地址,隐藏div
+            $("#log_div").hide();
+        }
+    }
+
+    // 日志刷新按钮功能
+    $("#log_refresh").click(function () {
+        show_process_log(current_process_at_host_id, $("#log_path").text());
+    });
+
+    // 获取日志关键词
+    $("#log_search_btn").click(function () {
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: "/log",
+            data: JSON.stringify({
+                host_id: current_process_at_host_id,
+                path: $("#log_path").text(),
+                key_word: $("#log_search_word").val()
+
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                if (res.hasOwnProperty("error")) {
+                    $("#log_div").hide();
+                    alert("日志搜索请求错误, 详细信息请查看控制台日志");
+                    console.log(res);
+                } else {// 展示日志内容
+                    $("#log_text").empty();
+                    for (let line of res["search_result"]) {
+                        $("#log_text").append(line + "<br />")
+                    }
+                }
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    });
 
     // 获取选择进程id
     $("#process_select_id").click(function (event) {
@@ -660,8 +683,6 @@
             }
         });
     });
-
-
 </script>
 </body>
 </html>
