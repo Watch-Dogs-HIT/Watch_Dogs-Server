@@ -20,7 +20,7 @@ mail_pass = setting.EMAIL_PASS
 mail_sender = setting.EMAIL_SENDER
 
 
-def mail_html_generate(alter_object="", alter_condition="", alter_details=""):
+def mail_html_generate(alert_object="", alert_condition="", alert_details=""):
     """邮件内容生成"""
     mail_logo = """<div style="width: 800px">
     <img src="https://upload-images.jianshu.io/upload_images/5617720-b0e063bdea12c505.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"
@@ -36,7 +36,7 @@ def mail_html_generate(alter_object="", alter_condition="", alter_details=""):
     </p>
     <hr style="height: 2px;color: black;width: 95%;" color="black"/>
 </div>""".format(
-        alter_object=alter_object, alter_condition=alter_condition, alter_details=alter_details
+        alter_object=alert_object, alter_condition=alert_condition, alter_details=alert_details
     )
 
     mail_footer = """<p style="color: grey;font-style:italic">邮件由系统自动生成,若不想继续接收可以在系统中取消预警或者拉黑发件地址<br>邮件内容生成于{date}</p>
@@ -48,9 +48,9 @@ def mail_html_generate(alter_object="", alter_condition="", alter_details=""):
     return mail_logo + mail_text + mail_footer
 
 
-def send_alter_email(receiver, receiver_user_name="user", alter_object="", alter_condition="", alter_details=""):
+def send_alert_email(receiver, receiver_user_name="user", alert_object="", alert_condition="", alert_details=""):
     """发送告警邮件"""
-    message = MIMEText(mail_html_generate(alter_object, alter_condition, alter_details), 'html', 'utf-8')
+    message = MIMEText(mail_html_generate(alert_object, alert_condition, alert_details), 'html', 'utf-8')
     message['From'] = Header("Watch_Dogs-alert", 'utf-8')
     message['To'] = Header(receiver_user_name, 'utf-8')
     subject = 'Linux远程主机及进程状态监测系统 - 告警邮件'
@@ -64,9 +64,9 @@ def send_alter_email(receiver, receiver_user_name="user", alter_object="", alter
     except smtplib.SMTPException as err:
         email_log.error("邮件发送异常 : " + str(err))
         email_log.error(
-            "详情:to" + str(receiver) + "内容:" + str(alter_object) + "/" + str(alter_condition) + "/" + str(alter_details))
+            "详情:to" + str(receiver) + "内容:" + str(alert_object) + "/" + str(alert_condition) + "/" + str(alert_details))
 
 
 if __name__ == '__main__':
     # Demo
-    send_alter_email("450943084@qq.com", "houjie", "just 4 test", "test error", "test case")
+    send_alert_email("450943084@qq.com", "houjie", "just 4 test", "test error", "test case")

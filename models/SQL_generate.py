@@ -357,6 +357,22 @@ class SQL(object):
             u=uid, p=pid
         )
 
+    # rules
+    @staticmethod
+    def get_host_alert_rules():
+        """获取所有主机告警规则"""
+        return """SELECT * FROM `Alert_rule` WHERE `process_id` = -1;"""
+
+    @staticmethod
+    def get_process_alert_rules():
+        """获取所有进程告警规则"""
+        return """SELECT * FROM `Alert_rule` WHERE `process_id` != -1;"""
+
+    @staticmethod
+    def get_user_alert_address(uid):
+        """获取用户接受告警数据的信息"""
+        return """SELECT `user`, `email` FROM `User` WHERE `user_id` = {uid}; """.format(uid=uid)
+
 
 if __name__ == '__main__':
     # Demo

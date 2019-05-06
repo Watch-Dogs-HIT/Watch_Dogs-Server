@@ -129,10 +129,10 @@ class DataBase:
         :param sql: SQL语句
         :return: 获取SQL执行并取回的结果
         """
-        result = None
+        res = None
         try:
             self.cursor.execute(sql)
-            result = self.cursor.fetchall()
+            res = self.cursor.fetchall()
         except pymysql.Error, e:
             if e.args[0] == 2013 or e.args[0] == 2006:  # 数据库连接出错，重连
                 self.close()
@@ -141,11 +141,35 @@ class DataBase:
                 log_db.error("execute |sql - time out,reconnect")
                 log_db.error("execute |sql - Error 2006/2013 :" + str(e))
                 log_db.error("sql = " + str(sql))
-                result = self.execute(sql)  # 重新执行
+                res = self.execute(sql)  # 重新执行
             else:
                 log_db.error("execute |sql - Error:" + str(e))
                 log_db.error('SQL : ' + sql)
-        return result
+        return res
+
+    def query_one(self, sql):
+        """
+        查询单条记录
+        :param sql: SQL语句
+        :return: 获取SQL执行并取回的结果
+        """
+        res = None
+        try:
+            self.cursor.execute(sql)
+            res = self.cursor.fetchone()
+        except pymysql.Error, e:
+            if e.args[0] == 2013 or e.args[0] == 2006:  # 数据库连接出错，重连
+                self.close()
+                self.connect()
+                self.commit()
+                log_db.error("query_one |sql - time out,reconnect")
+                log_db.error("query_one |sql - Error 2006/2013 :" + str(e))
+                log_db.error("sql = " + str(sql))
+                res = self.execute(sql)  # 重新执行
+            else:
+                log_db.error("query_one |sql - Error:" + str(e))
+                log_db.error('SQL : ' + sql)
+        return res
 
     def execute_Iterator(self, sql, pretchNum=1000):
         """
