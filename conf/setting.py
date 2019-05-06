@@ -69,8 +69,12 @@ class Setting(object):
     OLD_DATE_CLEAR_INTERVAL_DAY = -1
     API_TIME_OUT = -1
     SAVE_LAST_N_DAYS_DATA = -1
+    # email
+    EMAIL_HOST = ""
+    EMAIL_USER = ""
+    EMAIL_PASS = ""
+    EMAIL_SENDER = ""
 
-    # @staticmethod
     def static_value_refresh(self):
         """静态值初始化/刷新"""
         json_file = file(self.setting_json_path)
@@ -98,6 +102,11 @@ class Setting(object):
         Setting.OLD_DATE_CLEAR_INTERVAL_DAY = setting["client"]["old_date_clear_interval_day"]
         Setting.API_TIME_OUT = setting["client"]["api_timeout"]
         Setting.SAVE_LAST_N_DAYS_DATA = setting["client"]["save_last_n_days_data"]
+        # email
+        Setting.EMAIL_HOST = setting["email"]["mail_host"]
+        Setting.EMAIL_USER = setting["email"]["mail_user"]
+        Setting.EMAIL_PASS = setting["email"]["mail_pass"]
+        Setting.EMAIL_SENDER = setting["email"]["sender"]
         return setting
 
     def log_init(self):
