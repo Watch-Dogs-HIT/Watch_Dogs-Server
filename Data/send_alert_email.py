@@ -32,7 +32,10 @@ def mail_html_generate(alert_object="", alert_condition="", alert_details=""):
     mail_text = """<div style="width: 800px">
     <p style="color:red;font-size: 20px">告警对象 > {alter_object}</p>
     <p>告警触发条件 >>> {alter_condition}</p>
-    <p>告警触发详情 >>> <br/>{alter_details}
+    <p>告警触发详情 >>> <br/>
+        <pre style="font-size: 15px">
+{alter_details}
+        </pre>
     </p>
     <hr style="height: 2px;color: black;width: 95%;" color="black"/>
 </div>""".format(
@@ -60,7 +63,8 @@ def send_alert_email(receiver, receiver_user_name="user", alert_object="", alert
         smtpObj.login(mail_user, mail_pass)
         smtpObj.sendmail(mail_sender, [receiver], message.as_string())
         smtpObj.quit()
-        email_log.info("向 " + receiver + "(" + receiver_user_name + ") 发送了告警邮件")
+        email_log.info("向 " + receiver + "(" + receiver_user_name + ") 发送了告警邮件 有关:" + str(alert_object) +
+                       " - " + str(alert_condition))
     except smtplib.SMTPException as err:
         email_log.error("邮件发送异常 : " + str(err))
         email_log.error(

@@ -77,7 +77,7 @@ class ClientManager(object):
                                                + test_connect["Error"])
                 else:
                     logger_client_manage.info(
-                        host_ip + "Watch_Dogs-Client connect ok, [nethogs env] : " + str(test_connect["nethogs env"]))
+                        host_ip + " Watch_Dogs-Client connect ok, [nethogs env] : " + str(test_connect["nethogs env"]))
                     self.client[str(host_id)] = remote_api_client
                     return remote_api_client
             self.client[str(host_id)] = remote_api_client  # 为了健壮性,即使连接错误也创建远程管理对象并返回

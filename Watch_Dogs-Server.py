@@ -24,6 +24,7 @@ from conf import setting
 from Data import data
 from models import db_opreation_async
 from client_manage import ClientManager
+from Data.alert_monitor import AlertMonitor
 
 Setting = setting.Setting()
 
@@ -42,12 +43,12 @@ def createApp():
         **SETTINGS
     )
 
-    # app.remote_api_manager = ClientManager()
     app.db = db_opreation_async.AsyncDataBase()
     app.log = Setting.logger
     app.data = data.Data()
     app.setting = Setting
     app.remote_api = ClientManager()
+    app.alert_monitor = AlertMonitor()
     return app
 
 
@@ -55,6 +56,10 @@ tornado.options.parse_command_line()
 app = createApp()
 
 if __name__ == '__main__':
+    # # Alert Demo
+    # AlertMonitor().alert_monitor_thread()
+
+    # Web Server
     server = tornado.httpserver.HTTPServer(app)
     server.listen(Setting.PORT)
     tornado.ioloop.IOLoop.current().start()

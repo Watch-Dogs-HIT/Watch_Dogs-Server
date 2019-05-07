@@ -74,6 +74,7 @@ class Setting(object):
     EMAIL_USER = ""
     EMAIL_PASS = ""
     EMAIL_SENDER = ""
+    ALERT_INTERVAL_MIN = -1
 
     def static_value_refresh(self):
         """静态值初始化/刷新"""
@@ -107,6 +108,7 @@ class Setting(object):
         Setting.EMAIL_USER = setting["email"]["mail_user"]
         Setting.EMAIL_PASS = setting["email"]["mail_pass"]
         Setting.EMAIL_SENDER = setting["email"]["sender"]
+        Setting.ALERT_INTERVAL_MIN = setting["email"]["alert_interval_min"]
         return setting
 
     def log_init(self):
