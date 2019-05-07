@@ -373,6 +373,12 @@ class SQL(object):
         """获取用户接受告警数据的信息"""
         return """SELECT `user`, `email` FROM `User` WHERE `user_id` = {uid}; """.format(uid=uid)
 
+    @staticmethod
+    def update_alert_rule_last_relate_record_id(aid, rid):
+        return """UPDATE `Watch_Dogs`.`Alert_rule` SET `last_relate_record_id` = {rid} WHERE `alert_id` = {aid}""".format(
+            aid=aid, rid=rid
+        )
+
 
 if __name__ == '__main__':
     # Demo
