@@ -11,6 +11,7 @@ from handlers.user import *
 from handlers.host import *
 from handlers.index import *
 from handlers.process import *
+from handlers.alert import *
 
 # 路由配置
 HANDLERS = [
@@ -25,5 +26,6 @@ HANDLERS = [
     (r'/process', ProcessHandler),  # 进程
     (r'/process/([0-9]+)', ProcessInfoHandler),  # 进程信息
     (r'/log', ProcessLogHandler),  # 进程日志
+    (r'/alert', AlertHandler),  # 监控告警
     (r'.*', NotFoundHandler)  # 404
 ]

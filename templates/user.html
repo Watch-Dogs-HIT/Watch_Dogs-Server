@@ -63,7 +63,7 @@
                     <a href="/process"><i class="fa fa-bar-chart-o"></i>进程监控</a>
                 </li>
                 <li>
-                    <a href="/log"><i class="fa fa-edit"></i>监控预警</a>
+                    <a href="/alert"><i class="fa fa-edit"></i>监控预警</a>
                 </li>
                 <li>
                     <a href="/user"><i class="fa fa-table"></i>用户管理</a>
@@ -91,24 +91,25 @@
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-lg-8">
-                                    <form role="form">
+                                    <form role="form" onsubmit="false">
                                         <div class="form-group has-warning">
                                             <p class="help-block" style="font-size: 35px">Hello, <span id="user_name">Default User
                                                 Name</span></p>
                                             <br/>
                                             <label for="new_password" class="control-label">密码</label>
-                                            <input class="form-control" placeholder="Your new password "
+                                            <input class="form-control" placeholder="更新你的密码 "
                                                    id="new_password">
                                             <br/>
                                             <label for="new_brief" class="control-label">简介</label>
-                                            <input class="form-control" placeholder="Your new brief introduction"
+                                            <input class="form-control" placeholder="更新个人简介, 方便大家更好地认识你"
                                                    id="new_brief">
                                             <br/>
                                             <label for="new_email" class="control-label">邮箱</label>
-                                            <input class="form-control" placeholder="Your new email address"
+                                            <input class="form-control" placeholder="更新邮箱地址, 用于接收告警邮件(有可能在垃圾邮件里 = =!)"
                                                    id="new_email">
                                             <br/>
-                                            <button class="btn btn-default"
+                                            <input id="hiddenText" type="text" style="display:none" />
+                                            <button class="btn btn-default" type="button"
                                                     id="user_info_update_submit">更新信息
                                             </button>
                                             <p style="font-size:16px;color:green;display:none" id="user_update_msg">

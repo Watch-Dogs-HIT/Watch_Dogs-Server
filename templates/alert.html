@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>监控预警</title>
+    <!--logo-->
+    <link rel="shortcut icon" type="image/x-icon" href="../static/Watch_Dogs.jfif"/>
+    <!-- Bootstrap Styles-->
+    <link href="../static/css/bootstrap.css" rel="stylesheet"/>
+    <!-- FontAwesome Styles-->
+    <link href="../static/css/font-awesome.css" rel="stylesheet"/>
+    <!-- Custom Styles-->
+    <link href="../static/css/custom-styles.css" rel="stylesheet"/>
+    <link href="../static/js/morris/morris-0.4.3.min.css" rel="stylesheet"/>
+    <!-- 引入 ECharts 文件 -->
+    <script src="../static/js/echarts.min.js"></script>
+    <!-- Google Fonts-->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
+</head>
+
+<body>
+<div id="wrapper">
+    <nav class="navbar navbar-default top-navbar" role="navigation">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".sidebar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"><i class="fa fa-dashboard"></i> <strong>Watch_Dogs</strong></a>
+        </div>
+
+        <ul class="nav navbar-top-links navbar-right">
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+                    <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-user">
+                    <li><a href="/user#user_info"><i class="fa fa-user fa-fw"></i> User Profile</a>
+                    </li>
+                    <li><a href="/user#user_admin"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                    </li>
+                    <li class="divider"></li>
+                    <li><a href="#" id="logout_btn"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                    </li>
+                </ul>
+                <!-- /.dropdown-user -->
+            </li>
+            <!-- /.dropdown -->
+        </ul>
+    </nav>
+    <!--/. NAV TOP  -->
+    <nav class="navbar-default navbar-side" role="navigation">
+        <div class="sidebar-collapse">
+            <ul class="nav" id="main-menu">
+                <li>
+                    <a href="/"><i class="fa fa-dashboard"></i>总览</a>
+                </li>
+                <li>
+                    <a href="/host"><i class="fa fa-desktop"></i>主机监控</a>
+                </li>
+                <li>
+                    <a href="/process"><i class="fa fa-bar-chart-o"></i>进程监控</a>
+                </li>
+                <li>
+                    <a href="/alert"><i class="fa fa-edit"></i>监控预警</a>
+                </li>
+                <li>
+                    <a href="/user"><i class="fa fa-table"></i>用户管理</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <!-- /. NAV SIDE  -->
+    <div id="page-wrapper">
+        <h1 class="page-header">监控预警
+            <small>远程Linux主机进程监控告警设置</small>
+        </h1>
+        <div id="page-inner">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            目前与您关联的主机及进程相关信息
+                        </div>
+                        <div class="panel-body">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer>
+                <p>&copy; 2019 <a href="https://github.com/h-j-13" target="_blank" title="侯捷">h-j-13</a>
+                </p>
+            </footer>
+        </div>
+    </div>
+    <!-- /. PAGE WRAPPER  -->
+</div>
+
+
+<!-- /. WRAPPER  -->
+<!-- JS Scripts-->
+<!-- jQuery Js -->
+<script src="../static/js/jquery-1.10.2.js"></script>
+<script src="../static/js/jquery.cookie.js"></script>
+<!-- Metis Menu Js -->
+<script src="../static/js/jquery.metisMenu.js"></script>
+<!-- Bootstrap Js -->
+<script src="../static/js/bootstrap.min.js"></script>
+
+<!-- Custom Js -->
+<script src="../static/js/morris/raphael-2.1.0.min.js"></script>
+<script src="../static/js/morris/morris.js"></script>
+
+<!--<script src="../static/js/custom-scripts.js"></script>-->
+
+<!--页面逻辑-->
+<!--<script src="../static/js/jquery-3.4.0.js"></script>-->
+<script>
+    // 初始化页面
+    $(document).ready(function () {
+    });
+
+
+    // 登出
+    $("#logout_btn").click(function () {
+        $.ajax({
+            type: 'delete',
+            async: true,
+            url: "/login",
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                $(window).attr('location', "/login");
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+            }
+        });
+    });
+</script>
+</body>
+</html>
