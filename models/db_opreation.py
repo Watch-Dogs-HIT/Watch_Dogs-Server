@@ -32,6 +32,7 @@ class DataBase:
         self.conn = None
         self.cursor = None
         self.SSCursor = None
+        self.dict_cursor = None
 
     def __enter__(self):
         self.connect()
@@ -63,6 +64,7 @@ class DataBase:
         except pymysql.Error, e:
             log_db.error('Connect Error:' + str(e))
         self.cursor = self.conn.cursor()
+        self.dict_cursor = self.conn.cursor(pymysql.cursors.DictCursor)
         self.SSCursor = self.conn.cursor(pymysql.cursors.SSCursor)
         if not self.cursor:
             raise (NameError, "Connect Failure")
@@ -72,6 +74,7 @@ class DataBase:
         """关闭数据库"""
         try:
             self.cursor.close()
+            self.dict_cursor.close()
             self.SSCursor.close()
             self.conn.close()
             log_db.info("MySQL(" + str(self.host) + ") Close")
@@ -155,8 +158,8 @@ class DataBase:
         """
         res = None
         try:
-            self.cursor.execute(sql)
-            res = self.cursor.fetchone()
+            self.dict_cursor.execute(sql)
+            res = self.dict_cursor.fetchone()
         except pymysql.Error, e:
             if e.args[0] == 2013 or e.args[0] == 2006:  # 数据库连接出错，重连
                 self.close()
@@ -165,7 +168,7 @@ class DataBase:
                 log_db.error("query_one |sql - time out,reconnect")
                 log_db.error("query_one |sql - Error 2006/2013 :" + str(e))
                 log_db.error("sql = " + str(sql))
-                res = self.execute(sql)  # 重新执行
+                res = self.query_one(sql)  # 重新执行
             else:
                 log_db.error("query_one |sql - Error:" + str(e))
                 log_db.error('SQL : ' + sql)
