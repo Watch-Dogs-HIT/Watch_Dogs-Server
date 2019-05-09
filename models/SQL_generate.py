@@ -359,14 +359,28 @@ class SQL(object):
 
     # rules
     @staticmethod
-    def get_host_alert_rules():
+    def get_all_host_alert_rules():
         """获取所有主机告警规则"""
         return """SELECT * FROM `Alert_rule` WHERE `process_id` = -1;"""
 
     @staticmethod
-    def get_process_alert_rules():
+    def get_host_alert_rule(hid):
+        """获取主机告警规则"""
+        return """SELECT * FROM `Alert_rule` WHERE `process_id` = -1 AND `host_id` = {hid};""".format(
+            hid=hid
+        )
+
+    @staticmethod
+    def get_all_process_alert_rules():
         """获取所有进程告警规则"""
         return """SELECT * FROM `Alert_rule` WHERE `process_id` != -1;"""
+
+    @staticmethod
+    def get_process_alert_rule(pid):
+        """获取进程告警规则"""
+        return """SELECT * FROM `Alert_rule` WHERE `process_id` = {pid};""".format(
+            pid=pid
+        )
 
     @staticmethod
     def get_user_alert_address(uid):
@@ -375,8 +389,43 @@ class SQL(object):
 
     @staticmethod
     def update_alert_rule_last_relate_record_id(aid, rid):
+        """更新告警规则中的最近相关记录id"""
         return """UPDATE `Watch_Dogs`.`Alert_rule` SET `last_relate_record_id` = {rid} WHERE `alert_id` = {aid}""".format(
             aid=aid, rid=rid
+        )
+
+    @staticmethod
+    def get_alert_rule_by_uid_hid_pid(uid, hid, pid):
+        """查询告警记录"""
+        return """SELECT * FROM `Watch_Dogs`.`Alert_rule` WHERE `user_id` = {uid} AND `host_id` = {hid} AND `process_id` = {pid}""".format(
+            uid=uid, hid=hid, pid=pid
+        )
+
+    @staticmethod
+    def update_alert_rule(uid, rules):
+        """更新告警规则"""
+        return ("""UPDATE `Watch_Dogs`.`Alert_rule` SET `status_detect` = {sd}, `cpu_gt` = {cg}, `cpu_lt` = {cl}, """
+                """`mem_gt` = {mg}, `mem_lt` = {ml}, `net_upload_kbps_gt` = {ug}, `net_upload_kbps_lt` = {ul}, """
+                """`net_download_kbps_gt` = {dg}, `net_download_kbps_lt` = {dl}, `log_key_words` = "{l}" """
+                """WHERE `user_id` = {uid} AND `host_id` = {hid} AND `process_id` = {pid}""").format(
+            sd=rules["status_detect"], cg=rules["cpu_gt"], cl=rules["cpu_lt"], mg=rules["mem_gt"],
+            ml=rules["mem_lt"], ug=rules["net_upload_kbps_gt"], ul=rules["net_upload_kbps_lt"],
+            dg=rules["net_download_kbps_gt"], dl=rules["net_download_kbps_lt"], l=rules["log_key_words"],
+            uid=uid, hid=rules["host_id"], pid=rules["process_id"]
+        )
+
+    @staticmethod
+    def add_alert_rule(uid, rules):
+        """添加告警规则"""
+        return (
+            """INSERT INTO `Watch_Dogs`.`Alert_rule` SET `status_detect` = {sd}, `cpu_gt` = {cg}, `cpu_lt` = {cl}, """
+            """`mem_gt` = {mg}, `mem_lt` = {ml}, `net_upload_kbps_gt` = {ug}, `net_upload_kbps_lt` = {ul}, """
+            """`net_download_kbps_gt` = {dg}, `net_download_kbps_lt` = {dl}, `log_key_words` = "{l}",  """
+            """`user_id` = {uid}, `host_id` = {hid}, `process_id` = {pid}""").format(
+            sd=rules["status_detect"], cg=rules["cpu_gt"], cl=rules["cpu_lt"], mg=rules["mem_gt"],
+            ml=rules["mem_lt"], ug=rules["net_upload_kbps_gt"], ul=rules["net_upload_kbps_lt"],
+            dg=rules["net_download_kbps_gt"], dl=rules["net_download_kbps_lt"], l=rules["log_key_words"],
+            uid=uid, hid=rules["host_id"], pid=rules["process_id"]
         )
 
 

@@ -407,7 +407,7 @@
                     $("#process_state").text("[错误] 进程不存在, 进程可能崩溃了!");
                 } else if (res["process_info"]["state"] == "0") {
                     $("#process_state").removeClass();
-                    $("#process_state").addClass("alert alert-success");
+                    $("#process_state").addClass("alert alert-warning");
                     $("#process_state").text("[警告] 进程状态获取出现问题! 请检查远程客户端运行情况");
                 } else {
                     $("#process_state").removeClass();

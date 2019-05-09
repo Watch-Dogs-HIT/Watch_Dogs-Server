@@ -84,9 +84,69 @@
                 <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            目前与您关联的主机及进程相关信息
+                            <h3 id="alert_title">目前与您关联的主机及进程相关信息</h3>
                         </div>
                         <div class="panel-body">
+                            <div id="host_alert_div" class="table-responsive">
+                                <h4>主机告警监控条件设置</h4>
+                                <table class="table table-striped table-bordered table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>主机ID</th>
+                                        <th>主机IP</th>
+                                        <th>类型</th>
+                                        <th>备注</th>
+                                        <th>状态监测</th>
+                                        <th>CPU% 大于</th>
+                                        <th>CPU% 小于</th>
+                                        <th>内存% 大于</th>
+                                        <th>内存% 小于</th>
+                                        <th>上传Kbps 大于</th>
+                                        <th>上传Kbps 小于</th>
+                                        <th>下载Kbps 大于</th>
+                                        <th>上传Kbps 小于</th>
+                                        <th>告警设置</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="host_alert_table">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="process_alert_div" class="table-responsive">
+                                <h4>进程告警监控条件设置</h4>
+                                <table class="table table-striped table-bordered table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>进程ID</th>
+                                        <th>所在主机ID</th>
+                                        <th>名称</th>
+                                        <th>进程号</th>
+                                        <th>状态监测</th>
+                                        <th>CPU% 大于</th>
+                                        <th>CPU% 小于</th>
+                                        <th>内存% 大于</th>
+                                        <th>内存% 小于</th>
+                                        <th>上传Kbps 大于</th>
+                                        <th>上传Kbps 小于</th>
+                                        <th>下载Kbps 大于</th>
+                                        <th>上传Kbps 小于</th>
+                                        <th>日志关键词</th>
+                                        <th>告警设置</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="process_alert_table">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div>
+                            <p style="font-size: 17px;color: grey">&nbsp;&nbsp;&nbsp;&nbsp;注意:<br/>
+                                <span style="font-size: 13px;color: grey">
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;填写 "-1" 即代表不对此项进行检测<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;进行告警中的日志检测关键词若需要设置多个,可以用";"分割,例如"A;B;C"<br/>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.&nbsp;告警检测每10分钟进行一次检测,若触发告警条件,则会向用户设定的邮箱发送告警邮件
+                            </span>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -122,8 +182,186 @@
 <script>
     // 初始化页面
     $(document).ready(function () {
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: "/alert",
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                $("#host_alert_div").hide();
+                $("#process_alert_div").hide();
+                if (res["user_host_relation"].length === 0 && res["user_process_relation"].length === 0) { // 尚未关注主机/进程
+                    $("#alert_title").text("抱歉, 您目前尚未关注监控任何主机及进程. 请稍后在访问此页面.")
+                } else {
+                    if (res["user_host_relation"].length) { // host_table
+                        $("#host_alert_div").show();
+                        for (let host_data of res["user_host_relation"]) {
+                            let host_tr = $("<tr></tr>");
+                            host_tr.append( // 基础信息
+                                "<td>" + host_data["host_id"] + "</td>",
+                                "<td>" + host_data["host_info"]["host"] + "</td>",
+                                "<td>" + host_data["type"] + "</td>",
+                                "<td>" + host_data["comment"] + "</td>",
+                            );
+                            if (host_data["host_alert_rule"]) {// 预警规则
+                                host_tr.append(
+                                    "<td><input placeholder=" + host_data["host_alert_rule"]["status_detect"] + " style=\"width:70px;\"/></td>",
+                                    "<td><input placeholder=" + host_data["host_alert_rule"]["cpu_gt"] + " style=\"width:75px;\"/></td>",
+                                    "<td><input placeholder=" + host_data["host_alert_rule"]["cpu_lt"] + " style=\"width:75px;\"/></td>",
+                                    "<td><input placeholder=" + host_data["host_alert_rule"]["mem_gt"] + " style=\"width:75px;\"/></td>",
+                                    "<td><input placeholder=" + host_data["host_alert_rule"]["mem_lt"] + " style=\"width:75px;\"/></td>",
+                                    "<td><input placeholder=" + host_data["host_alert_rule"]["net_upload_kbps_gt"] + " style=\"width:100px;\"/></td>",
+                                    "<td><input placeholder=" + host_data["host_alert_rule"]["net_upload_kbps_lt"] + " style=\"width:100px;\"/></td>",
+                                    "<td><input placeholder=" + host_data["host_alert_rule"]["net_download_kbps_gt"] + " style=\"width:100px;\"/></td>",
+                                    "<td><input placeholder=" + host_data["host_alert_rule"]["net_download_kbps_lt"] + " style=\"width:100px;\"/></td>",
+                                )
+                            } else { // 默认预警规则
+                                host_tr.append(
+                                    "<td><input placeholder=\"-1\" style=\"width:70px;\"/></td>",
+                                    "<td><input placeholder=\"-1\" style=\"width:75px;\"/></td>",
+                                    "<td><input placeholder=\"-1\" style=\"width:75px;\"/></td>",
+                                    "<td><input placeholder=\"-1\" style=\"width:75px;\"/></td>",
+                                    "<td><input placeholder=\"-1\" style=\"width:75px;\"/></td>",
+                                    "<td><input placeholder=\"-1\" style=\"width:100px;\"/></td>",
+                                    "<td><input placeholder=\"-1\" style=\"width:100px;\"/></td>",
+                                    "<td><input placeholder=\"-1\" style=\"width:100px;\"/></td>",
+                                    "<td><input placeholder=\"-1\" style=\"width:100px;\"/></td>",
+                                )
+                            }
+                            host_tr.append("<td><a href=\"#\" class=\"btn btn-primary btn-sm\"\n onclick=\"update_host_alert_rule(this)\">更新</a></td>");
+                            $("#host_alert_table").append(host_tr);
+                        }
+                    }
+                    if (res["user_process_relation"].length) { // process_table
+                        $("#process_alert_div").show();
+                        for (let process_data of res["user_process_relation"]) {
+                            let process_tr = $("<tr></tr>");
+                            process_tr.append( // 基础信息
+                                "<td>" + process_data["process_id"] + "</td>",
+                                "<td>" + process_data["host_id"] + "</td>",
+                                "<td>" + process_data["process_info"]["comm"] + "</td>",
+                                "<td>" + process_data["process_info"]["pid"] + "</td>",
+                            );
+                            if (JSON.stringify(process_data["process_alert_rule"]) != "{}") {// 预警规则
+                                process_tr.append(
+                                    "<td><input placeholder=" + process_data["process_alert_rule"]["status_detect"] + " style=\"width:70px;\"/></td>",
+                                    "<td><input placeholder=" + process_data["process_alert_rule"]["cpu_gt"] + " style=\"width:75px;\"/></td>",
+                                    "<td><input placeholder=" + process_data["process_alert_rule"]["cpu_lt"] + " style=\"width:75px;\"/></td>",
+                                    "<td><input placeholder=" + process_data["process_alert_rule"]["mem_gt"] + " style=\"width:75px;\"/></td>",
+                                    "<td><input placeholder=" + process_data["process_alert_rule"]["mem_lt"] + " style=\"width:75px;\"/></td>",
+                                    "<td><input placeholder=" + process_data["process_alert_rule"]["net_upload_kbps_gt"] + " style=\"width:100px;\"/></td>",
+                                    "<td><input placeholder=" + process_data["process_alert_rule"]["net_upload_kbps_lt"] + " style=\"width:100px;\"/></td>",
+                                    "<td><input placeholder=" + process_data["process_alert_rule"]["net_download_kbps_gt"] + " style=\"width:100px;\"/></td>",
+                                    "<td><input placeholder=" + process_data["process_alert_rule"]["net_download_kbps_lt"] + " style=\"width:100px;\"/></td>",
+                                    "<td><input placeholder=" + process_data["process_alert_rule"]["log_key_words"] + " style=\"width:100px;\"/></td>",
+                                )
+                            } else { // 默认预警规则
+                                process_tr.append(
+                                    "<td><input placeholder=\"-1\" style=\"width:70px;\"/></td>",
+                                    "<td><input placeholder=\"-1\" style=\"width:75px;\"/></td>",
+                                    "<td><input placeholder=\"-1\" style=\"width:75px;\"/></td>",
+                                    "<td><input placeholder=\"-1\" style=\"width:75px;\"/></td>",
+                                    "<td><input placeholder=\"-1\" style=\"width:75px;\"/></td>",
+                                    "<td><input placeholder=\"-1\" style=\"width:100px;\"/></td>",
+                                    "<td><input placeholder=\"-1\" style=\"width:100px;\"/></td>",
+                                    "<td><input placeholder=\"-1\" style=\"width:100px;\"/></td>",
+                                    "<td><input placeholder=\"-1\" style=\"width:100px;\"/></td>",
+                                    "<td><input placeholder=\"\" style=\"width:100px;\"/></td>",
+                                )
+                            }
+                            process_tr.append("<td><a href=\"#\" class=\"btn btn-primary btn-sm\"\n onclick=\"update_process_alert_rule(this)\">更新</a></td>");
+                            $("#process_alert_table").append(process_tr);
+                        }
+                    }
+                }
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
     });
 
+    // 获取需要更新的数值
+    function get_vaule(input_element) {
+        if (input_element.val() !== "") {
+            return input_element.val()
+        } else {
+            return input_element.attr('placeholder');
+        }
+    }
+
+    // 更新主机告警设置
+    function update_host_alert_rule(btn) {
+        // 构造请求数据
+        let host_table_tr = $(btn).parent().parent();
+        let request_json = {
+            host_id: host_table_tr.children().eq(0).text(),
+            process_id: "-1",
+            status_detect: get_vaule(host_table_tr.children().eq(4).children().eq(0)),
+            cpu_gt: get_vaule(host_table_tr.children().eq(5).children().eq(0)),
+            cpu_lt: get_vaule(host_table_tr.children().eq(6).children().eq(0)),
+            mem_gt: get_vaule(host_table_tr.children().eq(7).children().eq(0)),
+            mem_lt: get_vaule(host_table_tr.children().eq(8).children().eq(0)),
+            net_upload_kbps_gt: get_vaule(host_table_tr.children().eq(9).children().eq(0)),
+            net_upload_kbps_lt: get_vaule(host_table_tr.children().eq(10).children().eq(0)),
+            net_download_kbps_gt: get_vaule(host_table_tr.children().eq(11).children().eq(0)),
+            net_download_kbps_lt: get_vaule(host_table_tr.children().eq(12).children().eq(0)),
+            log_key_words: ""
+        };
+        $.ajax({
+            type: 'put',
+            async: true,
+            url: "/alert",
+            data: JSON.stringify(request_json),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                setTimeout('window.location.reload()', 500);
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        })
+    }
+
+    // 更新进程告警设置
+    function update_process_alert_rule(btn) {
+        let process_table_tr = $(btn).parent().parent();
+        let request_json = {
+            host_id: process_table_tr.children().eq(1).text(),
+            process_id: process_table_tr.children().eq(0).text(),
+            status_detect: get_vaule(process_table_tr.children().eq(4).children().eq(0)),
+            cpu_gt: get_vaule(process_table_tr.children().eq(5).children().eq(0)),
+            cpu_lt: get_vaule(process_table_tr.children().eq(6).children().eq(0)),
+            mem_gt: get_vaule(process_table_tr.children().eq(7).children().eq(0)),
+            mem_lt: get_vaule(process_table_tr.children().eq(8).children().eq(0)),
+            net_upload_kbps_gt: get_vaule(process_table_tr.children().eq(9).children().eq(0)),
+            net_upload_kbps_lt: get_vaule(process_table_tr.children().eq(10).children().eq(0)),
+            net_download_kbps_gt: get_vaule(process_table_tr.children().eq(11).children().eq(0)),
+            net_download_kbps_lt: get_vaule(process_table_tr.children().eq(12).children().eq(0)),
+            log_key_words: get_vaule(process_table_tr.children().eq(13).children().eq(0))
+        };
+        console.log(request_json);
+        $.ajax({
+            type: 'put',
+            async: true,
+            url: "/alert",
+            data: JSON.stringify(request_json),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                setTimeout('window.location.reload()', 500);
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        })
+    }
 
     // 登出
     $("#logout_btn").click(function () {

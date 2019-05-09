@@ -64,8 +64,8 @@ class AlertMonitor(object):
     def get_all_alert_rules(self):
         """获取所有监控规则"""
         with self.db as db:
-            return {"host_rules": db.execute(SQL.get_host_alert_rules()),
-                    "process_rules": db.execute(SQL.get_process_alert_rules())}
+            return {"host_rules": db.execute(SQL.get_all_host_alert_rules()),
+                    "process_rules": db.execute(SQL.get_all_process_alert_rules())}
 
     def host_status_detect(self, host_rules):
         """主机告警规则匹配"""
@@ -91,7 +91,7 @@ class AlertMonitor(object):
             ui = self.get_user_email_address_and_name(uid)
             user_name, user_email = ui["user"], ui["email"]
             # 状态检测
-            if sd:
+            if sd and sd != -1:
                 if not state:
                     send_alert_email(user_email, user_name, host_name, "主机状态异常", json.dumps(hnr, indent=2))
                     self.update_alert_rule_relate_record_id(aid, hrid)
@@ -171,7 +171,7 @@ class AlertMonitor(object):
             ui = self.get_user_email_address_and_name(uid)
             user_name, user_email = ui["user"], ui["email"]
             # 状态检测
-            if sd:
+            if sd and sd != -1:
                 if state == "X":
                     send_alert_email(user_email, user_name, process_name, "进程不存在", json.dumps(pnr, indent=2))
                     self.update_alert_rule_relate_record_id(aid, prid)

@@ -115,7 +115,7 @@ class Data(object):
         res["host_num"] = len(h)
         res["process_num"] = len(p)
         res["error_logs"] = -1  # TODO : yield self.db.query(...)
-        res["un_normal_process"] = filter(lambda x: x["state"] == u"X", p)
+        res["un_normal_process"] = filter(lambda x: x["state"] == u"X" or x["state"] == u"0" or x["state"] == 0, p)
         res["un_normal_process_num"] = len(res["un_normal_process"])
         res["un_normal_host"] = filter(lambda x: x["status"] == 0, h)
         res["un_normal_host_num"] = len(res["un_normal_host"])
@@ -315,3 +315,66 @@ class Data(object):
     def delete_process(self, user_id, process_id):
         """删除用户与进程的关联"""
         yield self.db.execute(SQL.delete_user_process_relation(user_id, process_id))
+
+    # alert
+    @gen.coroutine
+    def alert_user_data(self, uid):
+        """告警页面展示信息"""
+        res = {}
+        # host
+        res["user_host_relation"] = yield self.db.query(SQL.get_user_all_host_relation(uid))
+        for host_relation in res["user_host_relation"]:
+            host_info = yield self.db.query_one(SQL.get_host_info(host_relation["host_id"]))
+            host_alert_rule = yield self.db.query_one(SQL.get_host_alert_rule(host_relation["host_id"]))
+            if host_info and "update_time" in host_info:
+                host_info.pop("update_time")
+            if host_alert_rule and "update_time" in host_alert_rule:
+                host_alert_rule.pop("update_time")
+            host_relation["host_info"] = host_info
+            host_relation["host_alert_rule"] = host_alert_rule
+        # process
+        res["user_process_relation"] = yield self.db.query(SQL.get_user_all_process_relation(uid))
+        for process_relation in res["user_process_relation"]:
+            process_info = yield self.db.query_one(SQL.get_process_info(process_relation["process_id"]))
+            process_alert_rule = yield self.db.query_one(SQL.get_process_alert_rule(process_relation["process_id"]))
+            if process_info and "update_time" in process_info:
+                process_info.pop("update_time")
+            if process_alert_rule and "update_time" in process_alert_rule:
+                process_alert_rule.pop("update_time")
+                if not process_alert_rule["log_key_words"]:
+                    process_alert_rule["log_key_words"] = "\"\""
+            process_relation["process_info"] = process_info if process_info else {}
+            process_relation["process_alert_rule"] = process_alert_rule if process_alert_rule else {}
+        raise gen.Return(res)
+
+    # alert
+    @gen.coroutine
+    def update_alert_rule(self, uid, request_json):
+        """更新告警规则"""
+
+        # format user
+        def str2int_for_rule(s):
+            if type(s) == str:
+                if not s:
+                    return -1
+                elif s.isdigit():
+                    return int(s)
+                else:
+                    return -1
+            else:
+                return -1
+
+        for k in request_json.keys():
+            if k != "log_key_words":
+                request_json[k] = str2int_for_rule(request_json[k])
+
+        # 查询是否存在
+        exist = yield self.db.query_one(
+            SQL.get_alert_rule_by_uid_hid_pid(uid, request_json["host_id"], request_json["process_id"]))
+
+        if exist:
+            self.db.execute(SQL.update_alert_rule(uid, rules=request_json))
+        else:
+            self.db.execute(SQL.add_alert_rule(uid, rules=request_json))
+
+        raise gen.Return(request_json)

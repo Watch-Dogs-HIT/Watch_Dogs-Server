@@ -19,7 +19,7 @@ materialAdmin
                         var p = $(this).closest('.form-group');
                         //var i = p.find('.form-control').val();
 						var regex = new RegExp($(this).attr('regex'));
-						console.log($(this).val());
+						// console.log($(this).val());
                         /*if (p.hasClass('fg-float')) {
                             if (i.length == 0) {
                                 $(this).closest('.fg-line').removeClass('fg-toggled');

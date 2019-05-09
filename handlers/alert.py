@@ -25,9 +25,15 @@ class AlertHandler(BaseHandler):
     @tornado.web.authenticated
     def post(self, *args, **kwargs):
         """用户关联主机/进程及其目前告警信息"""
-        return self.render("alert.html")
+        res = yield self.data.alert_user_data(self.uid)
+        self.finish(res)
 
     @gen.coroutine
     @tornado.web.authenticated
     def put(self, *args, **kwargs):
         """更新预警设置"""
+        try:
+            res = yield self.data.update_alert_rule(self.uid, self.get_request_json())
+            self.finish(res)
+        except Exception as err:
+            self.finish({"error": str(err)})
