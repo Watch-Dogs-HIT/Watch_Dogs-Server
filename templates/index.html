@@ -17,6 +17,8 @@
     <link href="../static/css/custom-styles.css" rel="stylesheet"/>
     <!-- Google Fonts-->
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
+    <!-- cssfx -->
+    <link href="../static/css/cssfx.css" rel="stylesheet"/>
 </head>
 
 <body>
@@ -79,7 +81,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <h1 class="page-header">
-                        监控情况总览
+                        <span class="div_title">监控情况总览</span>
                         <small>远程Linux主机及进程监控情况</small>
                     </h1>
                 </div>
@@ -144,7 +146,7 @@
 
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            近期主机监控数据
+                            <span class="div_title">近期主机监控数据</span>
                         </div>
                         <div class="panel-body">
                             <div class="table-responsive">
@@ -171,7 +173,7 @@
 
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            近期进程监控数据
+                            <span class="div_title">近期进程监控数据</span>
                         </div>
                         <div class="panel-body">
                             <div class="table-responsive">
@@ -252,7 +254,7 @@
                 $("#un_normal_process_num").text(res["un_normal_process_num"]);
                 // host_table
                 for (let host_record of res["recent_host_record"]) {
-                    let host_record_tr = $("<tr></tr>");
+                    let host_record_tr = $("<tr onclick=\"transition2host(this)\"></tr>");
                     host_record_tr.append(
                         `<td>${host_record["host_id"]}</td>`,
                         `<td>${host_record["comment"]}</td>`,
@@ -268,7 +270,7 @@
                 }
                 // process_table
                 for (let process_record of res["recent_process_record"]) {
-                    let process_record_tr = $("<tr></tr>");
+                    let process_record_tr = $("<tr onclick=\"transition2process(this)\"></tr>");
                     process_record_tr.append(
                         `<td>${process_record["process_id"]}</td>`,
                         `<td>${process_record["host_id"]}</td>`,
@@ -294,6 +296,18 @@
 
         });
     });
+
+    // 跳转主机页
+    function transition2host(e) {
+        let host_id = $(e).children().eq(0).text();
+        window.location.href = "host#" + host_id;
+    }
+
+    // 跳转进程页
+    function transition2process(e) {
+        let process_id = $(e).children().eq(0).text();
+        window.location.href = "process#" + process_id;
+    }
 
     // 登出
     $("#logout_btn").click(function () {

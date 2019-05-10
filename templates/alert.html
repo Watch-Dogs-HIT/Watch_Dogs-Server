@@ -18,6 +18,8 @@
     <script src="../static/js/echarts.min.js"></script>
     <!-- Google Fonts-->
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
+    <!-- cssfx -->
+    <link href="../static/css/cssfx.css" rel="stylesheet"/>
 </head>
 
 <body>
@@ -84,11 +86,11 @@
                 <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <h3 id="alert_title">目前与您关联的主机及进程相关信息</h3>
+                            <h3 id="alert_title"><span class="div_title">目前与您关联的主机及进程相关信息</span></h3>
                         </div>
                         <div class="panel-body">
                             <div id="host_alert_div" class="table-responsive">
-                                <h4>主机告警监控条件设置</h4>
+                                <h4><span class="div_title">主机告警监控条件设置</span></h4>
                                 <table class="table table-striped table-bordered table-hover">
                                     <thead>
                                     <tr>
@@ -113,7 +115,7 @@
                                 </table>
                             </div>
                             <div id="process_alert_div" class="table-responsive">
-                                <h4>进程告警监控条件设置</h4>
+                                <h4><span class="div_title">进程告警监控条件设置</span></h4>
                                 <table class="table table-striped table-bordered table-hover">
                                     <thead>
                                     <tr>

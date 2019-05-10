@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>主机管理</title>
+    <title>主机监控</title>
     <!--logo-->
     <link rel="shortcut icon" type="image/x-icon" href="../static/Watch_Dogs.jfif"/>
     <!-- Bootstrap Styles-->
@@ -13,10 +13,11 @@
     <link href="../static/css/font-awesome.css" rel="stylesheet"/>
     <!-- Custom Styles-->
     <link href="../static/css/custom-styles.css" rel="stylesheet"/>
-    <link href="../static/css/cssfx.css" rel="stylesheet"/>
     <link href="../static/js/morris/morris-0.4.3.min.css" rel="stylesheet"/>
     <!-- Google Fonts-->
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
+    <!-- cssfx -->
+    <link href="../static/css/cssfx.css" rel="stylesheet"/>
 </head>
 
 <body>
@@ -75,7 +76,7 @@
     </nav>
     <!-- /. NAV SIDE  -->
     <div id="page-wrapper">
-        <h1 class="page-header">主机管理
+        <h1 class="page-header">主机监控
             <small>远程Linux主机资源监控</small>
         </h1>
         <div id="page-inner">
@@ -303,6 +304,12 @@
 
     // 初始化页面
     $(document).ready(function () {
+        // 处理#后面的host_id
+        let select_host_id = 0;
+        if (window.location.hash) {
+            select_host_id = parseInt(window.location.hash.split("#")[1]);
+        }
+        // 请求数据
         $.ajax({
             type: 'get',
             async: true,
@@ -312,14 +319,25 @@
             dataType: "json",
             success: function (res) {
                 user_all_host_relation = res;
-                // 设置默认主机
-                $("#host_select_btn").text(res["relation"][0]["select_str"]);
-                current_host_id = res["relation"][0]["host_id"];
-
+                if (select_host_id) {// 选择了主机id
+                    for (let host_relation of res["relation"]) {
+                        if (host_relation["host_id"] === select_host_id) {
+                            $("#host_select_btn").text(host_relation["select_str"]);
+                            current_host_id = host_relation["host_id"];
+                        }
+                    }
+                } else {// 设置默认主机
+                    $("#host_select_btn").text(res["relation"][0]["select_str"]);
+                    current_host_id = res["relation"][0]["host_id"];
+                }
                 // 添加选择主机按钮
                 for (let host_relation of res["relation"])
                     $("#host_select_id").append("<li><a href=\"#\">" + host_relation["select_str"] + "</a></li>");
-
+                // 展示主机信息,如果#后面的host_id无效,则展示第一个主机
+                if (current_host_id === -1) {
+                    $("#host_select_btn").text(res["relation"][0]["select_str"]);
+                    current_host_id = res["relation"][0]["host_id"];
+                }
                 show_host_data(current_host_id);
             },
             error: function (msg) {
@@ -547,7 +565,7 @@
 
     // 选择主机id
     $("#host_select_id").click(function (event) {
-        current_host_id = parseInt(event.target.innerHTML.split(" : ")[0].split("#")[1])
+        current_host_id = parseInt(event.target.innerHTML.split(" : ")[0].split("#")[1]);
         for (let host_relation of user_all_host_relation["relation"]) {
             if (current_host_id === host_relation["host_id"]) {// 修改选项文本
                 $("#host_select_btn").text(host_relation["select_str"]);

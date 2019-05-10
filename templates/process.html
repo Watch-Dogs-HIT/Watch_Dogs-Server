@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>进程监控管理</title>
+    <title>进程监控</title>
     <!--logo-->
     <link rel="shortcut icon" type="image/x-icon" href="../static/Watch_Dogs.jfif"/>
     <!-- Bootstrap Styles-->
@@ -336,6 +336,11 @@
 
     // 初始化页面
     $(document).ready(function () {
+        // 处理#后面的process_id
+        let select_process_id = 0;
+        if (window.location.hash) {
+            select_process_id = parseInt(window.location.hash.split("#")[1]);
+        }
         $.ajax({
             type: 'get',
             async: true,
@@ -345,15 +350,30 @@
             dataType: "json",
             success: function (res) {
                 user_all_process_relation = res;
-                // 设置默认进程
-                $("#process_select_btn").text(res["relation"][0]["select_str"]);
-                current_process_id = res["relation"][0]["process_id"];
-                current_process_at_host_id = res["relation"][0]["host_id"];
-
+                if (select_process_id) {// 选择了主机id
+                    for (let process_relation of res["relation"]) {
+                        if (process_relation["process_id"] === select_process_id) {
+                            $("#process_select_btn").text(process_relation["select_str"]);
+                            current_process_at_host_id = process_relation["host_id"];
+                            current_process_id = process_relation["process_id"];
+                        }
+                    }
+                } else {// 设置默认进程
+                    $("#process_select_btn").text(res["relation"][0]["select_str"]);
+                    current_process_id = res["relation"][0]["process_id"];
+                    current_process_at_host_id = res["relation"][0]["host_id"];
+                }
                 // 添加选择进程按钮
                 for (let process_relation of res["relation"]) {
                     $("#process_select_id").append("<li><a href=\"#\">" + process_relation["select_str"] + "</a></li>");
                 }
+                // 展示进程信息,如果#后面的process_id无效,则展示第一个进程
+                if (current_process_id === -1) {
+                    $("#process_select_btn").text(res["relation"][0]["select_str"]);
+                    current_process_id = res["relation"][0]["process_id"];
+                    current_process_at_host_id = res["relation"][0]["host_id"];
+                }
+
                 show_host_data(current_process_id);
             },
             error: function (msg) {
@@ -551,6 +571,12 @@
                 dataType: "json",
                 success: function (res) {
                     if (res.hasOwnProperty("error")) {
+                        console.log({
+                            host_id: host_id,
+                            path: path
+                        });
+
+
                         $("#log_div").hide();
                         alert("日志请求错误, 详细信息请查看控制台日志");
                         console.log(res);
