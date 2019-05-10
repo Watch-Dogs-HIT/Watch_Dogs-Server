@@ -51,7 +51,7 @@ class ProcessInfoHandler(BaseHandler):
     @tornado.web.authenticated
     def get(self, process_id):
         """进程信息"""
-        if process_id == "0":  # 获取所有主机
+        if process_id == "0":  # 获取所有关联进程
             res = yield self.data.all_user_process_relation(self.uid)
             self.finish(res)
         else:
