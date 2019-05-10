@@ -18,6 +18,8 @@
     <script src="../static/js/echarts.min.js"></script>
     <!-- Google Fonts-->
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
+    <!-- cssfx -->
+    <link href="../static/css/cssfx.css" rel="stylesheet"/>
 </head>
 
 <body>
@@ -102,17 +104,19 @@
                                 <div class="col-md-8">
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
-                                            <h4>进程占用资源</h4>
+                                            <h4><span class="res_div_title">进程占用资源</span></h4>
                                         </div>
                                         <div class="panel-body">
                                             <ul class="nav nav-tabs">
-                                                <li class="active"><a href="#CPU" data-toggle="tab">CPU</a>
+                                                <li class="active"><a class="proc_res_title" href="#CPU"
+                                                                      data-toggle="tab">CPU</a>
                                                 </li>
-                                                <li class=""><a href="#Memory" data-toggle="tab">Memory</a>
+                                                <li class=""><a class="proc_res_title" href="#Memory" data-toggle="tab">Memory</a>
                                                 </li>
-                                                <li class=""><a href="#Net" data-toggle="tab">Net</a>
+                                                <li class=""><a class="proc_res_title" href="#Net"
+                                                                data-toggle="tab">Net</a>
                                                 </li>
-                                                <li class=""><a href="#Disk" data-toggle="tab">Disk</a>
+                                                <li class=""><a class="proc_res_title" href="#Disk" data-toggle="tab">Disk</a>
                                                 </li>
                                             </ul>
                                             <div class="tab-content">
@@ -137,11 +141,11 @@
                                 <div class="col-md-4">
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
-                                            进程信息
+                                            <span class="res_div_title">进程信息</span>
                                         </div>
 
                                         <div class="panel-body">
-                                            <h4>进程详细信息</h4>
+                                            <h4><span class="res_div_title">进程详细信息</span></h4>
                                             <div class="table-responsive">
                                                 <table class="table table-striped">
                                                     <thead>
@@ -207,7 +211,7 @@
                                 <div class="col-md-12" id="log_div">
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
-                                            <h4>进程日志监控</h4>
+                                            <h4><span class="res_div_title">进程日志监控</span></h4>
                                             <div class="form-group input-group" style="display:flex">
                                                 <button class="btn btn-default" id="log_refresh"><i
                                                         class="fa fa-refresh"

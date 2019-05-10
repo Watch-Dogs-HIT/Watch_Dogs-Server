@@ -13,7 +13,7 @@
     <link href="../static/css/font-awesome.css" rel="stylesheet"/>
     <!-- Custom Styles-->
     <link href="../static/css/custom-styles.css" rel="stylesheet"/>
-    <!--todo : fix import err-->
+    <link href="../static/css/cssfx.css" rel="stylesheet"/>
     <link href="../static/js/morris/morris-0.4.3.min.css" rel="stylesheet"/>
     <!-- Google Fonts-->
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
@@ -101,17 +101,18 @@
                                 <div class="col-md-8">
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
-                                            <h4>主机资源占用</h4>
+                                            <h4><span class="div_title">主机资源占用</span></h4>
                                         </div>
                                         <div class="panel-body">
                                             <ul class="nav nav-tabs">
-                                                <li class="active"><a href="#CPU" data-toggle="tab">CPU</a>
+                                                <li class="active"><a class="res_title" href="#CPU" data-toggle="tab">CPU</a>
                                                 </li>
-                                                <li class=""><a href="#Memory" data-toggle="tab">Memory</a>
+                                                <li class=""><a class="res_title" href="#Memory" data-toggle="tab">Memory</a>
                                                 </li>
-                                                <li class=""><a href="#Net" data-toggle="tab">Net</a>
+                                                <li class=""><a class="res_title" href="#Net" data-toggle="tab">Net</a>
                                                 </li>
-                                                <li class=""><a href="#Disk" data-toggle="tab">Disk</a>
+                                                <li class=""><a class="res_title" href="#Disk"
+                                                                data-toggle="tab">Disk</a>
                                                 </li>
                                             </ul>
                                             <div class="tab-content">
@@ -139,11 +140,11 @@
                                 <div class="col-md-4">
                                     <div class="panel panel-default">
                                         <div class="panel-heading">
-                                            主机配置信息
+                                            <span class="div_title">主机配置信息</span>
                                         </div>
 
                                         <div class="panel-body">
-                                            <h4>系统信息</h4>
+                                            <h4><span class="div_title">系统信息</span></h4>
                                             <div class="table-responsive">
                                                 <table class="table">
                                                     <thead>
@@ -188,7 +189,7 @@
                                                     </tbody>
                                                 </table>
                                                 <hr/>
-                                                <h4>磁盘状态</h4>
+                                                <h4><span class="div_title">磁盘状态</span></h4>
                                                 <div class="table-responsive">
                                                     <table class="table table-striped">
                                                         <thead>
