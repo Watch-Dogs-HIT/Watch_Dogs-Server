@@ -78,7 +78,7 @@
     </nav>
     <!-- /. NAV SIDE  -->
     <div id="page-wrapper">
-        <h1 class="page-header">进程监控
+        <h1 class="page-header"><span class="res_div_title">进程监控</span>
             <small>远程Linux主机进程监控及管理</small>
         </h1>
         <div id="page-inner">
@@ -128,10 +128,10 @@
                                                     <p>总内存大小 : <span id="mem_max_size">1</span> MB</p>
                                                 </div>
                                                 <div class="tab-pane fade in" id="Net">
-                                                    <div id="io_graph" style="width: 1000px;height:450px;"></div>
+                                                    <div id="net_graph" style="width: 1000px;height:450px;"></div>
                                                 </div>
                                                 <div class="tab-pane fade in" id="Disk">
-                                                    <div id="net_graph" style="width: 1000px;height:450px;"></div>
+                                                    <div id="io_graph" style="width: 1000px;height:450px;"></div>
                                                 </div>
                                             </div>
 
@@ -251,51 +251,96 @@
                     </div>
 
                 </div>
-
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            进程控制
+                            <h4><span class="res_div_title">进程管理</span></h4>
                         </div>
                         <div class="panel-body">
                             <div class="col-md-6">
                                 <div class="panel panel-default">
                                     <div class="panel-heading">
-                                        远程主机信息
+                                        <span class="res_div_title">更新进程信息</span>&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;<span
+                                            id="current_process">CURRENT_PROCESS</span>
                                     </div>
                                     <div class="panel-body">
                                         <div class="form-group">
-                                            <label for="host_ip">主机IP</label>
-                                            <input id="host_ip" class="form-control" placeholder="请填写能够访问的地址">
+                                            <label for="process_type">进程类型</label>
+                                            <input id="process_type" class="form-control"
+                                                   placeholder="current_process_type">
                                             <br/>
-                                            <label for="host_port">主机端口</label>
-                                            <input id="host_port" class="form-control" placeholder="SSH协议端口 (默认为22) ">
+                                            <label for="process_comment">进程备注</label>
+                                            <input id="process_comment" class="form-control"
+                                                   placeholder="current_process_comment">
                                             <br/>
-                                            <label for="host_user">用户名</label>
-                                            <input id="host_user" class="form-control"
-                                                   placeholder="远程主机登陆用户名 (推荐root) ">
+                                            <label for="process_log_path">进程日志地址</label>
+                                            <input id="process_log_path" class="form-control"
+                                                   placeholder="process_log_path">
                                             <br/>
-                                            <label for="host_password">密码</label>
-                                            <input id="host_password" class="form-control" placeholder="远程主机登陆密码">
+                                            <label for="process_path">进程所在路径</label>
+                                            <input id="process_path" class="form-control" placeholder="process_path">
                                             <br/>
-                                            <button id="add_host_btn" type="submit" class="btn btn-default">添加</button>
+                                            <label for="process_start_com">进程启动命令</label>
+                                            <input id="process_start_com" class="form-control"
+                                                   placeholder="process_start_com">
+                                            <br/>
+                                            <button id="process_update_btn" type="submit" class="btn btn-sucess"><i class="fa fa-edit "></i>&nbsp;更新信息
+                                            </button>&nbsp;&nbsp;
+                                            <button id="process_start_btn" type="submit" class="btn btn-danger"><i class="fa fa-pencil"></i>&nbsp;结束该进程
+                                            </button>&nbsp;&nbsp;
+                                            <button id="process_restart_btn" type="submit" class="btn btn-primary"><i class=" fa fa-refresh "></i>&nbsp;重启该进程
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <span class="res_div_title">远程主机信息</span>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div class="form-group">
+                                            <div class="form-group">
+                                                <label for="new_process_at_host">进程所在主机</label>
+                                                <select id="new_process_at_host" class="form-control">
+                                                    <option>1</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="new_process_pid">选择进程</label>
+                                                <select id="new_process_pid" multiple="" class="form-control">
+                                                    <option>1</option>
+                                                </select>
+                                            </div>
+                                            <label for="new_process_type">进程类型</label>
+                                            <input id="new_process_type" class="form-control"
+                                                   placeholder="【可选】描述一下进程具体的类型">
+                                            <br/>
+                                            <label for="new_process_comment">进程备注</label>
+                                            <input id="new_process_comment" class="form-control"
+                                                   placeholder="【可选】为了便于查找，请给进程添加一个好记的备注">
+                                            <br/>
+                                            <label for="new_process_log_path">进程日志地址</label>
+                                            <input id="new_process_log_path" class="form-control"
+                                                   placeholder="【可选】进程日志地址，如果有日志就可以在监控页面展示分析">
+                                            <br/>
+                                            <label for="new_process_path">进程所在路径</label>
+                                            <input id="new_process_path" class="form-control"
+                                                   placeholder="【可选】进程所在路径，用于重启进程">
+                                            <br/>
+                                            <label for="new_process_start_com">进程启动命令</label>
+                                            <input id="new_process_start_com" class="form-control"
+                                                   placeholder="【可选】进程完整启动命令，用于重启进程">
+                                            <br/>
+                                            <button id="add_host_btn" type="submit" class="btn btn-info">添加新进程</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
-                                <div class="panel panel-primary">
-                                    <div class="panel-heading">
-                                        添加主机
-                                    </div>
-                                    <div class="panel-body">
-                                        <p id="add_host_info">准备添加主机...</p>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

@@ -35,5 +35,13 @@ class AllProcessHandler(BaseHandler):
 
     @gen.coroutine
     @tornado.web.authenticated
-    def get(self, *args, **kwargs):
-        pass
+    def post(self, *args, **kwargs):
+        try:
+            request = self.get_request_json()
+            if "host_id" in request:
+                self.finish(self.remote_api.get_all_process(request["host_id"]))
+            else:
+                self.finish({"error": "no enough params for process all"})
+        except Exception as err:
+            print err
+            self.finish({"error": str(err)})

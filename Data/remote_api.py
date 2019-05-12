@@ -236,5 +236,9 @@ class Watch_Dogs_Client(object):
         return filter(lambda s: s.find(key_word) != -1, self.get_api("/log/tail", payload=payload))
 
     # -----manage-----
-    # todo 完成剩余的所有功能函数 2019.3.13
+    # /proc/all_pid_name/
+    def get_all_proc_with_name(self):
+        """搜索日志关键词"""
+        return self.get_api("/proc/all_pid_name/")
 
+    # todo 完成剩余的所有功能函数 2019.3.13

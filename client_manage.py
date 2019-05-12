@@ -219,6 +219,11 @@ class ClientManager(object):
         self.db.commit()
         self.db.close()
 
+    # manage
+    def get_all_process(self, host_id):
+        """获取该主机所有进程"""
+        return self.client[str(host_id)].get_all_proc_with_name()
+
     # test
     def test_api(self):
         """测试api"""

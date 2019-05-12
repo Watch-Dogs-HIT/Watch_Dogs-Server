@@ -57,7 +57,8 @@ app = createApp()
 
 if __name__ == '__main__':
     # # Alert Demo
-    # AlertMonitor().alert_monitor_thread()
+    # app.AlertMonitor()
+    # app.remote_api.manage_main_thread()
 
     # Web Server
     server = tornado.httpserver.HTTPServer(app)
