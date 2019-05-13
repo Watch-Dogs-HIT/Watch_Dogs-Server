@@ -38,6 +38,7 @@ class Data(object):
         self.prpcrypt = encrypt.Prpcrypt()
 
     # USER
+
     @gen.coroutine
     def update_cookie(self, uid):
         """根据uid更新用户cookie"""
@@ -66,13 +67,13 @@ class Data(object):
             raise gen.Return({"register": False, "msg": "已经存在的用户名"})
 
     @gen.coroutine
-    def update_user_info(self, uid, update_field, update_value):
+    def update_user_info(self, user_id, update_field, update_value):
         """更新用户信息"""
         for k, v in zip(update_field, update_value):
             if k == "password":
-                yield self.db.execute(SQL.update_user_info(uid, k, self.prpcrypt.encrypt(v)))
+                yield self.db.execute(SQL.update_user_info(user_id, k, self.prpcrypt.encrypt(v)))
             else:
-                yield self.db.execute(SQL.update_user_info(uid, k, v))
+                yield self.db.execute(SQL.update_user_info(user_id, k, v))
 
     @gen.coroutine
     def admin_user_info(self):
@@ -90,6 +91,7 @@ class Data(object):
         raise gen.Return(res)
 
     # Index
+
     @gen.coroutine
     def index_data(self, uid):
         """首页个人资源"""
@@ -297,6 +299,7 @@ class Data(object):
             process_info["update_time"] = process_info["update_time"].strftime('%Y-%m-%d %H:%M:%S')
             process_info["log_path"] = process_info["log_path"] if process_info["log_path"] else "暂无"
             process_info["process_path"] = process_info["process_path"] if process_info["process_path"] else "暂无"
+            process_info["start_com"] = process_info["start_com"] if process_info["start_com"] else "暂无"
             res["process_info"] = process_info
             # process_records
             process_records = yield self.db.query(SQL.get_process_records(process_id, 288))
@@ -316,13 +319,14 @@ class Data(object):
         """删除用户与进程的关联"""
         yield self.db.execute(SQL.delete_user_process_relation(user_id, process_id))
 
-    # alert
+    # Alert
+
     @gen.coroutine
-    def alert_user_data(self, uid):
+    def alert_user_data(self, user_id):
         """告警页面展示信息"""
         res = {}
         # host
-        res["user_host_relation"] = yield self.db.query(SQL.get_user_all_host_relation(uid))
+        res["user_host_relation"] = yield self.db.query(SQL.get_user_all_host_relation(user_id))
         for host_relation in res["user_host_relation"]:
             host_info = yield self.db.query_one(SQL.get_host_info(host_relation["host_id"]))
             host_alert_rule = yield self.db.query_one(SQL.get_host_alert_rule(host_relation["host_id"]))
@@ -333,7 +337,7 @@ class Data(object):
             host_relation["host_info"] = host_info
             host_relation["host_alert_rule"] = host_alert_rule
         # process
-        res["user_process_relation"] = yield self.db.query(SQL.get_user_all_process_relation(uid))
+        res["user_process_relation"] = yield self.db.query(SQL.get_user_all_process_relation(user_id))
         for process_relation in res["user_process_relation"]:
             process_info = yield self.db.query_one(SQL.get_process_info(process_relation["process_id"]))
             process_alert_rule = yield self.db.query_one(SQL.get_process_alert_rule(process_relation["process_id"]))
@@ -347,9 +351,8 @@ class Data(object):
             process_relation["process_alert_rule"] = process_alert_rule if process_alert_rule else {}
         raise gen.Return(res)
 
-    # alert
     @gen.coroutine
-    def update_alert_rule(self, uid, request_json):
+    def update_alert_rule(self, user_id, request_json):
         """更新告警规则"""
 
         # format user
@@ -370,11 +373,22 @@ class Data(object):
 
         # 查询是否存在
         exist = yield self.db.query_one(
-            SQL.get_alert_rule_by_uid_hid_pid(uid, request_json["host_id"], request_json["process_id"]))
+            SQL.get_alert_rule_by_uid_hid_pid(user_id, request_json["host_id"], request_json["process_id"]))
 
         if exist:
-            self.db.execute(SQL.update_alert_rule(uid, rules=request_json))
+            self.db.execute(SQL.update_alert_rule(user_id, rules=request_json))
         else:
-            self.db.execute(SQL.add_alert_rule(uid, rules=request_json))
+            self.db.execute(SQL.add_alert_rule(user_id, rules=request_json))
 
         raise gen.Return(request_json)
+
+    # Manage
+
+    def update_host_info(self, user_id, process_id, request_json):
+        """更新进程信息"""
+        self.db.execute(SQL.update_user_host_relation(user_id, process_id, request_json["process_type"],
+                                                      request_json["process_comment"]))
+        self.db.execute(
+            SQL.update_host_info_from_web(process_id, request_json["process_log_path"], request_json["process_path"],
+                                          request_json["process_start_com"], ))
+

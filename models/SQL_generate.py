@@ -428,11 +428,18 @@ class SQL(object):
             uid=uid, hid=rules["host_id"], pid=rules["process_id"]
         )
 
+    # Manage
 
-if __name__ == '__main__':
-    # Demo
-    print SQL.process_cache2process_record(1)
-    print SQL.create_user("root", "0f3fc66c6c138324be707d110a39704c")
-    print SQL.create_user("houjie", "0f3fc66c6c138324be707d110a39704c")
-    print SQL.check_login("houjie", "0f3fc66c6c138324be707d110a39704c")
-    print SQL.update_user_login_time(1)
+    @staticmethod
+    def update_user_host_relation(uid, pid, type, comment):
+        """更新用户进程关系"""
+        return """UPDATE `Watch_Dogs`.`User_Process` SET `comment` = '{c}', `type` = '{t}' WHERE `user_id` = {uid} AND `process_id` = {pid} """.format(
+            uid=uid, pid=pid, c=comment, t=type
+        )
+
+    @staticmethod
+    def update_host_info_from_web(pid, log_path, process_path, start_com):
+        """更新用户进程关系"""
+        return """UPDATE `Watch_Dogs`.`Process` SET `start_com` = '{s}', `log_path` = '{l}', `process_path` = '{p}' WHERE `process_id` = {pid}""".format(
+            pid=pid, s=start_com, l=log_path, p=process_path
+        )

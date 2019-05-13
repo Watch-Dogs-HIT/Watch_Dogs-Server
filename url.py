@@ -30,6 +30,7 @@ HANDLERS = [
     (r'/alert', AlertHandler),  # 监控告警
     (r'/manage/host', HostManage),  # 主机管理
     (r'/manage/process', ProcessManage),  # 进程管理
-    (r'/process/all', AllProcessHandler),  # 所有进程信息
+    (r'/host/all', AllHostHandler),  # 某用户所有关联主机信息
+    (r'/process/all', AllProcessHandler),  # 某主机所有进程信息
     (r'.*', NotFoundHandler)  # 404
 ]

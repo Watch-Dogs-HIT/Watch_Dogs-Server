@@ -230,7 +230,8 @@
                                         <div class="panel-body">
                                             <div class="panel panel-primary">
                                                 <div class="panel-heading" id="log_head">
-                                                    <span id="log_full_path_name">a.log</span>&nbsp;&nbsp;中最近100行的内容
+                                                    <span id="log_full_path_name">a.log</span>&nbsp;&nbsp;<span
+                                                        id="log_help">中最近100行的内容</span>
                                                     <span style="float:right;text-align:right"><span
                                                             id="log_size">0.0</span>&nbsp;KB</span>
                                                 </div>
@@ -238,7 +239,7 @@
                                                      style="overflow-y:scroll;height:500px;width:100%;overflow-x:hidden;word-break:break-all">
                                                 </div>
                                                 <div class="panel-footer" id="log_footer">
-                                                    最后更新时间 <span id="log_last_update_time">YYYY-MM-DD HH:mm:SS</span>
+                                                    日志文件最后更新于&nbsp;&nbsp;<span id="log_last_update_time">YYYY-MM-DD HH:mm:SS</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -286,11 +287,14 @@
                                             <input id="process_start_com" class="form-control"
                                                    placeholder="process_start_com">
                                             <br/>
-                                            <button id="process_update_btn" type="submit" class="btn btn-sucess"><i class="fa fa-edit "></i>&nbsp;更新信息
+                                            <button id="process_update_btn" type="submit" class="btn btn-sucess"><i
+                                                    class="fa fa-edit "></i>&nbsp;更新信息
                                             </button>&nbsp;&nbsp;
-                                            <button id="process_start_btn" type="submit" class="btn btn-danger"><i class="fa fa-pencil"></i>&nbsp;结束该进程
+                                            <button id="process_start_btn" type="submit" class="btn btn-danger"><i
+                                                    class="fa fa-pencil"></i>&nbsp;结束该进程
                                             </button>&nbsp;&nbsp;
-                                            <button id="process_restart_btn" type="submit" class="btn btn-primary"><i class=" fa fa-refresh "></i>&nbsp;重启该进程
+                                            <button id="process_restart_btn" type="submit" class="btn btn-primary"><i
+                                                    class=" fa fa-refresh "></i>&nbsp;重启该进程
                                             </button>
                                         </div>
                                     </div>
@@ -591,12 +595,34 @@
 
                 // 展示日志相关内容
                 show_process_log(current_process_at_host_id, res["process_info"]["log_path"])
+
+                // 更新信息
+                $("#current_process").text($("#process_select_btn").text());
+                $("#process_type").attr('placeholder', res["relation"]["type"]);
+                $("#process_comment").attr('placeholder', res["relation"]["comment"]);
+                $("#process_log_path").attr('placeholder', res["process_info"]["log_path"]);
+                $("#process_path").attr('placeholder', res["process_info"]["process_path"]);
+                $("#process_start_com").attr('placeholder', res["process_info"]["start_com"]);
             },
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态");
                 console.log(msg);
             }
         });
+    }
+
+    // 获取需要更新的数值
+    function get_vaule(input_element) {
+        if (input_element.val() !== "") {
+            return input_element.val()
+        } else {
+            if (input_element.attr('placeholder') === "暂无") {
+                return ""
+            } else {
+                return input_element.attr('placeholder');
+            }
+
+        }
     }
 
     // 获取进程日志
@@ -620,12 +646,11 @@
                             host_id: host_id,
                             path: path
                         });
-
-
                         $("#log_div").hide();
                         alert("日志请求错误, 详细信息请查看控制台日志");
                         console.log(res);
                     } else {// 展示日志内容
+                        $("#log_help").text("  中最新100行的内容");
                         if (res["exist"]) {
                             $("#log_last_update_time").text(res["last_update_time"]);
                             $("#log_full_path_name").text(path);
@@ -678,6 +703,8 @@
                     console.log(res);
                 } else {// 展示日志内容
                     $("#log_text").empty();
+                    console.log("  最新1000行中包含关键词\'" + $("#log_search_word").val() + " \'的内容");
+                    $("#log_help").text("  最新1000行中包含关键词\'" + $("#log_search_word").val() + " \'的内容");
                     for (let line of res["search_result"]) {
                         $("#log_text").append(line + "<br />")
                     }
@@ -736,6 +763,32 @@
             },
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态");
+            }
+        });
+    });
+
+    // 更新进程信息
+    $("#process_update_btn").click(function () {
+        let request_json = {
+            process_type: get_vaule($("#process_type")),
+            process_comment: get_vaule($("#process_comment")),
+            process_log_path: get_vaule($("#process_log_path")),
+            process_path: get_vaule($("#process_path")),
+            process_start_com: get_vaule($("#process_start_com"))
+        };
+        $.ajax({
+            type: 'put',
+            async: true,
+            url: "/process/" + current_process_id,
+            data: JSON.stringify(request_json),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                setTimeout('window.location.reload()', 500);
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
             }
         });
     });

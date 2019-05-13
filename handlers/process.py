@@ -62,7 +62,13 @@ class ProcessInfoHandler(BaseHandler):
     @tornado.web.authenticated
     def put(self, process_id):
         """更新进程信息"""
-        # todo : for what?
+        try:
+            request = self.get_request_json()
+            self.data.update_host_info(self.uid, process_id, request)
+            self.finish(request)
+        except Exception as err:
+            print err
+            self.finish({"error": str(err)})
 
     @gen.coroutine
     @tornado.web.authenticated
