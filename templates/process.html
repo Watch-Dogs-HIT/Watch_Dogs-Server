@@ -309,16 +309,17 @@
                                         <div class="form-group">
                                             <div class="form-group">
                                                 <label for="new_process_at_host">进程所在主机</label>
-                                                <select id="new_process_at_host" class="form-control">
-                                                    <option>1</option>
+                                                <select id="new_process_at_host" class="form-control"
+                                                        onchange="select_host()">
+                                                    <option>请在已经添加的主机中选择需要增加的进程所在的主机</option>
                                                 </select>
                                             </div>
-                                            <div class="form-group">
-                                                <label for="new_process_pid">选择进程</label>
-                                                <select id="new_process_pid" multiple="" class="form-control">
-                                                    <option>1</option>
-                                                </select>
-                                            </div>
+                                            <label for="new_process">进程类型</label>
+                                            <input id="new_process" class="form-control" placeholder="可以输入关键词快速搜索"
+                                                   list="new_process_pid_list">
+                                            <datalist id="new_process_pid_list">new_process_pid_list
+                                            </datalist>
+                                            <br/>
                                             <label for="new_process_type">进程类型</label>
                                             <input id="new_process_type" class="form-control"
                                                    placeholder="【可选】描述一下进程具体的类型">
@@ -382,6 +383,7 @@
     let user_all_process_relation;
     let current_process_id = -1;
     let current_process_at_host_id = -1;
+    let selected_host_id_for_add_process = -1;
 
     // 初始化页面
     $(document).ready(function () {
@@ -430,6 +432,8 @@
                 console.log(msg);
             }
         });
+
+        init_add_process_at_host();
     });
 
     // 初始化ECharts图表数据结构
@@ -730,23 +734,93 @@
         show_host_data(current_process_id);
     });
 
+    // 初始化所有能添加进程的主机
+    function init_add_process_at_host() {
+        $.ajax({
+            type: 'get',
+            async: true,
+            url: "/host/all",
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                for (let host of res["relation"]) {
+                    $("#new_process_at_host").append("<option>" + host["select_str"] + "</option>")
+                }
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    }
+
+    // new_process_at_host select控件处理函数
+    function select_host() {
+        let selected_host_str = $("#new_process_at_host").find("option:selected").text();
+        if (selected_host_str.indexOf(":") !== -1) {// 选择了有效host
+            let select_host_id = selected_host_str.split(" : ")[0].split("#")[1];
+            selected_host_id_for_add_process = select_host_id;
+            $.ajax({
+                type: 'post',
+                async: true,
+                url: "/process/all",
+                data: JSON.stringify({host_id: select_host_id}),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    $("#new_process_pid_list").empty();
+                    for (let pid in res) {
+                        $("#new_process_pid_list").append("<option value='" + pid + " | " + res[pid] + "'>");
+                    }
+                },
+                error: function (msg) {
+                    console.log(msg);
+                    alert("请求超时,请检查后台服务器状态");
+                }
+            });
+
+        } else {// 选择了无效host
+            selected_host_id_for_add_process = -1;
+            $("#new_process_pid_list").empty()
+        }
+    }
+
     // 添加进程
     $("#add_host_btn").click(function () {
-        let request_data = {
-            host_ip: $("#host_ip").val(),
-            host_port: $("#host_port").val(),
-            host_user: $("#host_user").val(),
-            host_password: $("#host_password").val(),
-            host_comment: $("#host_comment").val(),
-            host_type: $("#host_type").val()
-        };
-        // 添加主机提示信息
-        let add_host_log_text = $("#add_host_info");
-        if (request_data.host_ip != "" && request_data.host_port != "" && request_data.host_user != "") {
-            console.log(request_data);
-            add_host_log_text.append("<br />准备向服务器发送添加主机请求...");
+        if (selected_host_id_for_add_process === -1) {
+            alert("请选择有效的主机");
+        } else {
+            let selected_process_str = $("#new_process").val();
+            if (selected_process_str === "") {
+                alert("请选择需要监控的进程");
+            } else { // 添加逻辑
+                let request_json = {
+                    new_process_pid: selected_process_str.split(" | ")[0],
+                    new_process_name: selected_process_str.split(" | ")[1],
+                    new_process_type: $("#new_process_type").val(),
+                    placeholder: $("#placeholder").val(),
+                    new_process_log_path: $("#new_process_log_path").val(),
+                    new_process_path: $("#new_process_path").val(),
+                    new_process_start_com: $("#new_process_start_com").val()
+                }
+                $.ajax({
+                    type: 'post',
+                    async: true,
+                    url: "/process",
+                    data: JSON.stringify(request_json),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (res) {
+                        alert(res);
+                    },
+                    error: function (msg) {
+                        console.log(msg);
+                        alert("请求超时,请检查后台服务器状态");
+                    }
+                });
+            }
         }
-
     });
 
     // 删除进程

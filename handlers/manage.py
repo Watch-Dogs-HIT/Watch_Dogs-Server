@@ -62,5 +62,4 @@ class AllProcessHandler(BaseHandler):
             else:
                 self.finish({"error": "no enough params for process all"})
         except Exception as err:
-            print err
             self.finish({"error": str(err)})

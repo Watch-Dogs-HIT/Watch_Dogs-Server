@@ -26,20 +26,22 @@ class ProcessHandler(BaseHandler):
         """添加进程"""
         try:
             json = self.get_request_json()
-            if "host" in json and "pid" in json and "comment" in json and "type" in json:
-                host_exist = yield self.data.check_host_watched(json["host"])
-                if host_exist:
-                    process_exist = yield self.data.check_process_watched(json["host"], json["pid"])
-                    if not process_exist:
-                        res = yield self.data.add_process(self.uid, **json)
-                        self.log.info("add process pid(" + json["pid"] + ") @ " + json["host"])
-                        self.finish(res)
-                    else:
-                        self.finish({"error": "process already watched"})
-                else:
-                    self.finish({"error": "unknown host, please add host first"})
-            else:
-                self.finish({"error": "no enough params"})
+            print json
+            # if "host" in json and "pid" in json and "comment" in json and "type" in json:
+            #     host_exist = yield self.data.check_host_watched(json["host"])
+            #     if host_exist:
+            #         process_exist = yield self.data.check_process_watched(json["host"], json["pid"])
+            #         if not process_exist:
+            #             res = yield self.data.add_process(self.uid, **json)
+            #             self.log.info("add process pid(" + json["pid"] + ") @ " + json["host"])
+            #             self.finish(res)
+            #         else:
+            #             self.finish({"error": "process already watched"})
+            #     else:
+            #         self.finish({"error": "unknown host, please add host first"})
+            # else:
+            #     self.finish({"error": "no enough params"})
+            self.finish({"error": "no enough params"})
         except Exception as err:
             self.finish({"error": str(err)})
 
