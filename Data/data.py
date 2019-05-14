@@ -223,25 +223,20 @@ class Data(object):
         raise gen.Return(res["process_exist"])
 
     @gen.coroutine
-    def add_process(self, uid, **json):
+    def add_process(self, **json):
         """增加进程"""
-        host_id = yield self.db.query_one(SQL.get_host_id(json["host"]))
-        yield self.db.execute(SQL.add_watch_process(json["host"], json["pid"]))
-        process_id = yield self.db.query_one(SQL.get_process_id(json["host"], json["pid"]))
+        yield self.db.execute(SQL.add_watch_process(json["new_process_at_host_id"], json["new_process_pid"]
+                                                    , json["new_process_log_path"], json["new_process_path"]
+                                                    , json["new_process_start_com"]))
+
+    @gen.coroutine
+    def add_user_process_relation(self, uid, **json):
+        process_id = yield self.db.query_one(
+            SQL.get_process_id(json["new_process_at_host_id"], json["new_process_pid"]))
         yield self.db.execute(SQL.add_user_process_relation(
-            uid, host_id["host_id"], process_id["process_id"], json["comment"], json["type"]
+            uid, json["new_process_at_host_id"], process_id["process_id"], json["new_process_comment"],
+            json["new_process_type"]
         ))
-        relation_id = yield self.db.query_one(SQL.get_user_process_relation_id(uid,
-                                                                               host_id["host_id"],
-                                                                               process_id["process_id"])
-                                              )
-        res = {
-            "host_id": host_id["host_id"],
-            "process_id": process_id["process_id"],
-            "relation_id": relation_id["relation_id"],
-            "process_type": "/".join([json["comment"], json["type"]])
-        }
-        raise gen.Return(res)
 
     @gen.coroutine
     def get_process_record(self, pid, num):
@@ -390,5 +385,4 @@ class Data(object):
                                                       request_json["process_comment"]))
         self.db.execute(
             SQL.update_host_info_from_web(process_id, request_json["process_log_path"], request_json["process_path"],
-                                          request_json["process_start_com"], ))
-
+                                          request_json["process_start_com"], request_json["process_pid_for_update"]))

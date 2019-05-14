@@ -65,6 +65,12 @@ class ClientManager(object):
         self.process_info_list = []
         self.host_info_list = []
         self.read_remote_api_conf()
+        # 建立远程监控客户端
+        for host_id, host_ip in self.host_info_list:
+            self.connect_remote_api(host_id, host_ip)
+        # 远程监控进程初始化
+        for process_id, process_host, process_pid, process_cmd in self.process_info_list:
+            self.ini_watched_process(process_id, process_host, process_pid, process_cmd)
 
     def connect_remote_api(self, host_id, host_ip, api_port=8000):
         """连接到远程api客户端"""
@@ -157,20 +163,52 @@ class ClientManager(object):
         self.db.connect()
         for process_id, process_host_id, process_pid, process_cmd in self.process_info_list:
             wdc = self.client[str(process_host_id)]
-            pic = wdc.process_record_cache(process_pid)
-            if wdc.is_error_happen(pic):
-                if pic["Error"].find("process no longer exists"):  # 进程崩溃
+            pr = wdc.process_record_cache(process_pid)
+            if wdc.is_error_happen(pr):
+                if pr["Error"].find("process no longer exists"):  # 进程崩溃
                     logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ no." +
                                                str(process_host_id) + " host process not exit.")
                 else:  # other error
                     logger_client_manage.error("Error : " + str(process_cmd) + "(" + str(process_pid) + ") @ no." +
                                                str(process_host_id) + " host get process record fialed!")
-                    logger_client_manage.error("Error details: " + str(pic))
+                    logger_client_manage.error("Error details: " + str(pr))
                 # TODO : 添加重新探测进程处理逻辑,同上...
             else:
                 logger_client_manage.info("insert " + str(process_cmd) + "(" + str(process_pid) + ") @ no." +
                                           str(process_host_id) + " host process record cache")
-                self.db.execute(SQL.insert_process_record(process_id, pic))
+                self.db.execute(SQL.insert_process_record(process_id, pr))
+        self.db.commit()
+        self.db.close()
+
+    def add_new_process(self, new_process_at_host_id, new_process_pid):
+        """新添加的进程处理"""
+        self.db.connect()
+        # 获取 process_id
+        new_process_pid = str(new_process_pid)
+        new_process_at_host_id = str(new_process_at_host_id)
+        new_process_id = -1
+        for process_id, process_host_id, process_pid, process_cmd in self.process_info_list:
+            if new_process_at_host_id == process_host_id and new_process_pid == process_pid:  # 找到新添加的进程
+                new_process_id = process_id
+                break
+        # watch process
+        wdc = self.client[str(new_process_at_host_id)]
+        wdc.watch_process(new_process_pid)
+        # process info
+        pi = wdc.process_info(new_process_pid)
+        if wdc.is_error_happen(pi):
+            if pi["Error"].find("process no longer exists") != -1:  # 进程崩溃
+                self.db.execute(SQL.update_process_info_not_exit(new_process_id))
+            else:  # other error
+                self.db.execute(SQL.update_process_info_error(new_process_id))
+        else:
+            self.db.execute(SQL.update_process_info(new_process_id, pi))
+        # process record
+        pr = wdc.process_record_cache(new_process_pid)
+        if wdc.is_error_happen(pr):
+            self.db.execute(SQL.insert_process_record_error(new_process_id))
+        else:
+            self.db.execute(SQL.insert_process_record(new_process_id, pr))
         self.db.commit()
         self.db.close()
 
@@ -262,5 +300,6 @@ class ClientManager(object):
 
 if __name__ == '__main__':
     c = ClientManager()
-    # c.test_api()
-    c.manage_main_thread()
+    # c.add_new_process(2, 27098)
+    c.test_api()
+    # c.manage_main_thread()

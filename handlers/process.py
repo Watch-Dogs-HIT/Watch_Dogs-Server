@@ -26,21 +26,28 @@ class ProcessHandler(BaseHandler):
         """添加进程"""
         try:
             json = self.get_request_json()
-            print json
-            # if "host" in json and "pid" in json and "comment" in json and "type" in json:
-            #     host_exist = yield self.data.check_host_watched(json["host"])
-            #     if host_exist:
-            #         process_exist = yield self.data.check_process_watched(json["host"], json["pid"])
-            #         if not process_exist:
-            #             res = yield self.data.add_process(self.uid, **json)
-            #             self.log.info("add process pid(" + json["pid"] + ") @ " + json["host"])
-            #             self.finish(res)
-            #         else:
-            #             self.finish({"error": "process already watched"})
-            #     else:
-            #         self.finish({"error": "unknown host, please add host first"})
-            # else:
-            #     self.finish({"error": "no enough params"})
+            host_exist = yield self.data.check_host_watched(json["new_process_at_host_id"])
+            if host_exist:
+                process_exist = yield self.data.check_process_watched(json["new_process_at_host_id"],
+                                                                      json["new_process_pid"])
+                if not process_exist:  # 进程未存在
+                    yield self.data.add_process(**json)
+                    yield self.data.add_user_process_relation(self.uid, **json)
+                    # 利用远程客户端填充首页数据
+                    self.remote_api.update_remote_api_conf()  # 重新读取数据库,构建远程客户端连接
+                    self.remote_api.add_new_process(json["new_process_at_host_id"], json["new_process_pid"])
+                    self.log.info("add process pid(" + json["new_process_name"] + ", pid=" + str(
+                        json["new_process_pid"]) + ") @ No." + json["new_process_at_host_id"] + " host.")
+                    self.finish({"status": "添加成功"})
+                else:  # 进程已经存在
+                    yield self.data.add_user_process_relation(self.uid, **json)
+                    # 利用远程客户端填充首页数据
+                    self.remote_api.update_remote_api_conf()  # 重新读取数据库,构建远程客户端连接
+                    self.remote_api.add_new_process(json["new_process_at_host_id"], json["new_process_pid"])
+                    self.finish({"status": "进程已经存在, 添加了当前用户与进程的关系"})
+            else:  # 主机未监控
+                self.finish({"error": "unknown host, please add host first"})
+
             self.finish({"error": "no enough params"})
         except Exception as err:
             self.finish({"error": str(err)})
@@ -69,14 +76,17 @@ class ProcessInfoHandler(BaseHandler):
             self.data.update_host_info(self.uid, process_id, request)
             self.finish(request)
         except Exception as err:
-            print err
             self.finish({"error": str(err)})
 
     @gen.coroutine
     @tornado.web.authenticated
     def delete(self, process_id):
         """不再关注进程"""
-        yield self.data.delete_process(self.uid, process_id)
+        try:
+            yield self.data.delete_process(self.uid, process_id)
+            self.finish({"status": "delete " + str(process_id) + " process OK"})
+        except Exception as err:
+            self.finish({"error": str(err)})
 
 
 class ProcessLogHandler(BaseHandler):
@@ -99,5 +109,4 @@ class ProcessLogHandler(BaseHandler):
             else:
                 self.finish({"error": "no enough params for log"})
         except Exception as err:
-            print err
             self.finish({"error": str(err)})

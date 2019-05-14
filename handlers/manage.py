@@ -40,11 +40,6 @@ class AllHostHandler(BaseHandler):
         res = yield self.data.all_user_host_relation(self.uid)
         for hr in res["relation"]:
             hr["select_str"] = hr["select_str"].split(" - ")[0].strip()
-        # just 4 test
-        from copy import deepcopy
-        res["relation"].append(deepcopy(res["relation"][0]))
-        res["relation"][1]["select_str"] = "#13 : houjie@10.245.146.202"
-        res["relation"][1]["host_id"] = 13
         self.finish(res)
 
 

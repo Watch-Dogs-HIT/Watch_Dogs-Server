@@ -156,7 +156,7 @@ class SQL(object):
         """更新进程信息"""
 
         return (
-            """UPDATE `Watch_Dogs`.`Process` SET `process_id` = {id}, `pid` = {pid}, `comm` = "{c}","""
+            """UPDATE `Watch_Dogs`.`Process` SET `pid` = {pid}, `comm` = "{c}","""
             """`cmdline` = "{cm}", `ppid` = {pp}, `pgrp` = {pg}, `state` =  "{s}", `thread_num` = {t}, `update_time` = now() """
             """WHERE `process_id` = {id} ;""").format(
             id=process_id, pid=process_info['pid'], c=process_info['comm'],
@@ -189,6 +189,14 @@ class SQL(object):
             r=process_record['io'][0], w=process_record['io'][1],
             u=process_record['net_recent'][0], d=process_record['net_recent'][1]
         )
+
+    @staticmethod
+    def insert_process_record_error(process_id):
+        """插入进程记录_错误"""
+        # 去除单引号
+        return ("""INSERT INTO `Watch_Dogs`.`Process_record`(`process_id`, `cpu`, `mem`, `read_MBs`,"""
+                """`write_MBs`, `net_upload_kbps`, `net_download_kbps`) VALUES ("""
+                """{id}, 0, 0, 0, 0, 0, 0)""").format(id=process_id)
 
     @staticmethod
     def delete_old_host_record(days=7):
@@ -269,9 +277,9 @@ class SQL(object):
         return """SELECT `host_id` FROM `Host_info` WHERE `host` = '{h}'""".format(h=host)
 
     @staticmethod
-    def check_host_watched(host):
+    def check_host_watched(hid):
         """确认主机是否被监控"""
-        return """SELECT count(*) AS `host_exist` FROM `Host_info` WHERE `host` = '{h}'""".format(h=host)
+        return """SELECT count(*) AS `host_exist` FROM `Host_info` WHERE `host_id` = '{h}'""".format(h=hid)
 
     @staticmethod
     def get_host_info(hid):
@@ -295,34 +303,29 @@ class SQL(object):
     # Process
 
     @staticmethod
-    def check_process_watched(host, pid):
+    def check_process_watched(hid, pid):
         """确认进程是否被监控"""
-        return """SELECT count(*) AS `process_exist` FROM Process WHERE `host` = '{h}' AND `pid` = {p}""".format(
-            h=host, p=pid)
+        return """SELECT count(*) AS `process_exist` FROM Process WHERE `host_id` = '{h}' AND `pid` = {p}""".format(
+            h=hid, p=pid)
 
     @staticmethod
     def get_process_id(host, pid):
         """获取进程id"""
-        return """SELECT `process_id` FROM Process WHERE `host` = '{h}' AND `pid` = {p}""".format(
+        return """SELECT `process_id` FROM Process WHERE `host_id` = '{h}' AND `pid` = {p}""".format(
             h=host, p=pid)
 
     @staticmethod
-    def add_watch_process(host, pid):
+    def add_watch_process(host, pid, log_path, process_path, start_com):
         """添加进程"""
-        return """INSERT INTO `Watch_Dogs`.`Process`(`host`, `pid`) VALUES ('{h}', {p})""".format(
-            h=host, p=pid
+        return """INSERT INTO `Watch_Dogs`.`Process`(`host_id`, `pid`, `log_path`, `process_path`, `start_com`) VALUES ({h}, {p}, '{lp}', '{pp}', '{sc}')""".format(
+            h=host, p=pid, lp=log_path, pp=process_path, sc=start_com
         )
 
     @staticmethod
-    def get_insert_id_in_process():
-        """获取最新插入数据的自增id"""
-        return """INSERT INTO `Watch_Dogs`.`Process`(`host`, `pid`) VALUES ('1', 2)"""
-
-    @staticmethod
-    def add_user_process_relation(uid, hid, pid, com, c_type):
+    def add_user_process_relation(uid, hid, pid, com, process_type):
         """添加用户进程关系"""
         return ("""INSERT INTO `Watch_Dogs`.`User_Process`(`user_id`, `host_id`, `process_id`, `comment`, `type`) """
-                """VALUES ({u}, {h}, {p}, '{c}', '{t}')""").format(u=uid, h=hid, p=pid, c=com, t=c_type)
+                """VALUES ({u}, {h}, {p}, '{c}', '{t}')""").format(u=uid, h=hid, p=pid, c=com, t=process_type)
 
     @staticmethod
     def get_user_process_relation_id(uid, hid, pid):
@@ -438,8 +441,7 @@ class SQL(object):
         )
 
     @staticmethod
-    def update_host_info_from_web(pid, log_path, process_path, start_com):
+    def update_host_info_from_web(pid, log_path, process_path, start_com, new_pid):
         """更新用户进程关系"""
-        return """UPDATE `Watch_Dogs`.`Process` SET `start_com` = '{s}', `log_path` = '{l}', `process_path` = '{p}' WHERE `process_id` = {pid}""".format(
-            pid=pid, s=start_com, l=log_path, p=process_path
-        )
+        return """UPDATE `Watch_Dogs`.`Process` SET `start_com` = '{s}', `log_path` = '{l}', `process_path` = '{p}', `pid` = {npid} WHERE `process_id` = {pid}""".format(
+            pid=pid, s=start_com, l=log_path, p=process_path, npid=new_pid)

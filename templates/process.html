@@ -268,6 +268,10 @@
                                     </div>
                                     <div class="panel-body">
                                         <div class="form-group">
+                                            <label for="process_pid_for_update">新进程号</label>
+                                            <input id="process_pid_for_update" class="form-control"
+                                                   placeholder="[重要] 如果之前的进程重启或关闭过,则可以从这里更新成当前最新的进程号即可继续监控">
+                                            <br/>
                                             <label for="process_type">进程类型</label>
                                             <input id="process_type" class="form-control"
                                                    placeholder="current_process_type">
@@ -308,13 +312,13 @@
                                     <div class="panel-body">
                                         <div class="form-group">
                                             <div class="form-group">
-                                                <label for="new_process_at_host">进程所在主机</label>
+                                                <label for="new_process_at_host">选择主机</label>
                                                 <select id="new_process_at_host" class="form-control"
                                                         onchange="select_host()">
                                                     <option>请在已经添加的主机中选择需要增加的进程所在的主机</option>
                                                 </select>
                                             </div>
-                                            <label for="new_process">进程类型</label>
+                                            <label for="new_process">选择进程</label>
                                             <input id="new_process" class="form-control" placeholder="可以输入关键词快速搜索"
                                                    list="new_process_pid_list">
                                             <datalist id="new_process_pid_list">new_process_pid_list
@@ -322,25 +326,26 @@
                                             <br/>
                                             <label for="new_process_type">进程类型</label>
                                             <input id="new_process_type" class="form-control"
-                                                   placeholder="【可选】描述一下进程具体的类型">
+                                                   placeholder="[可选] 描述一下进程具体的类型">
                                             <br/>
                                             <label for="new_process_comment">进程备注</label>
                                             <input id="new_process_comment" class="form-control"
-                                                   placeholder="【可选】为了便于查找，请给进程添加一个好记的备注">
+                                                   placeholder="[可选] 为了便于查找，请给进程添加一个好记的备注">
                                             <br/>
                                             <label for="new_process_log_path">进程日志地址</label>
                                             <input id="new_process_log_path" class="form-control"
-                                                   placeholder="【可选】进程日志地址，如果有日志就可以在监控页面展示分析">
+                                                   placeholder="[可选] 进程日志地址，如果有日志就可以在监控页面展示分析">
                                             <br/>
                                             <label for="new_process_path">进程所在路径</label>
                                             <input id="new_process_path" class="form-control"
-                                                   placeholder="【可选】进程所在路径，用于重启进程">
+                                                   placeholder="[可选] 进程所在路径，用于重启进程">
                                             <br/>
                                             <label for="new_process_start_com">进程启动命令</label>
                                             <input id="new_process_start_com" class="form-control"
-                                                   placeholder="【可选】进程完整启动命令，用于重启进程">
+                                                   placeholder="[可选] 进程完整启动命令，用于重启进程">
                                             <br/>
-                                            <button id="add_host_btn" type="submit" class="btn btn-info">添加新进程</button>
+                                            <button id="add_process_btn" type="submit" class="btn btn-info">添加新进程
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -602,6 +607,7 @@
 
                 // 更新信息
                 $("#current_process").text($("#process_select_btn").text());
+                $("#process_pid_for_update").attr('placeholder', res["process_info"]["pid"]);
                 $("#process_type").attr('placeholder', res["relation"]["type"]);
                 $("#process_comment").attr('placeholder', res["relation"]["comment"]);
                 $("#process_log_path").attr('placeholder', res["process_info"]["log_path"]);
@@ -787,7 +793,7 @@
     }
 
     // 添加进程
-    $("#add_host_btn").click(function () {
+    $("#add_process_btn").click(function () {
         if (selected_host_id_for_add_process === -1) {
             alert("请选择有效的主机");
         } else {
@@ -797,13 +803,14 @@
             } else { // 添加逻辑
                 let request_json = {
                     new_process_pid: selected_process_str.split(" | ")[0],
+                    new_process_at_host_id: selected_host_id_for_add_process,
                     new_process_name: selected_process_str.split(" | ")[1],
                     new_process_type: $("#new_process_type").val(),
-                    placeholder: $("#placeholder").val(),
+                    new_process_comment: $("#new_process_comment").val(),
                     new_process_log_path: $("#new_process_log_path").val(),
                     new_process_path: $("#new_process_path").val(),
                     new_process_start_com: $("#new_process_start_com").val()
-                }
+                };
                 $.ajax({
                     type: 'post',
                     async: true,
@@ -812,7 +819,12 @@
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (res) {
-                        alert(res);
+                        if ("status" in res) {
+                            alert(res["status"]);
+                            setTimeout('window.location.reload()', 1000);
+                        } else {
+                            alert(res["error"])
+                        }
                     },
                     error: function (msg) {
                         console.log(msg);
@@ -833,7 +845,8 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (res) {
-                alert("删除成功");
+                alert("删除成功, 页面将在1S后刷新");
+                setTimeout('window.location.reload()', 1000);
             },
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态");
@@ -844,6 +857,7 @@
     // 更新进程信息
     $("#process_update_btn").click(function () {
         let request_json = {
+            process_pid_for_update : get_vaule($("#process_pid_for_update")),
             process_type: get_vaule($("#process_type")),
             process_comment: get_vaule($("#process_comment")),
             process_log_path: get_vaule($("#process_log_path")),
