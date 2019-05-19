@@ -6,6 +6,7 @@ Watch_Dogs
 base handler
 """
 
+import os
 import json
 import traceback
 
@@ -119,3 +120,23 @@ class NotFoundHandler(BaseHandler):
 
     def get(self):
         return self.render("404.html", status_code=404)
+
+
+class DownloadHandler(tornado.web.RequestHandler):
+    def initialize(self, basepath):
+        self.database = basepath
+
+    def get(self, filename):
+        self.set_header('Content-Type', 'application/octet-stream')
+        self.set_header('Content-Disposition', 'attachment; filename=%s' % filename)
+
+        path = os.path.join(self.basepath, filename)
+        with open(path, 'rb') as f:
+            while True:
+                data = f.read(4096)
+                if not data:
+                    break
+                self.write(data)
+
+        self.finish()
+

@@ -24,6 +24,40 @@ class Setting(object):
     # Singleton
     _instance = None
 
+    # PATH
+    CONF_PATH = ""
+    PROJECT_PATH = ""
+    # Web
+    PORT = 80
+    # DB
+    DB_HOST = ""
+    DB_USER = ""
+    DB_PORT = ""
+    DB_PASSWORD = ""
+    DB_CHARSET = ""
+    DB_DATABASE_NAME = ""
+    # encrypt
+    KEY = ""
+    # client
+    PROCESS_INFO_INTERVAL_MIN = -1
+    PROCESS_RECORD_CACHE_INTERVAL_MIN = -1
+    PROCESS_RECORD_INTERVAL_MIN = -1
+    HOST_INFO_INTERVAL_HOUR = -1
+    HOST_RECORD_INTERVAL_MIN = -1
+    OLD_DATE_CLEAR_INTERVAL_DAY = -1
+    API_TIME_OUT = -1
+    SAVE_LAST_N_DAYS_DATA = -1
+    # email
+    EMAIL_HOST = ""
+    EMAIL_USER = ""
+    EMAIL_PASS = ""
+    EMAIL_SENDER = ""
+    ALERT_INTERVAL_MIN = -1
+    # client zip
+    CLIENT_DOWNLOAD_LINK = ""
+    CLIENT_FILE_ZIP = ""
+    CLIENT_FILE_TAR = ""
+
     def __new__(cls, *args, **kw):
         """单例模式"""
         if not cls._instance:
@@ -41,40 +75,14 @@ class Setting(object):
         # 配置文件读取
         self.log_conf_path = os.path.join(setting_path, LOGGER_CONF_NAME)
         self.setting_json_path = os.path.join(setting_path, SETTING_JOSN_NAME)
+        Setting.CONF_PATH = setting_path
+        Setting.PROJECT_PATH = project_path
         if not os.path.exists(self.log_conf_path) or not os.path.exists(self.setting_json_path):
             print "配置文件读取异常 : 请检查", os.path.basename(sys.argv[0]).split(".")[
                 0], ".py路径下是否有", LOGGER_CONF_NAME, SETTING_JOSN_NAME
             exit(-1)
         self.log_init()
         self.static_value_refresh()
-
-    # Web
-    PORT = 80
-    # DB
-    DB_HOST = ""
-    DB_USER = ""
-    DB_PORT = ""
-    DB_PASSWORD = ""
-    DB_CHARSET = ""
-    DB_DATABASE_NAME = ""
-    # encrypt
-    KEY = ""
-    # client
-    CLIENT_DATA_FILE = ""
-    PROCESS_INFO_INTERVAL_MIN = -1
-    PROCESS_RECORD_CACHE_INTERVAL_MIN = -1
-    PROCESS_RECORD_INTERVAL_MIN = -1
-    HOST_INFO_INTERVAL_HOUR = -1
-    HOST_RECORD_INTERVAL_MIN = -1
-    OLD_DATE_CLEAR_INTERVAL_DAY = -1
-    API_TIME_OUT = -1
-    SAVE_LAST_N_DAYS_DATA = -1
-    # email
-    EMAIL_HOST = ""
-    EMAIL_USER = ""
-    EMAIL_PASS = ""
-    EMAIL_SENDER = ""
-    ALERT_INTERVAL_MIN = -1
 
     def static_value_refresh(self):
         """静态值初始化/刷新"""
@@ -94,7 +102,6 @@ class Setting(object):
         # encrypt
         Setting.KEY = setting["key"].encode("utf-8")
         # client
-        Setting.CLIENT_DATA_FILE = setting["client"]["client_data_file"].encode("utf-8")
         Setting.PROCESS_INFO_INTERVAL_MIN = setting["client"]["process_info_interval_min"]
         Setting.PROCESS_RECORD_CACHE_INTERVAL_MIN = setting["client"]["process_record_cache_interval_min"]
         Setting.PROCESS_RECORD_INTERVAL_MIN = setting["client"]["process_record_interval_min"]
@@ -109,6 +116,10 @@ class Setting(object):
         Setting.EMAIL_PASS = setting["email"]["mail_pass"]
         Setting.EMAIL_SENDER = setting["email"]["sender"]
         Setting.ALERT_INTERVAL_MIN = setting["email"]["alert_interval_min"]
+        # client zip
+        Setting.CLIENT_DOWNLOAD_LINK = setting["client_file"]["client_download_link"]
+        Setting.CLIENT_FILE_ZIP = setting["client_file"]["client_file_zip"]
+        Setting.CLIENT_FILE_TAR = setting["client_file"]["client_file_tar"]
         return setting
 
     def log_init(self):
