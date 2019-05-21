@@ -294,7 +294,7 @@
                                             <button id="process_update_btn" type="submit" class="btn btn-sucess"><i
                                                     class="fa fa-edit "></i>&nbsp;更新信息
                                             </button>&nbsp;&nbsp;
-                                            <button id="process_start_btn" type="submit" class="btn btn-danger"><i
+                                            <button id="process_close_btn" type="submit" class="btn btn-danger"><i
                                                     class="fa fa-pencil"></i>&nbsp;结束该进程
                                             </button>&nbsp;&nbsp;
                                             <button id="process_restart_btn" type="submit" class="btn btn-primary"><i
@@ -857,13 +857,15 @@
     // 更新进程信息
     $("#process_update_btn").click(function () {
         let request_json = {
-            process_pid_for_update : get_vaule($("#process_pid_for_update")),
+            process_pid_for_update: get_vaule($("#process_pid_for_update")),
             process_type: get_vaule($("#process_type")),
             process_comment: get_vaule($("#process_comment")),
             process_log_path: get_vaule($("#process_log_path")),
             process_path: get_vaule($("#process_path")),
-            process_start_com: get_vaule($("#process_start_com"))
+            process_start_com: get_vaule($("#process_start_com")),
+            process_at_host_id: current_process_at_host_id
         };
+        console.log(request_json);
         $.ajax({
             type: 'put',
             async: true,
@@ -872,6 +874,58 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (res) {
+                setTimeout('window.location.reload()', 500);
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    });
+
+    // 关闭进程
+    $("#process_restart_btn").click(function () {
+        alert("进程重启过程中, 请勿刷新页面");
+        let request_json = {
+            process_id: current_process_id,
+            pid: get_vaule($("#process_pid_for_update")),
+            type: "restart"
+        };
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: "/manage/process",
+            data: JSON.stringify(request_json),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                alert("重启结果 : " + res["result"]);
+                setTimeout('window.location.reload()', 500);
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    });
+
+    // 重启进程
+    $("#process_close_btn").click(function () {
+        alert("进程关闭过程中, 请勿刷新页面");
+        let request_json = {
+            process_id: current_process_id,
+            pid: get_vaule($("#process_pid_for_update")),
+            type: "close"
+        };
+        $.ajax({
+            type: 'post',
+            async: true,
+            url: "/manage/process",
+            data: JSON.stringify(request_json),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                alert("重启结果 : " + res["result"]);
                 setTimeout('window.location.reload()', 500);
             },
             error: function (msg) {

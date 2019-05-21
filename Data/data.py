@@ -8,6 +8,7 @@ Watch_Dogs
 
 from tornado import gen
 
+from remote_control_ssh import *
 from conf import setting, encrypt
 from models import db_opreation_async
 from models.SQL_generate import SQL
@@ -379,10 +380,45 @@ class Data(object):
 
     # Manage
 
-    def update_host_info(self, user_id, process_id, request_json):
+    def update_process_info(self, user_id, process_id, request_json):
         """更新进程信息"""
         self.db.execute(SQL.update_user_host_relation(user_id, process_id, request_json["process_type"],
                                                       request_json["process_comment"]))
         self.db.execute(
             SQL.update_host_info_from_web(process_id, request_json["process_log_path"], request_json["process_path"],
                                           request_json["process_start_com"], request_json["process_pid_for_update"]))
+
+    @gen.coroutine
+    def close_process(self, process_id, pid):
+        """关闭进程"""
+        pi = yield self.db.query_one(SQL.get_process_info(process_id))
+        hi = yield self.db.query_one(SQL.get_host_info(pi["host_id"]))
+        host, user, password, port = hi["host"], hi["user"], self.prpcrypt.decrypt(hi["password"]), hi["port"]
+        self.db.execute(SQL.update_process_info_not_exit(process_id))
+        res = kill_process(host, user, password, port, pid=pid)
+        if res["status"] == "OK":
+            raise gen.Return({"result": "进程关闭成功"})
+        else:
+            raise gen.Return({"result": "进程关闭出现问题, 请登录远程服务器自行检查"})
+
+    @gen.coroutine
+    def restart_process(self, process_id, pid):
+        """重启进程"""
+        pi = yield self.db.query_one(SQL.get_process_info(process_id))
+        path, start_cmd = pi["process_path"], pi["start_com"]
+        hi = yield self.db.query_one(SQL.get_host_info(pi["host_id"]))
+        hid, host, user, password, port = hi["host_id"], hi["host"], hi["user"], self.prpcrypt.decrypt(hi["password"]), \
+                                          hi["port"]
+        if path.strip() == "" and start_cmd.strip() == "":  # 记录不全
+            raise gen.Return({"result": "错误, 进程地址或启动命令未记录"})
+        # 重启
+        res = kill_process(host, user, password, port, pid=pid)
+        if res["status"] == "OK":
+            res = start_process(host, user, password, port, process_path=path, start_cmd=start_cmd)
+            if res["status"] == "OK":
+                raise gen.Return({"result": "进程启动成功", "start_com": start_cmd, "host_id": hid})
+            else:
+                raise gen.Return({"result": "进程重启失败(启动失败)"})
+        else:
+            raise gen.Return({"result": "进程重启失败(关闭失败)"})
+        # 获取新的pid并更新数据库中的记录

@@ -81,9 +81,8 @@ def start_process(host, user, password, port, process_path=None, start_cmd=None)
     if client:
         try:
             chan = client.invoke_shell()
-            print 'cd {path}; {sc} \n'.format(path=process_path, sc=start_cmd)
             chan.send('cd {path}; {sc} \n'.format(path=process_path, sc=start_cmd))
-            print chan.recv(4096)
+            chan.recv(4096)
             time.sleep(1.3)
         except Exception as err:
             res["status"] = "execute_error"
@@ -100,4 +99,4 @@ if __name__ == '__main__':
     pass
     # res = start_process("10.245.146.201", "root", "19950705", 22, process_path="/home/houjie",
     #                    start_cmd="nohup python -u test.py &")
-    # kill_process("10.245.146.201", "root", "19950705", 22, 10091)
+    print kill_process("10.245.146.202", "houjie", "19950705", 22, 22809)

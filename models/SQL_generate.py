@@ -165,6 +165,18 @@ class SQL(object):
         )
 
     @staticmethod
+    def update_process_info_without_time(process_id, process_info):
+        """更新进程信息(无时间)"""
+        return (
+            """UPDATE `Watch_Dogs`.`Process` SET `pid` = {pid}, `comm` = "{c}","""
+            """`cmdline` = "{cm}", `ppid` = {pp}, `pgrp` = {pg}, `state` =  "{s}", `thread_num` = {t}"""
+            """ WHERE `process_id` = {id} ;""").format(
+            id=process_id, pid=process_info['pid'], c=process_info['comm'],
+            cm=process_info['cmdline'], pp=process_info['ppid'], pg=process_info['pgrp'], s=process_info['state'],
+            t=process_info['thread num']
+        )
+
+    @staticmethod
     def update_process_info_error(process_id):
         """更新进程信息(错误)"""
 
@@ -445,3 +457,10 @@ class SQL(object):
         """更新用户进程关系"""
         return """UPDATE `Watch_Dogs`.`Process` SET `start_com` = '{s}', `log_path` = '{l}', `process_path` = '{p}', `pid` = {npid} WHERE `process_id` = {pid}""".format(
             pid=pid, s=start_com, l=log_path, p=process_path, npid=new_pid)
+
+    @staticmethod
+    def update_process_pid(process_id, pid):
+        """更新进程号"""
+        return """UPDATE `Watch_Dogs`.`Process` SET `pid` = {pid} WHERE `process_id` = {p}""".format(
+            p=process_id, pid=pid
+        )

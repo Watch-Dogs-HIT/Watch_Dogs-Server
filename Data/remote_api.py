@@ -241,4 +241,5 @@ class Watch_Dogs_Client(object):
         """搜索日志关键词"""
         return self.get_api("/proc/all_pid_name/")
 
-    # todo 完成剩余的所有功能函数 2019.3.13
+    # 有部分API功能尚未用到或改用SSH方式
+    # 详见 : https://github.com/Watch-Dogs-HIT/Watch_Dogs-Client

@@ -35,7 +35,10 @@ class ProcessHandler(BaseHandler):
                     yield self.data.add_user_process_relation(self.uid, **json)
                     # 利用远程客户端填充首页数据
                     self.remote_api.update_remote_api_conf()  # 重新读取数据库,构建远程客户端连接
-                    self.remote_api.add_new_process(json["new_process_at_host_id"], json["new_process_pid"])
+                    sql1, sql2 = self.remote_api.update_new_process(json["new_process_at_host_id"],
+                                                                    json["new_process_pid"])
+                    yield self.db.execute(sql1)
+                    yield self.db.execute(sql2)
                     self.log.info("add process pid(" + json["new_process_name"] + ", pid=" + str(
                         json["new_process_pid"]) + ") @ No." + json["new_process_at_host_id"] + " host.")
                     self.finish({"status": "添加成功"})
@@ -43,7 +46,10 @@ class ProcessHandler(BaseHandler):
                     yield self.data.add_user_process_relation(self.uid, **json)
                     # 利用远程客户端填充首页数据
                     self.remote_api.update_remote_api_conf()  # 重新读取数据库,构建远程客户端连接
-                    self.remote_api.add_new_process(json["new_process_at_host_id"], json["new_process_pid"])
+                    sql1, sql2 = self.remote_api.update_new_process(json["new_process_at_host_id"],
+                                                                    json["new_process_pid"])
+                    yield self.db.execute(sql1)
+                    yield self.db.execute(sql2)
                     self.finish({"status": "进程已经存在, 添加了当前用户与进程的关系"})
             else:  # 主机未监控
                 self.finish({"error": "unknown host, please add host first"})
@@ -73,7 +79,12 @@ class ProcessInfoHandler(BaseHandler):
         """更新进程信息"""
         try:
             request = self.get_request_json()
-            self.data.update_host_info(self.uid, process_id, request)
+            self.data.update_process_info(self.uid, process_id, request)
+            self.remote_api.update_remote_api_conf()  # 重新读取数据库,构建远程客户端连接
+            sql1, sql2 = self.remote_api.update_new_process(request["process_at_host_id"],
+                                                            request["process_pid_for_update"])
+            yield self.db.execute(sql1)
+            yield self.db.execute(sql2)
             self.finish(request)
         except Exception as err:
             self.finish({"error": str(err)})

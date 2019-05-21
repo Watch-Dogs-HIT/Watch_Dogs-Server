@@ -114,6 +114,7 @@ class ClientManager(object):
             else:
                 logger_client_manage.info("update " + str(host_ip) + " system info")
                 self.db.execute(SQL.update_host_info(hi))
+            self.db.commit()
         self.db.commit()
         self.db.close()
 
@@ -130,6 +131,7 @@ class ClientManager(object):
             else:
                 logger_client_manage.info("insert " + str(host_ip) + " system record")
                 self.db.execute(SQL.insert_host_record(host_id, hr))
+            self.db.commit()
         self.db.commit()
         self.db.close()
 
@@ -155,6 +157,7 @@ class ClientManager(object):
                 logger_client_manage.info("update " + str(process_cmd) + "(" + str(process_pid) + ") @ no." +
                                           str(process_host_id) + " host process info")
                 self.db.execute(SQL.update_process_info(process_id, pi))
+            self.db.commit()
         self.db.commit()
         self.db.close()
 
@@ -177,12 +180,46 @@ class ClientManager(object):
                 logger_client_manage.info("insert " + str(process_cmd) + "(" + str(process_pid) + ") @ no." +
                                           str(process_host_id) + " host process record cache")
                 self.db.execute(SQL.insert_process_record(process_id, pr))
+            self.db.commit()
         self.db.commit()
         self.db.close()
 
     def add_new_process(self, new_process_at_host_id, new_process_pid):
         """新添加的进程处理"""
-        self.db.connect()
+        with DataBase() as db:
+            # 获取 process_id
+            new_process_pid = str(new_process_pid)
+            new_process_at_host_id = str(new_process_at_host_id)
+            new_process_id = -1
+            for process_id, process_host_id, process_pid, process_cmd in self.process_info_list:
+                if new_process_at_host_id == process_host_id and new_process_pid == process_pid:  # 找到新添加的进程
+                    new_process_id = process_id
+                    break
+            # watch process
+            wdc = self.client[str(new_process_at_host_id)]
+            wdc.watch_process(new_process_pid)
+            # process info
+            pi = wdc.process_info(new_process_pid)
+            if wdc.is_error_happen(pi):
+                if pi["Error"].find("process no longer exists") != -1:  # 进程崩溃
+                    db.execute(SQL.update_process_info_not_exit(new_process_id))
+                else:  # other error
+                    db.execute(SQL.update_process_info_error(new_process_id))
+            else:
+                print "process_info",
+                db.execute(SQL.update_process_info_without_time(new_process_id, pi))
+                print SQL.update_process_info_without_time(new_process_id, pi)
+            db.commit()
+            # process record
+            pr = wdc.process_record_cache(new_process_pid)
+            if wdc.is_error_happen(pr):
+                db.execute(SQL.insert_process_record_error(new_process_id))
+            else:
+                db.execute(SQL.insert_process_record(new_process_id, pr))
+            db.commit()
+
+    def update_new_process(self, new_process_at_host_id, new_process_pid):
+        """新添加的进程处理"""
         # 获取 process_id
         new_process_pid = str(new_process_pid)
         new_process_at_host_id = str(new_process_at_host_id)
@@ -198,19 +235,19 @@ class ClientManager(object):
         pi = wdc.process_info(new_process_pid)
         if wdc.is_error_happen(pi):
             if pi["Error"].find("process no longer exists") != -1:  # 进程崩溃
-                self.db.execute(SQL.update_process_info_not_exit(new_process_id))
+                sql1 = SQL.update_process_info_not_exit(new_process_id)
             else:  # other error
-                self.db.execute(SQL.update_process_info_error(new_process_id))
+                sql1 = SQL.update_process_info_error(new_process_id)
         else:
-            self.db.execute(SQL.update_process_info(new_process_id, pi))
+            sql1 = SQL.update_process_info_without_time(new_process_id, pi)
         # process record
         pr = wdc.process_record_cache(new_process_pid)
         if wdc.is_error_happen(pr):
-            self.db.execute(SQL.insert_process_record_error(new_process_id))
+            sql2 = SQL.insert_process_record_error(new_process_id)
         else:
-            self.db.execute(SQL.insert_process_record(new_process_id, pr))
-        self.db.commit()
-        self.db.close()
+            sql2 = SQL.insert_process_record(new_process_id, pr)
+
+        return sql1, sql2
 
     # log
     def log_status(self, host_id, path, n=100):
