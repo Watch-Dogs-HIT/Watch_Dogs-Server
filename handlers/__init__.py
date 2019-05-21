@@ -126,7 +126,7 @@ class NotFoundHandler(BaseHandler):
         return self.render("404.html", status_code=404)
 
 
-class DownloadHandler(tornado.web.RequestHandler):
+class ClientDownloadHandler(tornado.web.RequestHandler):
     """/client"""
 
     def get(self):
