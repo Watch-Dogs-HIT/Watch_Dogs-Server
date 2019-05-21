@@ -32,5 +32,6 @@ HANDLERS = [
     (r'/manage/process', ProcessManage),  # 进程管理
     (r'/host/all', AllHostHandler),  # 某用户所有关联主机信息
     (r'/process/all', AllProcessHandler),  # 某主机所有进程信息
+    (r'/client', DownloadHandler),  # 远程客户端下载链接
     (r'.*', NotFoundHandler)  # 404
 ]

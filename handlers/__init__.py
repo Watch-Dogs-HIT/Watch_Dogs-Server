@@ -13,6 +13,10 @@ import traceback
 import tornado.web
 from tornado import gen
 
+from conf.setting import Setting
+
+setting = Setting()
+
 
 def byteify(input_unicode_dict, encoding='utf-8'):
     """
@@ -123,20 +127,17 @@ class NotFoundHandler(BaseHandler):
 
 
 class DownloadHandler(tornado.web.RequestHandler):
-    def initialize(self, basepath):
-        self.database = basepath
+    """/client"""
 
-    def get(self, filename):
+    def get(self):
+        """远程客户端下载"""
         self.set_header('Content-Type', 'application/octet-stream')
-        self.set_header('Content-Disposition', 'attachment; filename=%s' % filename)
+        self.set_header('Content-Disposition', 'attachment; filename=Watch_Dogs-Client.tar.gz')
 
-        path = os.path.join(self.basepath, filename)
-        with open(path, 'rb') as f:
+        with open(os.path.join(setting.CONF_PATH, Setting.CLIENT_FILE_TAR), 'rb') as c:
             while True:
-                data = f.read(4096)
+                data = c.read(4096)
                 if not data:
                     break
                 self.write(data)
-
         self.finish()
-

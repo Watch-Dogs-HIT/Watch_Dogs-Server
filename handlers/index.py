@@ -30,6 +30,7 @@ class IndexDataHandler(BaseHandler):
     def get(self, *args, **kwargs):
         """首页相关信息"""
         try:
+            # todo : 当一个进程挂掉太久的时候,首页就会报错无法显示数据
             res = yield self.data.index_data(self.uid)
             self.finish(res)
         except Exception as err:
