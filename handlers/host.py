@@ -27,6 +27,8 @@ class HostHandler(BaseHandler):
         try:
             request = self.get_request_json()
             res = yield self.data.add_host(self.uid, **request)
+            if res["client"]:  # 如果远程主机部署成功, 则立刻获取当前的主机状态和资源记录; 并添加到数据库中
+                pass  # some code here
             self.finish(res)
         except Exception as err:
             self.finish({"error": str(err)})

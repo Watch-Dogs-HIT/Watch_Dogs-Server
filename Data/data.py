@@ -186,14 +186,24 @@ class Data(object):
             # host_info
             res["relation"] = relation_info
             host_info = yield self.db.query_one(SQL.get_host_info(host_id))
+            for key in ["system", "kernel", "intranet_ip", "extranet_ip", "default_net_device"]:
+                if not host_info[key]:  # 针对刚刚添加的主机
+                    host_info[key] = "目前暂无数据"
             host_info["update_time"] = host_info["update_time"].strftime('%Y-%m-%d %H:%M:%S')
-            host_info["disk_stat"] = map(lambda i: [round(x, 2) if type(x) == float else x for x in i],
-                                         eval(host_info["disk_stat"]))
-            # 只筛选5G以上的磁盘信息(去掉虚拟磁盘的干扰)
-            host_info["disk_stat"] = filter(lambda x: x[2] > 5, host_info["disk_stat"])
-            host_info["disk_total_size"] = round(  # 磁盘总量求和
-                reduce(lambda x, y: x + y, map(lambda x: x[2], host_info["disk_stat"])), 2)
-            host_info["CPU_info"] = eval(host_info["CPU_info"])
+            if host_info["disk_stat"]:
+                host_info["disk_stat"] = map(lambda i: [round(x, 2) if type(x) == float else x for x in i],
+                                             eval(host_info["disk_stat"]))
+                # 只筛选5G以上的磁盘信息(去掉虚拟磁盘的干扰)
+                host_info["disk_stat"] = filter(lambda x: x[2] > 5, host_info["disk_stat"])
+                host_info["disk_total_size"] = round(  # 磁盘总量求和
+                    reduce(lambda x, y: x + y, map(lambda x: x[2], host_info["disk_stat"])), 2)
+            else:
+                host_info["disk_stat"] = []
+                host_info["disk_total_size"] = 0
+            if host_info["CPU_info"]:
+                host_info["CPU_info"] = eval(host_info["CPU_info"])
+            else:
+                host_info["CPU_info"] = []
             res["host_info"] = host_info
             # host_records
             host_records = yield self.db.query(SQL.get_host_records(host_id, 50))
@@ -234,12 +244,20 @@ class Data(object):
         if not relation_exist:  # 尚未添加过记录
             yield self.db.query_one(
                 SQL.add_user_host_relation(uid, host_id, request_json["host_comment"], request_json["host_type"]))
-            res.append("主机与当前用户关联关系添加成功")
+            res.append("主机与当前用户关联关系添加...成功")
         else:  # 添加过记录
             res.append("用户已经关注了当前主机")
         # 远程部署客户端
-        pass
-        raise gen.Return({"result": res})
+        r = remote_client_setup(request_json["host_ip"], request_json["host_user"],
+                                request_json["host_password"], request_json["host_port"])
+        if "error" in r:
+            res.append("远程主机监控客户端部署失败!")
+            res.append("[ERROR] 远程主机添加过程完成, 添加结果:失败! (请联系管理员)")
+            raise gen.Return({"result": res, "client": False})
+        else:
+            res.append("远程主机监控客户端部署...成功")
+            res.append("[OK] 远程主机添加过程完成, 添加结果:成功")
+            raise gen.Return({"result": res, "client": True})
 
     @gen.coroutine
     def delete_host(self, user_id, host_id):

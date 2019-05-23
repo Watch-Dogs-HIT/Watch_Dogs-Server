@@ -94,6 +94,12 @@ def start_process(host, user, password, port, process_path=None, start_cmd=None)
         return res
 
 
+def remote_client_setup(host, user, password, port):
+    """部署远程客户端安装脚本"""
+    print host, user, password, port
+    return {"error": "err", "status": "init_error"}
+
+
 if __name__ == '__main__':
     # Demo
     pass
