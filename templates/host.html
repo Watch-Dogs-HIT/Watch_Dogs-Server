@@ -222,13 +222,13 @@
                 <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            添加新的远程监控主机
+                            <span class="div_title">添加新的远程监控主机</span>
                         </div>
                         <div class="panel-body">
                             <div class="col-md-6">
                                 <div class="panel panel-default">
                                     <div class="panel-heading">
-                                        远程主机信息
+                                        <span class="div_title">远程主机信息</span>
                                     </div>
                                     <div class="panel-body">
                                         <div class="form-group">
@@ -450,7 +450,7 @@
                 // 右侧磁盘信息
                 let disk_info_tbody = $("#disk_info");
                 disk_info_tbody.empty();
-                if (res["host_info"]["disk_stat"].length !== 0 ) {
+                if (res["host_info"]["disk_stat"].length !== 0) {
                     for (let disk_info of res["host_info"]["disk_stat"]) {
                         let disk_info_tr = $("<tr></tr>");
                         for (let info of disk_info) {

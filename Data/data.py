@@ -117,7 +117,6 @@ class Data(object):
         res["process"] = p
         res["host_num"] = len(h)
         res["process_num"] = len(p)
-        res["error_logs"] = -1  # TODO : yield self.db.query(...)
         res["un_normal_process"] = filter(lambda x: x["state"] == u"X" or x["state"] == u"0" or x["state"] == 0, p)
         res["un_normal_process_num"] = len(res["un_normal_process"])
         res["un_normal_host"] = filter(lambda x: x["status"] == 0, h)
