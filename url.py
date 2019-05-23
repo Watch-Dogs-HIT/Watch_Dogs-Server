@@ -33,5 +33,6 @@ HANDLERS = [
     (r'/host/all', AllHostHandler),  # 某用户所有关联主机信息
     (r'/process/all', AllProcessHandler),  # 某主机所有进程信息
     (r'/client', ClientDownloadHandler),  # 远程客户端下载链接
+    (r'/client/script', ClientScriptDownloadHandler),  # 远程客户端部署脚本
     (r'.*', NotFoundHandler)  # 404
 ]

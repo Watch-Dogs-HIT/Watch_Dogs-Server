@@ -211,6 +211,37 @@ class Data(object):
             raise gen.Return({"error": "no host"})
 
     @gen.coroutine
+    def add_host(self, uid, **request_json):
+        """添加主机"""
+        res = []
+        host_exist = yield self.db.query_one(SQL.check_host_exist(request_json["host_ip"], request_json["host_user"]))
+        # 添加主机记录, 获取主机id
+        if not host_exist:  # 尚未添加过主机
+            yield self.db.execute(SQL.add_host_info(request_json["host_ip"], request_json["host_user"],
+                                                    self.prpcrypt.encrypt(request_json["host_password"]),
+                                                    request_json["host_port"]))
+            host_id = yield self.db.query_one(SQL.check_host_exist(request_json["host_ip"], request_json["host_user"]))
+            host_id = host_id["host_id"]
+            res.append("主机记录添加成功, 当前主机ID为{host_id}".format(host_id=host_id))
+            # 初始化主机记录
+            yield self.db.execute(SQL.insert_host_record_error(host_id))
+            res.append("主机资源记录初始化...成功")
+        else:  # 添加过主机
+            host_id = host_exist["host_id"]
+            res.append("主机记录添加成功, 此主机已经被监控过")
+        # 添加用户与主机记录
+        relation_exist = yield self.db.query_one(SQL.check_user_host_relation(uid, host_id))
+        if not relation_exist:  # 尚未添加过记录
+            yield self.db.query_one(
+                SQL.add_user_host_relation(uid, host_id, request_json["host_comment"], request_json["host_type"]))
+            res.append("主机与当前用户关联关系添加成功")
+        else:  # 添加过记录
+            res.append("用户已经关注了当前主机")
+        # 远程部署客户端
+        pass
+        raise gen.Return({"result": res})
+
+    @gen.coroutine
     def delete_host(self, user_id, host_id):
         """删除用户与主机的关联"""
         yield self.db.execute(SQL.delete_user_host_relation(user_id, host_id))
@@ -224,19 +255,20 @@ class Data(object):
         raise gen.Return(res["process_exist"])
 
     @gen.coroutine
-    def add_process(self, **json):
+    def add_process(self, **request_json):
         """增加进程"""
-        yield self.db.execute(SQL.add_watch_process(json["new_process_at_host_id"], json["new_process_pid"]
-                                                    , json["new_process_log_path"], json["new_process_path"]
-                                                    , json["new_process_start_com"]))
+        yield self.db.execute(
+            SQL.add_watch_process(request_json["new_process_at_host_id"], request_json["new_process_pid"]
+                                  , request_json["new_process_log_path"], request_json["new_process_path"]
+                                  , request_json["new_process_start_com"]))
 
     @gen.coroutine
-    def add_user_process_relation(self, uid, **json):
+    def add_user_process_relation(self, uid, **request_json):
         process_id = yield self.db.query_one(
-            SQL.get_process_id(json["new_process_at_host_id"], json["new_process_pid"]))
+            SQL.get_process_id(request_json["new_process_at_host_id"], request_json["new_process_pid"]))
         yield self.db.execute(SQL.add_user_process_relation(
-            uid, json["new_process_at_host_id"], process_id["process_id"], json["new_process_comment"],
-            json["new_process_type"]
+            uid, request_json["new_process_at_host_id"], process_id["process_id"], request_json["new_process_comment"],
+            request_json["new_process_type"]
         ))
 
     @gen.coroutine

@@ -24,6 +24,12 @@ class HostHandler(BaseHandler):
     @tornado.web.authenticated
     def post(self, *args, **kwargs):
         """添加主机"""
+        try:
+            request = self.get_request_json()
+            res = yield self.data.add_host(self.uid, **request)
+            self.finish(res)
+        except Exception as err:
+            self.finish({"error": str(err)})
 
 
 class HostInfoHandler(BaseHandler):
@@ -52,3 +58,4 @@ class HostInfoHandler(BaseHandler):
     def delete(self, host_id):
         """删除主机"""
         yield self.data.delete_host(self.uid, host_id)
+        self.finish({"result": "delete OK"})

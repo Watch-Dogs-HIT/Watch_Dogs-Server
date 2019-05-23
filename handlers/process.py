@@ -25,29 +25,29 @@ class ProcessHandler(BaseHandler):
     def post(self, *args, **kwargs):
         """添加进程"""
         try:
-            json = self.get_request_json()
-            host_exist = yield self.data.check_host_watched(json["new_process_at_host_id"])
+            request = self.get_request_json()
+            host_exist = yield self.data.check_host_watched(request["new_process_at_host_id"])
             if host_exist:
-                process_exist = yield self.data.check_process_watched(json["new_process_at_host_id"],
-                                                                      json["new_process_pid"])
+                process_exist = yield self.data.check_process_watched(request["new_process_at_host_id"],
+                                                                      request["new_process_pid"])
                 if not process_exist:  # 进程未存在
-                    yield self.data.add_process(**json)
-                    yield self.data.add_user_process_relation(self.uid, **json)
+                    yield self.data.add_process(**request)
+                    yield self.data.add_user_process_relation(self.uid, **request)
                     # 利用远程客户端填充首页数据
                     self.remote_api.update_remote_api_conf()  # 重新读取数据库,构建远程客户端连接
-                    sql1, sql2 = self.remote_api.update_new_process(json["new_process_at_host_id"],
-                                                                    json["new_process_pid"])
+                    sql1, sql2 = self.remote_api.update_new_process(request["new_process_at_host_id"],
+                                                                    request["new_process_pid"])
                     yield self.db.execute(sql1)
                     yield self.db.execute(sql2)
-                    self.log.info("add process pid(" + json["new_process_name"] + ", pid=" + str(
-                        json["new_process_pid"]) + ") @ No." + json["new_process_at_host_id"] + " host.")
+                    self.log.info("add process pid(" + request["new_process_name"] + ", pid=" + str(
+                        request["new_process_pid"]) + ") @ No." + request["new_process_at_host_id"] + " host.")
                     self.finish({"status": "添加成功"})
                 else:  # 进程已经存在
-                    yield self.data.add_user_process_relation(self.uid, **json)
+                    yield self.data.add_user_process_relation(self.uid, **request)
                     # 利用远程客户端填充首页数据
                     self.remote_api.update_remote_api_conf()  # 重新读取数据库,构建远程客户端连接
-                    sql1, sql2 = self.remote_api.update_new_process(json["new_process_at_host_id"],
-                                                                    json["new_process_pid"])
+                    sql1, sql2 = self.remote_api.update_new_process(request["new_process_at_host_id"],
+                                                                    request["new_process_pid"])
                     yield self.db.execute(sql1)
                     yield self.db.execute(sql2)
                     self.finish({"status": "进程已经存在, 添加了当前用户与进程的关系"})

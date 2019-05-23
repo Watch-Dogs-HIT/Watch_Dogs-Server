@@ -587,14 +587,32 @@
         };
         // 添加主机提示信息
         let add_host_log_text = $("#add_host_info");
-        if (request_data.host_ip != "" && request_data.host_port != "" && request_data.host_user != "") {
+        if (request_data.host_ip !== "" && request_data.host_port !== "" &&
+            request_data.host_user !== "" && request_data.host_password !== "") {
             console.log(request_data);
-            add_host_log_text.append("<br />准备向服务器发送添加主机请求...");
+            add_host_log_text.append("<br />向服务器发送添加主机请求, 请勿刷新页面");
+            $.ajax({
+                type: 'post',
+                async: true,
+                url: "/host",
+                data: JSON.stringify(request_data),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    alert("删除成功");
+                },
+                error: function (msg) {
+                    alert("请求超时,请检查后台服务器状态");
+                }
+            });
+        } else {
+            add_host_log_text.append("<br />[错误] 请完整填写主机相关信息");
         }
+
 
     });
 
-    // 删除
+    // 删除主机
     $("#delete_host_btn").click(function () {
         console.log(current_host_id);
         $.ajax({
@@ -605,10 +623,13 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (res) {
-                alert("删除成功");
+                alert("删除主机成功, 即将刷新页面");
+                console.log(res);
+                setTimeout('window.location.reload()', 500);
             },
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
             }
         });
     });

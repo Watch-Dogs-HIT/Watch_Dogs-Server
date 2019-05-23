@@ -19,7 +19,7 @@ class SQL(object):
     @staticmethod
     def get_all_host():
         """获取所有主机"""
-        return """SELECT `host_id`, `intranet_ip` FROM `Host_info`"""
+        return """SELECT `host_id`, `host` FROM `Host_info`"""
 
     @staticmethod
     def get_all_process():
@@ -112,7 +112,6 @@ class SQL(object):
 
         return ("""UPDATE `Watch_Dogs`.`Host_info` SET """
                 """`status` = 1,"""
-                """`port` = {p}, """
                 """`system` = "{s}", """
                 """`kernel` = "{k}", """
                 """`CPU_info` = "{C}", """
@@ -121,9 +120,19 @@ class SQL(object):
                 """`default_net_device` = "{dnd}", """
                 """`intranet_ip` = "{i}", """
                 """`extranet_ip` = "{e}", `update_time` = now() WHERE `host` = "{h}";""").format(
-            p=host_info['port'], s=host_info['system'], k=host_info['kernel'], C=host_info['CPU_info'],
+            s=host_info['system'], k=host_info['kernel'], C=host_info['CPU_info'],
             m=host_info['mem_KB'], ds=host_info['disk_stat'], dnd=host_info['default_net_device'],
             i=host_info['intranet_ip'], e=host_info['extranet_ip'], h=host_info['host']
+        )
+
+    @staticmethod
+    def insert_host_record_error(host_id):
+        """插入主机记录 (初始化/错误情况使用)"""
+        return (
+            """INSERT INTO `Watch_Dogs`.`Host_record`(`host_id`, `host`, `CPU`, `CPUs`, `mem`, `read_MBs`, """
+            """`write_MBs`, `net_upload_kbps`, `net_download_kbps`, `lavg_1`, `lavg_5`, `lavg_15`, `nr`,`free_rate`, `uptime`) VALUES """
+            """({hi}, "0.0.0.0", "0", "{cpu_info}", 0, 0.0, 0.0, 0.0, 0.0, "0", "0", "0", "0/0", "0", "0 Days 0 hours 0 min 0 secs") ;""").format(
+            hi=host_id, cpu_info="{'cpu0': 0}"
         )
 
     @staticmethod
@@ -310,6 +319,33 @@ class SQL(object):
         """删除主机与用户关系"""
         return """DELETE FROM `Watch_Dogs`.`User_Host` WHERE `user_id` = {u} AND `host_id` = {h}""".format(
             u=uid, h=hid
+        )
+
+    @staticmethod
+    def check_host_exist(host_addr, user):
+        """查看是否存在该主机"""
+        return """SELECT `host_id` FROM `Host_info` WHERE `host` = "{ha}" AND `user` = "{u}" ;""".format(ha=host_addr,
+                                                                                                         u=user)
+
+    @staticmethod
+    def add_host_info(host, user, password, port):
+        """增加主机记录"""
+        return """INSERT INTO `Watch_Dogs`.`Host_info`(`host`, `user`, `password`, `port`) VALUES ('{h}', '{u}', '{pw}', {p})""".format(
+            h=host, u=user, pw=password, p=port
+        )
+
+    @staticmethod
+    def add_user_host_relation(uid, hid, comment, host_type):
+        """添加用户与主机关系"""
+        return """INSERT INTO `Watch_Dogs`.`User_Host`(`user_id`, `host_id`, `comment`, `type`) VALUES ({uid}, {hid}, '{c}', '{t}') """.format(
+            uid=uid, hid=hid, c=comment, t=host_type
+        )
+
+    @staticmethod
+    def check_user_host_relation(uid, hid):
+        """检查用户与主机关系是否存在"""
+        return """SELECT `relation_id` FROM `User_Host` WHERE `user_id` = {uid} AND `host_id` = {hid} """.format(
+            uid=uid, hid=hid
         )
 
     # Process

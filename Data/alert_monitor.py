@@ -257,6 +257,3 @@ class AlertMonitor(object):
             schedule.run_pending()
             time.sleep(1)
 
-
-if __name__ == '__main__':
-    AlertMonitor().alert_monitor()

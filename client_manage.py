@@ -46,7 +46,9 @@ class ClientManager(object):
                                   str(len(self.process_info_list)) + " process")
         # 建立远程监控客户端
         for host_id, host_ip in self.host_info_list:
-            self.connect_remote_api(host_id, host_ip)
+            # todo : just for test
+            if host_ip == "10.245.146.202":
+                self.connect_remote_api(host_id, host_ip)
         # 远程监控进程初始化
         for process_id, process_host, process_pid, process_cmd in self.process_info_list:
             self.ini_watched_process(process_id, process_host, process_pid, process_cmd)

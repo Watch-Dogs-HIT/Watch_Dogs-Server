@@ -57,6 +57,7 @@ class Setting(object):
     CLIENT_DOWNLOAD_LINK = ""
     CLIENT_FILE_ZIP = ""
     CLIENT_FILE_TAR = ""
+    CLIENT_SCRIPT = ""
 
     def __new__(cls, *args, **kw):
         """单例模式"""
@@ -120,6 +121,7 @@ class Setting(object):
         Setting.CLIENT_DOWNLOAD_LINK = setting["client_file"]["client_download_link"]
         Setting.CLIENT_FILE_ZIP = setting["client_file"]["client_file_zip"]
         Setting.CLIENT_FILE_TAR = setting["client_file"]["client_file_tar"]
+        Setting.CLIENT_SCRIPT = setting["client_file"]["client_setup_script"]
         return setting
 
     def log_init(self):

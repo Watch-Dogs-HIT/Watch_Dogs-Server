@@ -132,9 +132,26 @@ class ClientDownloadHandler(tornado.web.RequestHandler):
     def get(self):
         """远程客户端下载"""
         self.set_header('Content-Type', 'application/octet-stream')
-        self.set_header('Content-Disposition', 'attachment; filename=Watch_Dogs-Client.tar.gz')
+        self.set_header('Content-Disposition', 'attachment; filename={fn}'.format(fn=Setting.CLIENT_FILE_TAR))
 
         with open(os.path.join(setting.CONF_PATH, Setting.CLIENT_FILE_TAR), 'rb') as c:
+            while True:
+                data = c.read(4096)
+                if not data:
+                    break
+                self.write(data)
+        self.finish()
+
+
+class ClientScriptDownloadHandler(tornado.web.RequestHandler):
+    """/client/script"""
+
+    def get(self):
+        """远程客户端安装脚本下载"""
+        self.set_header('Content-Type', 'application/octet-stream')
+        self.set_header('Content-Disposition', 'attachment; filename={fn}'.format(fn=Setting.CLIENT_SCRIPT))
+
+        with open(os.path.join(setting.CONF_PATH, Setting.CLIENT_SCRIPT), 'rb') as c:
             while True:
                 data = c.read(4096)
                 if not data:
