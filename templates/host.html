@@ -91,7 +91,9 @@
                                 </ul>
                             </div>
                             &nbsp;
-                            <a href="#" class="btn btn-danger" id="delete_host_btn">删除主机</a>
+                            <a href="#" class="btn btn-info" id="update_host_btn">更新主机信息</a>
+                            &nbsp;
+                            <a href="#" class="btn btn-danger" id="delete_host_btn">不再关注主机</a>
 
                         </div>
 
@@ -656,9 +658,28 @@
 
     });
 
+    // 更新主机信息
+    $("#update_host_btn").click(function () {
+        $.ajax({
+            type: 'put',
+            async: true,
+            url: "/host/" + current_host_id,
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                console.log(res);
+                // setTimeout('window.location.reload()', 500);
+            },
+            error: function (msg) {
+                alert("请求超时,请检查后台服务器状态");
+                console.log(msg);
+            }
+        });
+    });
+
     // 删除主机
     $("#delete_host_btn").click(function () {
-        console.log(current_host_id);
         $.ajax({
             type: 'delete',
             async: true,

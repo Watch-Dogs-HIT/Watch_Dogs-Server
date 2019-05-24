@@ -51,7 +51,14 @@ class HostInfoHandler(BaseHandler):
     @tornado.web.authenticated
     def put(self, host_id):
         """更新主机信息"""
-        # todo : 让cliemt_manage 重新构建链接 并刷新当前主机的数据
+        # todo : start here 19.5.24
+        # # 利用远程客户端填充首页数据
+        # self.remote_api.update_remote_api_conf()  # 重新读取数据库,构建远程客户端连接
+        # sql1, sql2 = self.remote_api.update_new_process(request["new_process_at_host_id"],
+        #                                                 request["new_process_pid"])
+        # yield self.db.execute(sql1)
+        # yield self.db.execute(sql2)
+        self.finish({"host_id": host_id})
 
     @gen.coroutine
     @tornado.web.authenticated
