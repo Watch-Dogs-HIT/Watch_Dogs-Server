@@ -360,6 +360,8 @@ class ClientManager(object):
         # schedule.every(Setting.PROCESS_RECORD_INTERVAL_MIN).minutes.do(self.insert_process_record)
         # clear
         schedule.every(Setting.OLD_DATE_CLEAR_INTERVAL_DAY).days.do(self.clear_old_data)
+        # refresh
+        schedule.every(Setting.REFRESH_CONF_HOUR).hours.do(self.update_remote_api_conf)
         while True:
             schedule.run_pending()
             time.sleep(1)

@@ -47,6 +47,7 @@ class Setting(object):
     OLD_DATE_CLEAR_INTERVAL_DAY = -1
     API_TIME_OUT = -1
     SAVE_LAST_N_DAYS_DATA = -1
+    REFRESH_CONF_HOUR = -1
     # email
     EMAIL_HOST = ""
     EMAIL_USER = ""
@@ -111,6 +112,7 @@ class Setting(object):
         Setting.OLD_DATE_CLEAR_INTERVAL_DAY = setting["client"]["old_date_clear_interval_day"]
         Setting.API_TIME_OUT = setting["client"]["api_timeout"]
         Setting.SAVE_LAST_N_DAYS_DATA = setting["client"]["save_last_n_days_data"]
+        Setting.REFRESH_CONF_HOUR = setting["client"]["refresh_conf_hour"]
         # email
         Setting.EMAIL_HOST = setting["email"]["mail_host"]
         Setting.EMAIL_USER = setting["email"]["mail_user"]
