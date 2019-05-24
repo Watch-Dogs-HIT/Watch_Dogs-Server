@@ -19,14 +19,6 @@ logger_client = Setting.logger
 class Watch_Dogs_Client(object):
     """远程监控客户端"""
 
-    # Singleton
-    _instance = None
-
-    def __new__(cls, *args, **kw):
-        if not cls._instance:
-            cls._instance = super(Watch_Dogs_Client, cls).__new__(cls, *args, **kw)
-        return cls._instance
-
     def __init__(self, remote_host, remote_port=8000):
         """构造函数"""
         self.remote_host = remote_host
@@ -243,3 +235,7 @@ class Watch_Dogs_Client(object):
 
     # 有部分API功能尚未用到或改用SSH方式
     # 详见 : https://github.com/Watch-Dogs-HIT/Watch_Dogs-Client
+
+if __name__ == '__main__':
+    c1 = Watch_Dogs_Client("10.245.146.201:8000")
+    c2 = Watch_Dogs_Client("10.245.146.201:8000")
