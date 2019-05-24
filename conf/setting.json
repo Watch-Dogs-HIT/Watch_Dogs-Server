@@ -1,0 +1,40 @@
+{
+  "comment": "Watch_Dogs-Server 配置文件",
+  "author": "h-j-13",
+  "last-update time": "2019-02-27",
+  "port": 8013,
+  "database": {
+    "host": "localhost",
+    "port": 3306,
+    "user": "root",
+    "password": "19950705",
+    "charset": "utf8mb4",
+    "database_name": "Watch_Dogs"
+  },
+  "client": {
+    "process_record_interval_min": 5,
+    "process_record_cache_interval_min": -1,
+    "process_info_interval_min": 5,
+    "host_info_interval_hour": 1,
+    "host_record_interval_min": 10,
+    "old_date_clear_interval_day": 2,
+    "api_timeout": 8,
+    "save_last_n_days_data": 15,
+    "refresh_conf_hour": 3
+  },
+  "key": "-Watch_Dogs AES-",
+  "email": {
+    "mail_host": "smtp.qq.com",
+    "mail_user": "watch_dogs-alert@qq.com",
+    "mail_pass": "mupfoanaeiefihgd",
+    "sender": "watch_dogs-alert@qq.com",
+    "alert_interval_min": 10
+  },
+  "client_file": {
+    "client_download_link": "https://github.com/Watch-Dogs-HIT/Watch_Dogs-Client/archive/master.zip",
+    "client_download_backup_link": "https://codeload.github.com/Watch-Dogs-HIT/Watch_Dogs-Client/zip/master",
+    "client_file_zip": "Watch_Dogs-Client.zip",
+    "client_file_tar": "Watch_Dogs-Client.tar.gz",
+    "client_setup_script": "ClientSetup.sh"
+  }
+}
