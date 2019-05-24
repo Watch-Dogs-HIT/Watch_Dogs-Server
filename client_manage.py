@@ -46,9 +46,7 @@ class ClientManager(object):
                                   str(len(self.process_info_list)) + " process")
         # 建立远程监控客户端
         for host_id, host_ip in self.host_info_list:
-            # todo : just for test
-            if host_ip == "10.245.146.202":
-                self.connect_remote_api(host_id, host_ip)
+            self.connect_remote_api(host_id, host_ip)
         # 远程监控进程初始化
         for process_id, process_host, process_pid, process_cmd in self.process_info_list:
             self.ini_watched_process(process_id, process_host, process_pid, process_cmd)
@@ -76,7 +74,7 @@ class ClientManager(object):
 
     def connect_remote_api(self, host_id, host_ip, api_port=8000):
         """连接到远程api客户端"""
-        if host_ip.strip() not in self.client:
+        if host_id.strip() not in self.client:
             remote_api_client = Watch_Dogs_Client(host_ip, remote_port=api_port)
             for i in xrange(3):  # 重试3次,成功即止
                 test_connect = remote_api_client.root()
@@ -91,7 +89,7 @@ class ClientManager(object):
             self.client[str(host_id)] = remote_api_client  # 为了健壮性,即使连接错误也创建远程管理对象并返回
             return remote_api_client
         else:
-            return self.client[host_ip.strip()]
+            return self.client[str(host_id).strip()]
 
     def ini_watched_process(self, process_id, process_host, process_pid, process_cmd):
         """初始化监控进程"""
@@ -186,6 +184,38 @@ class ClientManager(object):
         self.db.commit()
         self.db.close()
 
+    def add_new_host(self, new_host_id):
+        """新添加的主机处理"""
+        # with DataBase() as db:
+        #     # 获取 process_id
+        #     new_process_pid = str(new_process_pid)
+        #     new_process_at_host_id = str(new_process_at_host_id)
+        #     new_process_id = -1
+        #     for process_id, process_host_id, process_pid, process_cmd in self.process_info_list:
+        #         if new_process_at_host_id == process_host_id and new_process_pid == process_pid:  # 找到新添加的进程
+        #             new_process_id = process_id
+        #             break
+        #     # watch process
+        #     wdc = self.client[str(new_process_at_host_id)]
+        #     wdc.watch_process(new_process_pid)
+        #     # process info
+        #     pi = wdc.process_info(new_process_pid)
+        #     if wdc.is_error_happen(pi):
+        #         if pi["Error"].find("process no longer exists") != -1:  # 进程崩溃
+        #             db.execute(SQL.update_process_info_not_exit(new_process_id))
+        #         else:  # other error
+        #             db.execute(SQL.update_process_info_error(new_process_id))
+        #     else:
+        #         db.execute(SQL.update_process_info_without_time(new_process_id, pi))
+        #     db.commit()
+        #     # process record
+        #     pr = wdc.process_record_cache(new_process_pid)
+        #     if wdc.is_error_happen(pr):
+        #         db.execute(SQL.insert_process_record_error(new_process_id))
+        #     else:
+        #         db.execute(SQL.insert_process_record(new_process_id, pr))
+        #     db.commit()
+
     def add_new_process(self, new_process_at_host_id, new_process_pid):
         """新添加的进程处理"""
         with DataBase() as db:
@@ -208,9 +238,7 @@ class ClientManager(object):
                 else:  # other error
                     db.execute(SQL.update_process_info_error(new_process_id))
             else:
-                print "process_info",
                 db.execute(SQL.update_process_info_without_time(new_process_id, pi))
-                print SQL.update_process_info_without_time(new_process_id, pi)
             db.commit()
             # process record
             pr = wdc.process_record_cache(new_process_pid)
@@ -340,5 +368,5 @@ class ClientManager(object):
 if __name__ == '__main__':
     c = ClientManager()
     # c.add_new_process(2, 27098)
-    # c.test_api()
-    c.manage_main_thread()
+    c.test_api()
+    # c.manage_main_thread()

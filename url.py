@@ -28,11 +28,10 @@ HANDLERS = [
     (r'/process/([0-9]+)', ProcessInfoHandler),  # 进程信息
     (r'/log', ProcessLogHandler),  # 进程日志
     (r'/alert', AlertHandler),  # 监控告警
-    (r'/manage/host', HostManage),  # 主机管理
     (r'/manage/process', ProcessManage),  # 进程管理
     (r'/host/all', AllHostHandler),  # 某用户所有关联主机信息
     (r'/process/all', AllProcessHandler),  # 某主机所有进程信息
-    (r'/client', ClientDownloadHandler),  # 远程客户端下载链接
-    (r'/client/script', ClientScriptDownloadHandler),  # 远程客户端部署脚本
+    (r'/client/Watch_Dogs-Client.tar.gz', ClientDownloadHandler),  # 远程客户端下载链接
+    (r'/client/ClientSetup.sh', ClientScriptDownloadHandler),  # 远程客户端部署脚本
     (r'.*', NotFoundHandler)  # 404
 ]

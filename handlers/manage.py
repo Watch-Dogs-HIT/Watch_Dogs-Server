@@ -13,15 +13,6 @@ from handlers import BaseHandler
 from models.SQL_generate import SQL
 
 
-class HostManage(BaseHandler):
-    """/manage/host"""
-
-    @gen.coroutine
-    @tornado.web.authenticated
-    def get(self, *args, **kwargs):
-        pass
-
-
 class ProcessManage(BaseHandler):
     """/manage/process"""
 

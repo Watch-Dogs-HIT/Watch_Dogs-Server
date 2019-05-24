@@ -96,13 +96,6 @@ def start_process(host, user, password, port, process_path=None, start_cmd=None)
 
 def remote_client_setup(host, user, password, port):
     """部署远程客户端安装脚本"""
-    print host, user, password, port
+    # note : 适配各种环境工作太繁琐, 改为用户手动添加进程
     return {"error": "err", "status": "init_error"}
 
-
-if __name__ == '__main__':
-    # Demo
-    pass
-    # res = start_process("10.245.146.201", "root", "19950705", 22, process_path="/home/houjie",
-    #                    start_cmd="nohup python -u test.py &")
-    print kill_process("10.245.146.202", "houjie", "19950705", 22, 22809)

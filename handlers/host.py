@@ -27,8 +27,6 @@ class HostHandler(BaseHandler):
         try:
             request = self.get_request_json()
             res = yield self.data.add_host(self.uid, **request)
-            if res["client"]:  # 如果远程主机部署成功, 则立刻获取当前的主机状态和资源记录; 并添加到数据库中
-                pass  # some code here
             self.finish(res)
         except Exception as err:
             self.finish({"error": str(err)})
@@ -53,7 +51,7 @@ class HostInfoHandler(BaseHandler):
     @tornado.web.authenticated
     def put(self, host_id):
         """更新主机信息"""
-        # todo : 需要这个功能吗?
+        # todo : 让cliemt_manage 重新构建链接 并刷新当前主机的数据
 
     @gen.coroutine
     @tornado.web.authenticated

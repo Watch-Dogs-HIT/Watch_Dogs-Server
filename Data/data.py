@@ -231,32 +231,29 @@ class Data(object):
                                                     request_json["host_port"]))
             host_id = yield self.db.query_one(SQL.check_host_exist(request_json["host_ip"], request_json["host_user"]))
             host_id = host_id["host_id"]
-            res.append("主机记录添加成功, 当前主机ID为{host_id}".format(host_id=host_id))
+            res.append("[OK] 主机记录添加成功, 当前主机ID为{host_id}".format(host_id=host_id))
             # 初始化主机记录
             yield self.db.execute(SQL.insert_host_record_error(host_id))
-            res.append("主机资源记录初始化...成功")
+            res.append("[OK] 主机资源记录初始化...成功")
         else:  # 添加过主机
             host_id = host_exist["host_id"]
-            res.append("主机记录添加成功, 此主机已经被监控过")
+            res.append("[WARN] 主机记录添加成功, 此主机已经被监控过")
         # 添加用户与主机记录
         relation_exist = yield self.db.query_one(SQL.check_user_host_relation(uid, host_id))
         if not relation_exist:  # 尚未添加过记录
             yield self.db.query_one(
                 SQL.add_user_host_relation(uid, host_id, request_json["host_comment"], request_json["host_type"]))
-            res.append("主机与当前用户关联关系添加...成功")
+            res.append("[OK] 主机与当前用户关联关系添加...成功")
         else:  # 添加过记录
-            res.append("用户已经关注了当前主机")
-        # 远程部署客户端
-        r = remote_client_setup(request_json["host_ip"], request_json["host_user"],
-                                request_json["host_password"], request_json["host_port"])
-        if "error" in r:
-            res.append("远程主机监控客户端部署失败!")
-            res.append("[ERROR] 远程主机添加过程完成, 添加结果:失败! (请联系管理员)")
-            raise gen.Return({"result": res, "client": False})
-        else:
-            res.append("远程主机监控客户端部署...成功")
-            res.append("[OK] 远程主机添加过程完成, 添加结果:成功")
-            raise gen.Return({"result": res, "client": True})
+            res.append("[WARN] 用户已经关注了当前主机")
+        # 远程部署客户端, 改为用户自行部署
+        res.append("[手动部署] 由于自动化部署时间过长, 容易出现http链接断开的异常, 请手动登录该虚拟机并登录到root")
+        res.append("[手动部署] 执行如下命令 curl http://10.245.146.202:8013/client/ClientSetup.sh | sh")
+        res.append("[手动部署] 待命令执行完毕后, 系统当前路径的 .Watch_Dogs-Client 文件夹下")
+        res.append("[手动部署] 并且系统会新增一个名为 python -u Watch_Dogs-Client.py 的进程, 此为监控进程, 切勿关闭")
+        res.append("[手动部署] 完成后, 刷新当前页面并选择新添加的主机之后, 点击下方的更新信息即可获取当前主机的相关数据")
+        res.append("[OK] 主机添加完成, 请根据上方提示进行操作后刷新")
+        raise gen.Return({"result": res})
 
     @gen.coroutine
     def delete_host(self, user_id, host_id):
