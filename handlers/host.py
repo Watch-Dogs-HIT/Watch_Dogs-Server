@@ -54,12 +54,12 @@ class HostInfoHandler(BaseHandler):
         # 更新远程客户端数据
         if str(host_id) not in self.remote_api.client:
             self.remote_api.update_remote_api_conf()  # 重新读取数据库,构建远程客户端连接
-        sql1, sql2 = self.remote_api.add_new_host(host_id)
+        sql1, sql2, host_api_status = self.remote_api.add_new_host(host_id)
         print sql1
         print sql2
         yield self.db.execute(sql1)
         yield self.db.execute(sql2)
-        self.finish({"host_id": host_id})
+        self.finish({"host_id": host_id, "status": host_api_status})
 
     @gen.coroutine
     @tornado.web.authenticated

@@ -187,6 +187,7 @@ class ClientManager(object):
     def add_new_host(self, new_host_id):
         """新添加的主机处理"""
         # 获取 host_id
+        status = True
         new_host_id = str(new_host_id)
         # host info
         wdc = self.client[str(new_host_id)]
@@ -195,6 +196,7 @@ class ClientManager(object):
             logger_client_manage.error("Error : #" + str(new_host_id) + " WDC host info get error")
             logger_client_manage.error("Error details: " + str(hi))
             sql1 = SQL.update_host_info_error(new_host_id)  # 更新主机状态为异常
+            status = False
         else:
             logger_client_manage.info("update #" + str(new_host_id) + " system info")
             sql1 = SQL.update_host_info(hi)
@@ -204,10 +206,11 @@ class ClientManager(object):
             logger_client_manage.error("Error : #" + str(new_host_id) + " WDC host record get error")
             logger_client_manage.error("Error details: " + str(hr))
             sql2 = SQL.update_host_info_error(new_host_id)  # 更新主机状态为异常
+            status = False
         else:
             logger_client_manage.info("insert #" + str(new_host_id) + " system record")
             sql2 = SQL.insert_host_record(new_host_id, hr)
-        return sql1, sql2
+        return sql1, sql2, status
 
     def add_new_process(self, new_process_at_host_id, new_process_pid):
         """新添加的进程处理"""
