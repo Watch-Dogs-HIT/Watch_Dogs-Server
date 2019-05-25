@@ -4,7 +4,7 @@ echo "============= 当前路径:" `pwd`
 echo -n `date "+%Y-%m-%d %H:%M:%S"` "============= 进程状态 : "
 if test $( ps ax | grep Watch_Dogs-Client.py | grep -v grep | wc -l ) -eq 1;
 then
-    echo "[错误] 监控进程已存在"
+    echo "[错误] 监控进程已存在, 请继续之后的步骤即可"
     return 0
 else
     echo "监控进程未存在"
