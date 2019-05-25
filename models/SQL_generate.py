@@ -202,19 +202,19 @@ class SQL(object):
     @staticmethod
     def insert_process_record(process_id, process_record):
         """插入进程记录"""
-        # 去除单引号
+        net_upload_kbps = max(process_record['net_recent'][0], process_record['net'][0])
+        net_download_kbps = max(process_record['net_recent'][1], process_record['net'][1])
         return ("""INSERT INTO `Watch_Dogs`.`Process_record`(`process_id`, `cpu`, `mem`, `read_MBs`,"""
                 """`write_MBs`, `net_upload_kbps`, `net_download_kbps`) VALUES ("""
                 """{id}, {c}, {m}, {r}, {w}, {u}, {d})""").format(
             id=process_id, c=process_record['cpu'], m=process_record['mem'],
             r=process_record['io'][0], w=process_record['io'][1],
-            u=process_record['net_recent'][0], d=process_record['net_recent'][1]
+            u=net_upload_kbps, d=net_download_kbps
         )
 
     @staticmethod
     def insert_process_record_error(process_id):
         """插入进程记录_错误"""
-        # 去除单引号
         return ("""INSERT INTO `Watch_Dogs`.`Process_record`(`process_id`, `cpu`, `mem`, `read_MBs`,"""
                 """`write_MBs`, `net_upload_kbps`, `net_download_kbps`) VALUES ("""
                 """{id}, 0, 0, 0, 0, 0, 0)""").format(id=process_id)
