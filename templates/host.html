@@ -275,7 +275,8 @@
                                                                 <span style="color: orange">注意 : 请勿在右侧文本提示完成前刷新页面 <br/><br/></span>
                                                                 <span style="color: grey">流程 :<br/>
                                                                     1. 使用root用户登录,以保证进程关闭/重启功能的正常运作<br/>
-                                                                    2. 使用root权限执行如下命令即可完成部署 curl http://10.245.146.202:8013/client/ClientSetup.sh | sh<br/>
+                                                                    2. 使用root权限执行如下命令即可完成部署 <br />
+                                                                    <strong>curl http://10.245.146.202:8013/client/ClientSetup.sh | sh</strong><br/>
                                                                     3. 添加远程客户端后会在默认文件夹下创建一个名为.Watch_Dogs-Client的监控系统目录, 自动设置为隐藏文件夹, 请勿删除<br/>
                                                                     4. 同时远程Linux主机上会多出一个名为Watch_Dogs-Client.py 的监控进程, 请勿关闭, 否则远程监控功能将失效<br/>
                                                                 </span>
@@ -669,7 +670,7 @@
             dataType: "json",
             success: function (res) {
                 console.log(res);
-                // setTimeout('window.location.reload()', 500);
+                setTimeout('window.location.reload()', 500);
             },
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态");

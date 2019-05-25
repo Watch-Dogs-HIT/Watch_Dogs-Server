@@ -186,35 +186,28 @@ class ClientManager(object):
 
     def add_new_host(self, new_host_id):
         """新添加的主机处理"""
-        # with DataBase() as db:
-        #     # 获取 process_id
-        #     new_process_pid = str(new_process_pid)
-        #     new_process_at_host_id = str(new_process_at_host_id)
-        #     new_process_id = -1
-        #     for process_id, process_host_id, process_pid, process_cmd in self.process_info_list:
-        #         if new_process_at_host_id == process_host_id and new_process_pid == process_pid:  # 找到新添加的进程
-        #             new_process_id = process_id
-        #             break
-        #     # watch process
-        #     wdc = self.client[str(new_process_at_host_id)]
-        #     wdc.watch_process(new_process_pid)
-        #     # process info
-        #     pi = wdc.process_info(new_process_pid)
-        #     if wdc.is_error_happen(pi):
-        #         if pi["Error"].find("process no longer exists") != -1:  # 进程崩溃
-        #             db.execute(SQL.update_process_info_not_exit(new_process_id))
-        #         else:  # other error
-        #             db.execute(SQL.update_process_info_error(new_process_id))
-        #     else:
-        #         db.execute(SQL.update_process_info_without_time(new_process_id, pi))
-        #     db.commit()
-        #     # process record
-        #     pr = wdc.process_record_cache(new_process_pid)
-        #     if wdc.is_error_happen(pr):
-        #         db.execute(SQL.insert_process_record_error(new_process_id))
-        #     else:
-        #         db.execute(SQL.insert_process_record(new_process_id, pr))
-        #     db.commit()
+        # 获取 host_id
+        new_host_id = str(new_host_id)
+        # host info
+        wdc = self.client[str(new_host_id)]
+        hi = wdc.host_info()
+        if wdc.is_error_happen(hi):
+            logger_client_manage.error("Error : #" + str(new_host_id) + " WDC host info get error")
+            logger_client_manage.error("Error details: " + str(hi))
+            sql1 = SQL.update_host_info_error(new_host_id)  # 更新主机状态为异常
+        else:
+            logger_client_manage.info("update #" + str(new_host_id) + " system info")
+            sql1 = SQL.update_host_info(hi)
+        # host record
+        hr = wdc.host_record()
+        if wdc.is_error_happen(hr):
+            logger_client_manage.error("Error : #" + str(new_host_id) + " WDC host record get error")
+            logger_client_manage.error("Error details: " + str(hr))
+            sql2 = SQL.update_host_info_error(new_host_id)  # 更新主机状态为异常
+        else:
+            logger_client_manage.info("insert #" + str(new_host_id) + " system record")
+            sql2 = SQL.insert_host_record(new_host_id, hr)
+        return sql1, sql2
 
     def add_new_process(self, new_process_at_host_id, new_process_pid):
         """新添加的进程处理"""
@@ -370,5 +363,5 @@ class ClientManager(object):
 if __name__ == '__main__':
     c = ClientManager()
     # c.add_new_process(2, 27098)
-    c.test_api()
-    # c.manage_main_thread()
+    # c.test_api()
+    c.manage_main_thread()
