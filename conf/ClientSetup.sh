@@ -37,8 +37,8 @@ then
     # 安装依赖环境
     sudo apt-get install python-pip -y  # 不兼容yum...
     echo `date "+%Y-%m-%d %H:%M:%S"` "============= 使用pip部署安装环境, 当前PIP版本 : " `pip -V 2>&1`
-    pip install Flask
-    pip install tornado
+    sudo pip install Flask
+    sudo pip install tornado
     # 网络监控能力
     echo `date "+%Y-%m-%d %H:%M:%S"` "============= 部署系统网络监控能力 - nethogs"
     sudo apt-get install build-essential libncurses5-dev libpcap-dev -y
@@ -52,6 +52,6 @@ then
 else
     echo "系统安装包已经存在, 请检查系统是否已经部署, 重启监控进程..."
     cd .Watch_Dogs-Client
-    nohup python -u Watch_Dogs-Client.py &
-    echo `date "+%Y-%m-%d %H:%M:%S"` "============= 监控客户端启动完成"
+    nohup sh RunClient.sh &
+    echo `date "+%Y-%m-%d %H:%M:%S"` "============= 监控客户端启动完成, 检测脚本启动完成"
 fi
