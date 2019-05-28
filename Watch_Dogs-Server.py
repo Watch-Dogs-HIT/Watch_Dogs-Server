@@ -56,10 +56,6 @@ tornado.options.parse_command_line()
 app = createApp()
 
 if __name__ == '__main__':
-    # # Alert Demo
-    # app.AlertMonitor()
-    # app.remote_api.manage_main_thread()
-
     # Web Server
     server = tornado.httpserver.HTTPServer(app)
     server.listen(Setting.PORT)

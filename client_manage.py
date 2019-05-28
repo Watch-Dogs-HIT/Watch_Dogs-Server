@@ -365,6 +365,5 @@ class ClientManager(object):
 
 if __name__ == '__main__':
     c = ClientManager()
-    # c.add_new_process(2, 27098)
     # c.test_api()
     c.manage_main_thread()
