@@ -255,8 +255,14 @@
                 // host_table
                 for (let host_record of res["recent_host_record"]) {
                     let host_record_tr = $("<tr onclick=\"transition2host(this)\"></tr>");
+                    let host_id_td = "";
+                    if (host_record["status"] === 1) {
+                        host_id_td = `<td style="color: green"><strong>${host_record["host_id"]}</strong></td>`;
+                    } else {
+                        host_id_td = `<td style="color: red"><strong>${host_record["host_id"]}</strong></td>`;
+                    }
                     host_record_tr.append(
-                        `<td>${host_record["host_id"]}</td>`,
+                        host_id_td,
                         `<td>${host_record["comment"]}</td>`,
                         `<td>${host_record["intranet_ip"]}</td>`,
                         `<td>${host_record["extranet_ip"]}</td>`,
@@ -271,8 +277,16 @@
                 // process_table
                 for (let process_record of res["recent_process_record"]) {
                     let process_record_tr = $("<tr onclick=\"transition2process(this)\"></tr>");
+                    let process_id_td = "";
+                    if (process_record["state"] === "0") {
+                        process_id_td = `<td style="color: orange"><strong>${process_record["process_id"]}</strong></td>`;
+                    } else if (process_record["state"] === "X") {
+                        process_id_td = `<td style="color: red"><strong>${process_record["process_id"]}</strong></td>`;
+                    } else {
+                        process_id_td = `<td style="color: green"><strong>${process_record["process_id"]}</strong></td>`;
+                    }
                     process_record_tr.append(
-                        `<td>${process_record["process_id"]}</td>`,
+                        process_id_td,
                         `<td>${process_record["host_id"]}</td>`,
                         `<td>${process_record["comment"]}</td>`,
                         `<td>${process_record["type"]}</td>`,
