@@ -65,7 +65,7 @@ def send_alert_email(receiver, receiver_user_name="user", alert_object="", alert
         smtpObj.quit()
         email_log.info("向 " + receiver + "(" + receiver_user_name + ") 发送了告警邮件 有关:" + str(alert_object) +
                        " - " + str(alert_condition))
-    except smtplib.SMTPException as err:
+    except Exception as err:
         email_log.error("邮件发送异常 : " + str(err))
         email_log.error(
             "详情:to" + str(receiver) + "内容:" + str(alert_object) + "/" + str(alert_condition) + "/" + str(alert_details))
