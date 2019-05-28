@@ -47,7 +47,7 @@ then
     cd nethogs && make libnethogs && sudo make install_dev
     # 启动检测进程
     cd ..
-    nohup python -u Watch_Dogs-Client.py &
+    nohup sh RunClient.sh &
     echo `date "+%Y-%m-%d %H:%M:%S"` "============= 监控客户端启动完成"
 else
     echo "系统安装包已经存在, 请检查系统是否已经部署, 重启监控进程..."
