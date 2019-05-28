@@ -532,7 +532,7 @@
                 }
 
                 // 绘图
-                echarts.init(document.getElementById('cpu_graph')).setOption(cpu_table_option);
+                echarts.init(document.getElementById('cpu_graph')).setOption(cpu_table_option, true);
 
                 // 内存
                 let mem_table_option = init_echarts_graph_data("进程内存占用 M");
@@ -548,7 +548,7 @@
                     mem_table_option.series[0].data.unshift(hi["mem"]); // Y轴内存占用率
                 }
                 // 绘图
-                echarts.init(document.getElementById('mem_graph')).setOption(mem_table_option);
+                echarts.init(document.getElementById('mem_graph')).setOption(mem_table_option, true);
                 // 内存下方文字
                 $("#mem_max_size").text(res["host_info"]["mem_M"]);
 
@@ -575,7 +575,7 @@
                     net_table_option.series[1].data.unshift(hi["net_download_kbps"]);
                 }
                 // 绘图
-                echarts.init(document.getElementById('net_graph')).setOption(net_table_option);
+                echarts.init(document.getElementById('net_graph')).setOption(net_table_option, true);
 
                 // 磁盘
                 let io_table_option = init_echarts_graph_data("主机磁盘读写 MB/s");
@@ -600,10 +600,10 @@
                     io_table_option.series[1].data.unshift(hi["write_MBs"]);
                 }
                 // 绘图
-                echarts.init(document.getElementById('io_graph')).setOption(io_table_option);
+                echarts.init(document.getElementById('io_graph')).setOption(io_table_option, true);
 
                 // 展示日志相关内容
-                show_process_log(current_process_at_host_id, res["process_info"]["log_path"])
+                show_process_log(current_process_at_host_id, res["process_info"]["log_path"]);
 
                 // 更新信息
                 $("#current_process").text($("#process_select_btn").text());

@@ -370,7 +370,7 @@
                 }
                 // 添加选择主机按钮
                 for (let host_relation of res["relation"])
-                    $("#host_select_id").append("<li><a href=\"#\">" + host_relation["select_str"] + "</a></li>");
+                    $("#host_select_id").append("<li><a>" + host_relation["select_str"] + "</a></li>");
                 // 展示主机信息,如果#后面的host_id无效,则展示第一个主机
                 if (current_host_id === -1) {
                     $("#host_select_btn").text(res["relation"][0]["select_str"]);
@@ -419,6 +419,8 @@
 
     // 展示选中主机数据
     function show_host_data(host_id) {
+        location.replace("#" + current_host_id); // 修改url
+        $("#update_host_btn").attr("href", "#" + current_host_id);
         // 获取主机数据
         $.ajax({
             type: 'get',
@@ -518,7 +520,7 @@
                     }
                 }
                 // 绘图
-                echarts.init(document.getElementById('cpu_graph')).setOption(cpu_table_option);
+                echarts.init(document.getElementById('cpu_graph')).setOption(cpu_table_option, true);
                 // 图标下方文字
                 let cpu_info_ui = $("#cpu_info");
                 // 清空所有子元素
@@ -541,7 +543,7 @@
                     mem_table_option.series[0].data.unshift(hi["mem"]); // Y轴内存占用率
                 }
                 // 绘图
-                echarts.init(document.getElementById('mem_graph')).setOption(mem_table_option);
+                echarts.init(document.getElementById('mem_graph')).setOption(mem_table_option, true);
                 // 内存下方文字
                 $("#mem_max_size").text(res["host_info"]["mem_M"]);
 
@@ -568,7 +570,7 @@
                     net_table_option.series[1].data.unshift(hi["net_download_kbps"]);
                 }
                 // 绘图
-                echarts.init(document.getElementById('net_graph')).setOption(net_table_option);
+                echarts.init(document.getElementById('net_graph')).setOption(net_table_option, true);
                 // 网络下方文字
                 $("#net_device").text(res["host_info"]["default_net_device"]);
 
@@ -595,7 +597,7 @@
                     io_table_option.series[1].data.unshift(hi["write_MBs"]);
                 }
                 // 绘图
-                echarts.init(document.getElementById('io_graph')).setOption(io_table_option);
+                echarts.init(document.getElementById('io_graph')).setOption(io_table_option, true);
                 // 磁盘下方文字
                 $("#disk_size").text(res["host_info"]["disk_total_size"]);
 
@@ -656,8 +658,6 @@
         } else {
             add_host_log_text.append("<br />[错误] 请完整填写主机相关信息");
         }
-
-
     });
 
     // 更新主机信息
@@ -670,13 +670,12 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (res) {
-                console.log(res);
                 if (res["status"]) {
-                    setTimeout('window.location.reload()', 500);
+                    show_host_data(current_host_id);
                 } else {
                     alert("[错误] 远程客户端连接超时, 请登录远程主机检查监控进程是否存在")
                 }
-
+                console.log("222" + current_host_id);
             },
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态");
@@ -696,8 +695,7 @@
             dataType: "json",
             success: function (res) {
                 alert("删除主机成功, 即将刷新页面");
-                console.log(res);
-                setTimeout('window.location.reload()', 500);
+                setTimeout('window.location.reload()', 200);
             },
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态");
