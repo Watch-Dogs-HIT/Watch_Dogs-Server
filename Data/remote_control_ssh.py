@@ -98,4 +98,3 @@ def remote_client_setup(host, user, password, port):
     """部署远程客户端安装脚本"""
     # note : 适配各种环境工作太繁琐, 改为用户手动添加进程
     return {"error": "err", "status": "init_error"}
-
