@@ -59,7 +59,7 @@ Watch_Dogs 是一个CS架构, 底层基于Linux /proc文件系统的, 通过Pyth
 
 ## WIKI
 若想获取更详尽的环境配置, 异常处理, 各个功能的使用说明.    
-请参见该项目 [中文wiki]([https://github.com/Watch-Dogs-HIT/Watch_Dogs-Server/wiki](https://github.com/Watch-Dogs-HIT/Watch_Dogs-Server/wiki)
+请参见该项目 [中文wiki](https://github.com/Watch-Dogs-HIT/Watch_Dogs-Server/wiki)
 
 ## 各部分源码地址
 下面是该项目的所有源码地址
