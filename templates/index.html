@@ -261,6 +261,12 @@
                     } else {
                         host_id_td = `<td style="color: red"><strong>${host_record["host_id"]}</strong></td>`;
                     }
+                    let net_td = "";
+                    if (host_record["net_upload_kbps"] < 0) {
+                        net_td = `<td><span style="color: grey">暂无</span></td>`;
+                    } else {
+                        net_td = `<td>${host_record["net_upload_kbps"]}/${host_record["net_download_kbps"]}</td>`;
+                    }
                     host_record_tr.append(
                         host_id_td,
                         `<td>${host_record["comment"]}</td>`,
@@ -268,7 +274,7 @@
                         `<td>${host_record["extranet_ip"]}</td>`,
                         `<td>${host_record["CPU"]} %</td>`,
                         `<td>${host_record["mem"]} %</td>`,
-                        `<td>${host_record["net_upload_kbps"]}/${host_record["net_download_kbps"]}</td>`,
+                        net_td,
                         `<td>${host_record["read_MBs"]}/${host_record["write_MBs"]}</td>`,
                         `<td>${host_record["update_time"]}</td>`
                     );
@@ -285,6 +291,12 @@
                     } else {
                         process_id_td = `<td style="color: green"><strong>${process_record["process_id"]}</strong></td>`;
                     }
+                    let net_td = "";
+                    if (process_record["net_upload_kbps"] < 0) {
+                        net_td = `<td><span style="color: grey">暂无</span></td>`;
+                    } else {
+                        net_td = `<td>${process_record["net_upload_kbps"]}/${process_record["net_download_kbps"]}</td>`;
+                    }
                     process_record_tr.append(
                         process_id_td,
                         `<td>${process_record["host_id"]}</td>`,
@@ -295,7 +307,7 @@
                         `<td>${process_record["thread_num"]}</td>`,
                         `<td>${process_record["cpu"]} %</td>`,
                         `<td>${process_record["mem"]} M</td>`,
-                        `<td>${process_record["net_upload_kbps"]}/${process_record["net_download_kbps"]}</td>`,
+                        net_td,
                         `<td>${process_record["read_MBs"]}/${process_record["write_MBs"]}</td>`,
                         `<td>${process_record["update_time"]}</td>`
                     );

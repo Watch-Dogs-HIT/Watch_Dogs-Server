@@ -111,12 +111,13 @@
                                                 <li class="active"><a class="proc_res_title" href="#CPU"
                                                                       data-toggle="tab">CPU</a>
                                                 </li>
-                                                <li class=""><a class="proc_res_title" href="#Memory" data-toggle="tab">Memory</a>
+                                                <li class=""><a class="proc_res_title" href="#Memory" data-toggle="tab">内存</a>
                                                 </li>
                                                 <li class=""><a class="proc_res_title" href="#Net"
-                                                                data-toggle="tab">Net</a>
+                                                                data-toggle="tab" id="net_div">网络</a>
                                                 </li>
-                                                <li class=""><a class="proc_res_title" href="#Disk" data-toggle="tab">Disk</a>
+                                                <li class=""><a class="proc_res_title" href="#Disk"
+                                                                data-toggle="tab">磁盘</a>
                                                 </li>
                                             </ul>
                                             <div class="tab-content">
@@ -430,7 +431,7 @@
                     current_process_at_host_id = res["relation"][0]["host_id"];
                 }
 
-                show_host_data(current_process_id);
+                show_process_data(current_process_id);
             },
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态");
@@ -472,7 +473,7 @@
     }
 
     // 展示选中进程数据
-    function show_host_data(process_id) {
+    function show_process_data(process_id) {
         // 获取进程数据
         $.ajax({
             type: 'get',
@@ -482,6 +483,15 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (res) {
+                // 获取当前资源
+                let now_process_record = res["process_records"][(res["process_records"].length - 1)];
+                // 无法获取网络情况的时候隐藏网络标签页
+                let now_process_record_net = now_process_record["net_upload_kbps"];
+                if (now_process_record_net < 0) {
+                    $("#net_div").hide();
+                } else {
+                    $("#net_div").show();
+                }
                 // 状态提示框
                 if (res["process_info"]["state"] == "X") {
                     $("#process_state").removeClass();
@@ -737,7 +747,7 @@
                 break;
             }
         }
-        show_host_data(current_process_id);
+        show_process_data(current_process_id);
     });
 
     // 初始化所有能添加进程的主机
