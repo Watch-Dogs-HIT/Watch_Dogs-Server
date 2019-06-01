@@ -1,0 +1,858 @@
+{
+	"info": {
+		"_postman_id": "c6632f2c-4761-4858-8189-7b75f7396fca",
+		"name": "Watch_Dogs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "client",
+			"item": [
+				{
+					"name": "远程客户端",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"disabled": false
+							}
+						],
+						"url": {
+							"raw": "http://10.245.146.202:8000/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"245",
+								"146",
+								"202"
+							],
+							"port": "8000",
+							"path": [
+								""
+							]
+						},
+						"description": "client"
+					},
+					"response": []
+				},
+				{
+					"name": "157 客户端",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://10.245.146.157:8000",
+							"protocol": "http",
+							"host": [
+								"10",
+								"245",
+								"146",
+								"157"
+							],
+							"port": "8000"
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "201 客户端",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://10.245.146.201:8000/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"245",
+								"146",
+								"201"
+							],
+							"port": "8000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "161 客户端",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://10.245.146.161:8000/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"245",
+								"146",
+								"161"
+							],
+							"port": "8000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "168 客户端",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://10.245.146.168:8000/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"245",
+								"146",
+								"168"
+							],
+							"port": "8000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "169 客户端",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://10.245.146.169:8000/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"245",
+								"146",
+								"169"
+							],
+							"port": "8000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "170 客户端",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://10.245.146.170:8000/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"245",
+								"146",
+								"170"
+							],
+							"port": "8000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "174 客户端",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://10.245.146.174:8000/",
+							"protocol": "http",
+							"host": [
+								"10",
+								"245",
+								"146",
+								"174"
+							],
+							"port": "8000",
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "登出",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://10.245.146.202:8013/login",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"login"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": ""
+						}
+					]
+				},
+				"description": "logout"
+			},
+			"response": []
+		},
+		{
+			"name": "登录",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"user\":\"houjie\",\n\t\"password\":\"19950705\"\n}"
+				},
+				"url": {
+					"raw": "http://10.245.146.202:8013/login",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "更新用户信息",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"update_field\":\"password\",\n\t\"update_value\":\"123456\",\n\t\"update_uid\":7\n}"
+				},
+				"url": {
+					"raw": "http://10.245.146.202:8013/user",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "注册",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"user\":\"houjie-test2\",\n\t\"password\":\"19950705\"\n}"
+				},
+				"url": {
+					"raw": "http://10.245.146.202:8013/user",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "用户信息[管理员]",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.245.146.202:8013/user/admin",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"user",
+						"admin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "添加进程",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"host\":\"10.245.146.202\",\n\t\"pid\":\"32582\",\n\t\"type\":\"数据库\",\n\t\"comment\":\"MongoDB数据库\"\n}"
+				},
+				"url": {
+					"raw": "http://10.245.146.202:8013/process",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"process"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "进程信息",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.245.146.202:8013/process/2",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"process",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "主机信息",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.245.146.202:8013/host/2",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"host",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "首页数据",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.245.146.202:8013/index",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"index"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "用户所有主机",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.245.146.202:8013/host/0",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"host",
+						"0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "删除主机",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://10.245.146.202:8013/host/2",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"host",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "404",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.245.146.202:8013/404",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"404"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "用户所有进程",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.245.146.202:8013/process/0",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"process",
+						"0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "进程信息",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.245.146.202:8013/process/2",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"process",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "获取日志状态",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"host_id\":2,\n\t\"path\":\"/home/houjie/Watch_Dogs/Watch_Dogs-Server/Watch_Dogs-Server.log\"\n}"
+				},
+				"url": {
+					"raw": "http://10.245.146.202:8013/log",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"log"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "搜索日志关键词",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"host_id\":2,\n\t\"path\":\"/home/houjie/Watch_Dogs/Watch_Dogs-Server/Watch_Dogs-Server.log\",\n\t\"key_word\":\"ERROR\"\n}"
+				},
+				"url": {
+					"raw": "http://10.245.146.202:8013/log",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"log"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "监控页面数据",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://10.245.146.202:8013/alert",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"alert"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "更新预警规则",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"mem_gt\": \"\", \"cpu_gt\": \"\", \"status_detect\": \"\", \"net_download_kbps_lt\": \"\", \"net_upload_kbps_lt\": \"\", \"mem_lt\": \"\", \"process_id\": \"-1\", \"host_id\": \"2\", \"net_download_kbps_gt\": \"\", \"cpu_lt\": \"\", \"net_upload_kbps_gt\": \"\"}"
+				},
+				"url": {
+					"raw": "http://10.245.146.202:8013/alert",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"alert"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "更新进程信息",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"process_start_com\": \"123\", \"process_path\": \"345\", \"process_comment\": \"123\", \"process_log_path\": \"111\", \"process_type\": \"222\"}\r\n"
+				},
+				"url": {
+					"raw": "http://10.245.146.202:8013/process/2",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"process",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "用户所有主机 (添加用)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.245.146.202:8013/host/all",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"host",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "主机所有进程(添加用)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"host_id\":2\n}"
+				},
+				"url": {
+					"raw": "http://10.245.146.202:8013/process/all",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"process",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "监控客户端下载链接",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.245.146.202:8013/client/Watch_Dogs-Client.tar.gz",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"client",
+						"Watch_Dogs-Client.tar.gz"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "添加主机",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"host_comment\": \"houjie-test\",\r\n\"host_ip\": \"10.245.146.201\",\r\n\"host_password\": \"19950705\",\r\n\"host_port\": \"22\",\r\n\"host_type\": \"虚拟化主机 1C2G\",\r\n\"host_user\": \"root\"\r\n}"
+				},
+				"url": {
+					"raw": "http://10.245.146.202:8013/host",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"host"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "监控客户端部署脚本下载链接",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://10.245.146.202:8013/client/ClientSetup.sh",
+					"protocol": "http",
+					"host": [
+						"10",
+						"245",
+						"146",
+						"202"
+					],
+					"port": "8013",
+					"path": [
+						"client",
+						"ClientSetup.sh"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
