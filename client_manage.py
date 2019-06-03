@@ -196,7 +196,9 @@ class ClientManager(object):
             logger_client_manage.error("Error : #" + str(new_host_id) + " WDC host info get error")
             logger_client_manage.error("Error details: " + str(hi))
             sql1 = SQL.update_host_info_error(new_host_id)  # 更新主机状态为异常
+            sql2 = ""
             status = False
+            return sql1, sql2, status
         else:
             logger_client_manage.info("update #" + str(new_host_id) + " system info")
             sql1 = SQL.update_host_info(hi)
@@ -207,6 +209,7 @@ class ClientManager(object):
             logger_client_manage.error("Error details: " + str(hr))
             sql2 = SQL.update_host_info_error(new_host_id)  # 更新主机状态为异常
             status = False
+            return sql1, sql2, status
         else:
             logger_client_manage.info("insert #" + str(new_host_id) + " system record")
             sql2 = SQL.insert_host_record(new_host_id, hr)

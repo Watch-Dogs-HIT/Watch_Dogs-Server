@@ -18,7 +18,7 @@
     "host_info_interval_hour": 1,
     "host_record_interval_min": 10,
     "old_date_clear_interval_day": 2,
-    "api_timeout": 8,
+    "api_timeout": 3,
     "save_last_n_days_data": 15,
     "refresh_conf_hour": 3
   },

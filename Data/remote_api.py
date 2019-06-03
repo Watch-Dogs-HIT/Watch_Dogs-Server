@@ -105,7 +105,10 @@ class Watch_Dogs_Client(object):
         host_info_data = {}
         # 收集主机数据
         try:
-            host_info_data.update(self.root())
+            host_root_data = self.root()  # 如果出现获取异常, 则不进行下面的数据获取
+            if "Error" in host_root_data:
+                return {"Error": "collect system info error (first) : " + str(host_root_data["Error"])}
+            host_info_data.update(host_root_data)
             host_info_data.update(self.sys_info())
             host_info_data["CPU_info"] = self.sys_cpu_info()
             host_info_data["mem_KB"] = self.sys_mem_size()
@@ -235,6 +238,7 @@ class Watch_Dogs_Client(object):
 
     # 有部分API功能尚未用到或改用SSH方式
     # 详见 : https://github.com/Watch-Dogs-HIT/Watch_Dogs-Client
+
 
 if __name__ == '__main__':
     c1 = Watch_Dogs_Client("10.245.146.201:8000")

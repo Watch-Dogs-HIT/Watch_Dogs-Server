@@ -56,7 +56,8 @@ class HostInfoHandler(BaseHandler):
             self.remote_api.update_remote_api_conf()  # 重新读取数据库,构建远程客户端连接
         sql1, sql2, host_api_status = self.remote_api.add_new_host(host_id)
         yield self.db.execute(sql1)
-        yield self.db.execute(sql2)
+        if sql2:
+            yield self.db.execute(sql2)
         self.finish({"host_id": host_id, "status": host_api_status})
 
     @gen.coroutine
