@@ -66,9 +66,9 @@ Watch_Dogs 是一个CS架构, 底层基于Linux /proc文件系统的, 通过Pyth
 
 1. [Watch_Dogs Server](https://github.com/Watch-Dogs-HIT/Watch_Dogs-Server) - 服务端, Web服务与远程客户端管理
 2. [Watch_Dogs Client](https://github.com/Watch-Dogs-HIT/Watch_Dogs-Client) - 远程客户端, 实现主机及进程监控 
-3. Watch_Dogs [Database](https://github.com/Watch-Dogs-HIT/Database) - 数据库, 数据库设计文档及备份
+3. [Watch_Dogs Database](https://github.com/Watch-Dogs-HIT/Database) - 数据库, 数据库设计文档及备份
 4. [Watch_Dogs](https://github.com/Watch-Dogs-HIT/Watch_Dogs) - 核心功能代码及文档
-5. Watch_Dogs [Doc](https://github.com/Watch-Dogs-HIT/Doc) - 相关文档
+5. [Watch_Dogs Doc](https://github.com/Watch-Dogs-HIT/Doc) - 相关文档
 6. [Watch_Dogs WebTemplate](https://github.com/Watch-Dogs-HIT/WebTemplate) - 前端模板
 ## 项目名称来源
 项目名称及LOGO来自于Ubisoft与2014年发布的动作冒险游戏 [Watch Dogs](https://www.ubisoft.com/en-us/game/watch-dogs/)
