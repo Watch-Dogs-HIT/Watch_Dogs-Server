@@ -82,7 +82,7 @@
             <small>远程Linux主机进程监控及管理</small>
         </h1>
         <div id="page-inner">
-            <div class="row">
+            <div class="row" id="process_div">
                 <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
@@ -254,7 +254,7 @@
 
                 </div>
             </div>
-            <div class="row">
+            <div class="row" id="process_manage_div">
                 <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-heading">
@@ -406,32 +406,39 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (res) {
+                $("#process_div").show();
                 user_all_process_relation = res;
-                if (select_process_id) {// 选择了主机id
-                    for (let process_relation of res["relation"]) {
-                        if (process_relation["process_id"] === select_process_id) {
-                            $("#process_select_btn").text(process_relation["select_str"]);
-                            current_process_at_host_id = process_relation["host_id"];
-                            current_process_id = process_relation["process_id"];
+                user_all_host_relation = res;
+                if ("error" in user_all_process_relation) {
+                    console.log(user_all_process_relation);
+                    $("#process_div").hide();
+                } else {
+                    if (select_process_id) {// 选择了主机id
+                        for (let process_relation of res["relation"]) {
+                            if (process_relation["process_id"] === select_process_id) {
+                                $("#process_select_btn").text(process_relation["select_str"]);
+                                current_process_at_host_id = process_relation["host_id"];
+                                current_process_id = process_relation["process_id"];
+                            }
                         }
+                    } else {// 设置默认进程
+                        $("#process_select_btn").text(res["relation"][0]["select_str"]);
+                        current_process_id = res["relation"][0]["process_id"];
+                        current_process_at_host_id = res["relation"][0]["host_id"];
                     }
-                } else {// 设置默认进程
-                    $("#process_select_btn").text(res["relation"][0]["select_str"]);
-                    current_process_id = res["relation"][0]["process_id"];
-                    current_process_at_host_id = res["relation"][0]["host_id"];
-                }
-                // 添加选择进程按钮
-                for (let process_relation of res["relation"]) {
-                    $("#process_select_id").append("<li><a href=\"#\">" + process_relation["select_str"] + "</a></li>");
-                }
-                // 展示进程信息,如果#后面的process_id无效,则展示第一个进程
-                if (current_process_id === -1) {
-                    $("#process_select_btn").text(res["relation"][0]["select_str"]);
-                    current_process_id = res["relation"][0]["process_id"];
-                    current_process_at_host_id = res["relation"][0]["host_id"];
-                }
+                    // 添加选择进程按钮
+                    for (let process_relation of res["relation"]) {
+                        $("#process_select_id").append("<li><a href=\"#\">" + process_relation["select_str"] + "</a></li>");
+                    }
+                    // 展示进程信息,如果#后面的process_id无效,则展示第一个进程
+                    if (current_process_id === -1) {
+                        $("#process_select_btn").text(res["relation"][0]["select_str"]);
+                        current_process_id = res["relation"][0]["process_id"];
+                        current_process_at_host_id = res["relation"][0]["host_id"];
+                    }
 
-                show_process_data(current_process_id);
+                    show_process_data(current_process_id);
+                }
             },
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态");
@@ -760,8 +767,13 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (res) {
-                for (let host of res["relation"]) {
-                    $("#new_process_at_host").append("<option>" + host["select_str"] + "</option>")
+                $("#process_manage_div").show();
+                if ("error" in res) {
+                    $("#process_manage_div").hide();
+                } else {
+                    for (let host of res["relation"]) {
+                        $("#new_process_at_host").append("<option>" + host["select_str"] + "</option>")
+                    }
                 }
             },
             error: function (msg) {

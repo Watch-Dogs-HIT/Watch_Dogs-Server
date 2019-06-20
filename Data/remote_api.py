@@ -239,7 +239,3 @@ class Watch_Dogs_Client(object):
     # 有部分API功能尚未用到或改用SSH方式
     # 详见 : https://github.com/Watch-Dogs-HIT/Watch_Dogs-Client
 
-
-if __name__ == '__main__':
-    c1 = Watch_Dogs_Client("10.245.146.201:8000")
-    c2 = Watch_Dogs_Client("10.245.146.201:8000")

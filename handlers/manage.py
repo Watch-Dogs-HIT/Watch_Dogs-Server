@@ -60,9 +60,12 @@ class AllHostHandler(BaseHandler):
     def get(self, *args, **kwargs):
         """用户所有关联主机"""
         res = yield self.data.all_user_host_relation(self.uid)
-        for hr in res["relation"]:
-            hr["select_str"] = hr["select_str"].split(" - ")[0].strip()
-        self.finish(res)
+        if "relation" in res:
+            for hr in res["relation"]:
+                hr["select_str"] = hr["select_str"].split(" - ")[0].strip()
+            self.finish(res)
+        else:
+            self.finish({"error": "user dont have any host"})
 
 
 class AllProcessHandler(BaseHandler):

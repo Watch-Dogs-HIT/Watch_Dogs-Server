@@ -81,7 +81,7 @@
         </h1>
         <div id="page-inner">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-12" id="host_div">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <div class="btn-group">
@@ -357,27 +357,34 @@
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (res) {
+                $("#host_div").show();
                 user_all_host_relation = res;
-                if (select_host_id) {// 选择了主机id
-                    for (let host_relation of res["relation"]) {
-                        if (host_relation["host_id"] === select_host_id) {
-                            $("#host_select_btn").text(host_relation["select_str"]);
-                            current_host_id = host_relation["host_id"];
+                if ("error" in user_all_host_relation) {
+                    console.log(user_all_host_relation);
+                    $("#host_div").hide();
+                } else {
+                    console.log(user_all_host_relation);
+                    if (select_host_id) {// 选择了主机id
+                        for (let host_relation of res["relation"]) {
+                            if (host_relation["host_id"] === select_host_id) {
+                                $("#host_select_btn").text(host_relation["select_str"]);
+                                current_host_id = host_relation["host_id"];
+                            }
                         }
+                    } else {// 设置默认主机
+                        $("#host_select_btn").text(res["relation"][0]["select_str"]);
+                        current_host_id = res["relation"][0]["host_id"];
                     }
-                } else {// 设置默认主机
-                    $("#host_select_btn").text(res["relation"][0]["select_str"]);
-                    current_host_id = res["relation"][0]["host_id"];
+                    // 添加选择主机按钮
+                    for (let host_relation of res["relation"])
+                        $("#host_select_id").append("<li><a>" + host_relation["select_str"] + "</a></li>");
+                    // 展示主机信息,如果#后面的host_id无效,则展示第一个主机
+                    if (current_host_id === -1) {
+                        $("#host_select_btn").text(res["relation"][0]["select_str"]);
+                        current_host_id = res["relation"][0]["host_id"];
+                    }
+                    show_host_data(current_host_id);
                 }
-                // 添加选择主机按钮
-                for (let host_relation of res["relation"])
-                    $("#host_select_id").append("<li><a>" + host_relation["select_str"] + "</a></li>");
-                // 展示主机信息,如果#后面的host_id无效,则展示第一个主机
-                if (current_host_id === -1) {
-                    $("#host_select_btn").text(res["relation"][0]["select_str"]);
-                    current_host_id = res["relation"][0]["host_id"];
-                }
-                show_host_data(current_host_id);
             },
             error: function (msg) {
                 alert("请求超时,请检查后台服务器状态");
