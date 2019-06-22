@@ -75,6 +75,9 @@ class Watch_Dogs_Client(object):
         except requests.exceptions.ConnectionError as err:
             logger_client.error("connect error : " + request_addr)
             return {"Error": "connect error at " + request_addr}
+        except Exception as err:
+            logger_client.error("connect error : " + request_addr)
+            return {"Error": "unexpected error at " + request_addr + " details : " + str(err)}
         return yaml.safe_load(r.text.encode("utf8"))
 
     def is_error_happen(self, res):
@@ -238,4 +241,3 @@ class Watch_Dogs_Client(object):
 
     # 有部分API功能尚未用到或改用SSH方式
     # 详见 : https://github.com/Watch-Dogs-HIT/Watch_Dogs-Client
-
